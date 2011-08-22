@@ -1,0 +1,5 @@
+from rsf.tex import *
+
+Paper('chapter',use='hyperref')
+
+End()

@@ -2,3 +2,10 @@
 *.pdf
 *.rsf
 *.hh
+*.png
+*.jpeg
+*.ltx
+*.out
+*.aux
+*.log
+

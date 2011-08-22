@@ -1,0 +1,5 @@
+from rsf.tex import *
+
+Paper('book',use='hyperref',lclass='book',options='twoside')
+
+End()

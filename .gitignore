@@ -4,6 +4,7 @@
 *.hh
 *.png
 *.jpeg
+*.jpg
 *.ltx
 *.out
 *.aux

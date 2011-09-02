@@ -1,0 +1,308 @@
+from rsf.proj import *
+# Stiffness module has methods to convert Thomsen
+# parameters to Cij
+import stiffness
+
+# Define model dimensions 
+nx = 101; dx = 10.0; ox = 0.0
+ny = 101; dy = 10.0; oy = 0.0
+nz = 101; dz = 10.0; oz = 0.0
+nt = 1001; dt = 0.001; ot = 0.0
+# Wavelet parameters
+kt = 100
+frequency = 20
+# Model Thomsen parameters
+vp = 3000
+vs = 1500
+
+epsilon=0.1
+epsilon2=0.2
+
+delta = 0.2
+delta2=0.1
+delta3=0.05
+
+gamma = 0.3
+gamma2=0.18
+
+nu   = 15.0
+alpha = 20.0
+
+# Create the elastic wavelet
+# The modeling code supports many source types, for example:
+# stress, acceleration, etc.
+# This demonstrates the use of the stress type only.  For 
+# stress sources, we can only modify the diagonal components (principal
+# stresses.  For off-diagonal components, we need to use tensor source
+# type.  We use a Ricker wavelet for now, but other wavelets are possible.
+
+# Wavelet axes are: axis 1 - Source, axis 2 - component, axis 3 - time
+
+# This is the wavelet in 2D
+Flow('wavelet',None,
+    '''
+    spike n1=%d o1=%f d1=%f k1=%d l1=%d | 
+    ricker1 frequency=%f | spray axis=2 n=2 | transp plane=13
+    ''' % (nt,ot,dt,kt,kt+1,frequency))
+
+Flow('wava','wavelet',
+    '''
+    window n2=1 squeeze=n |  transp plane=23 
+    ''')
+# This is the wavelet in 3D
+Flow('wavelet3',None,
+    '''
+    spike n1=%d o1=%f d1=%f k1=%d l1=%d | 
+    ricker1 frequency=%f | spray axis=2 n=3 | transp plane=13
+    ''' % (nt,ot,dt,kt,kt+1,frequency))
+
+Plot('wavelet','transp | graph')
+
+# Make the source location in both 2D and 3D
+Flow('ss',None,
+    '''
+    spike n1=2 k1=1,2 l1=1,2 nsp=2 mag=%f,%f
+    ''' % (dx*nx/2,dz*nz/2))
+
+Flow('ss3',None,
+    '''
+    spike n1=3 k1=1,2,3 l1=1,2,3 nsp=3 mag=%f,%f,%f | put n2=1
+    ''' % (dx*nx/2,dy*ny/2,dz*nz/2))
+# Make the receiver location in both 2D and 3D
+Flow('rr',None,
+    '''
+    spike n1=2 k1=1,2 l1=1,2 nsp=2 mag=%f,%f
+    ''' % (dx*nx/2,dx*nz/2))
+
+Flow('rr3',None,
+    '''
+    spike n1=3 k1=1,2,3 l1=1,2,3 nsp=3 mag=%f,%f,%f | put n2=1
+    ''' % (dx*nx/2,dy*ny/2,dz*nz/2))
+
+
+# Function to make various model parameters
+def modelcubes(name,value):
+
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f | add add=%f
+        ''' % (nz,oz,dz,nx,ox,dx,value))
+
+    Flow(name+'3',name,
+        '''
+        spray n=%d axis=3 o=%f d=%f
+        ''' % (ny,oy,dy))
+
+modelcubes('vp',vp)
+modelcubes('vs',vs)
+modelcubes('del1',delta)
+modelcubes('del2',delta2)
+modelcubes('del3',delta3)
+modelcubes('eps1',epsilon)
+modelcubes('eps2',epsilon2)
+modelcubes('gam1',gamma)
+modelcubes('gam2',gamma2)
+modelcubes('nu',nu)
+modelcubes('alp',alpha)
+
+# Density needs to be handled carefully.  
+# We need different densities to compute the Thomsen parameters and
+# for the modeling code.  
+
+# Make density model for the Thomsen parameters
+Flow('ro','vp',
+    '''
+    math output="%f"
+    '''  % (1.0))
+
+Flow('ro3','ro',
+    '''
+    spray n=%d axis=3 o=%f d=%f
+    ''' % (ny,oy,dy))
+
+# Now interpolate the Thomsen density model for the elastic
+# modeling code.  We need to interpolate to the half grid (see documentation).
+
+# Madagascar has limited bidirectional interpolation methods so we just fake it here.
+# If you need to use variable density models, then make a model that is half-shifted
+# in addition to the regular density model.  Remember, bilinear interpolation may not
+# be appropriate for your model.  If your density model has hard boundaries (i.e. sharp
+# wrt the wavelet wavelength) then you will need to be careful doing interpolation.  
+# Otherwise, you can introduce artifacts into the modeling software.
+Flow('ro-win','ro',
+    '''
+    window n1=%d n2=%d
+    ''' % (nz-1,nx-1))
+
+Flow('ro3-win','ro3',
+    '''
+    window n1=%d n2=%d n3=%d
+    ''' % (nz-1,nx-1,ny-1))
+
+
+# Now that we have created the Thomsen parameter cubes, we construct the stiffness
+# coefficient cubes that actually go into the modeling software.  To do this,
+# we call the stiffness module.
+
+# Isotropic
+stiffness.iso2d('cciso','vp','vs','ro',None)
+stiffness.iso3d('cc3iso','vp3','vs3','ro3',None)
+
+# VTI
+stiffness.vti2d('ccvti','vp','vs','ro','eps1','del1',None)
+stiffness.vti3d('cc3vti','vp3','vs3','ro3','eps13','del13','gam13',None)
+
+# Orthorhombic
+stiffness.ort2d('ccort','vp','vs','ro','eps1','del1',None)
+stiffness.ort3d('cc3ort','vp3','vs3','ro3','eps13','eps23',
+    'del13','del23','del33',
+    'gam13','gam23',None)
+
+# TTI
+stiffness.tti2d('cctti','vp','vs','ro','eps1','del1','nu',None)
+stiffness.tti3d('cc3tti','vp3','vs3','ro3','eps13','del13','gam13','nu3','alp3',None)
+
+def ewefd(dat,wfl,wav,ccc,sou,rec,den,**kw):
+    # Python magic...
+  
+    arguments = [ item[0]+'='+str(int(item[1])) \
+        if type(item[1])==bool \
+        else item[0]+'='+str(item[1]) \
+        for item in kw.items() ]
+
+    Flow([dat,wfl],[wav,sou,rec,ccc,den],
+        '''
+        ewe_fixed
+        wfl=${TARGETS[1]}
+        sou=${SOURCES[1]}
+        rec=${SOURCES[2]}
+        ccc=${SOURCES[3]}
+        den=${SOURCES[4]}
+        ''' + ' '.join(arguments))
+def ewefd_old(dat,wfl,wav,ccc,sou,rec,den,**kw):
+    # Python magic...
+  
+    arguments = [ item[0]+'='+str(int(item[1])) \
+        if type(item[1])==bool \
+        else item[0]+'='+str(item[1]) \
+        for item in kw.items() ]
+
+    Flow([dat,wfl],[wav,sou,rec,ccc,den],
+        '''
+        ewe
+        wfl=${TARGETS[1]}
+        sou=${SOURCES[1]}
+        rec=${SOURCES[2]}
+        ccc=${SOURCES[3]}
+        den=${SOURCES[4]}
+        ''' + ' '.join(arguments))
+
+
+def awefd(dat,wfl,wav,ccc,sou,rec,den,**kw):
+    # Python magic...
+  
+    arguments = [ item[0]+'='+str(int(item[1])) \
+        if type(item[1])==bool \
+        else item[0]+'='+str(item[1]) \
+        for item in kw.items() ]
+
+    Flow([dat,wfl],[wav,sou,rec,ccc,den],
+        '''
+        awe
+        wfl=${TARGETS[1]}
+        sou=${SOURCES[1]}
+        rec=${SOURCES[2]}
+        vel=${SOURCES[3]}
+        den=${SOURCES[4]}
+        ''' + ' '.join(arguments))
+
+
+
+awefd('a2d-dat','a2d-wfl','wava','vp','ss','rr','ro',
+        snap=True,jsnap=5,dabc=True,nb=20,
+        cfl=False,verb=True,free=False,nbell=5,srctype=0,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx)
+ 
+two = []
+three = []
+for atype in ['iso','vti','ort','tti']:
+    ani = 0
+    if atype == 'tti': ani = 1
+    # 2D elastic modeling
+    ewefd('dat'+atype,'wfl'+atype,'wavelet','cc'+atype,'ss','rr','ro-win',
+        snap=True,jsnap=5,dabc=True,nb=20,
+        cfl=False,verb=True,free=False,nbell=5,srctype=2,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx, ani=ani)
+
+    ewefd_old('old_dat'+atype,'old_wfl'+atype,'wavelet','cc'+atype,'ss','rr','ro',
+        snap=True,jsnap=5,dabc=True,nb=20,
+        cfl=False,verb=True,free=False,nbell=5,srctype=2,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx, ani=ani)
+       
+    # 3D elastic modeling
+    ewefd('dat3'+atype,'wfl3'+atype,'wavelet3','cc3'+atype,'ss3','rr3','ro3-win',
+        snap=True,jsnap=5,dabc=True,nb=20,nbell=5,
+        cfl=False,verb=True,free=False,srctype=2,ompnth=2,
+        ompchunk=ARGUMENTS.get('ompchunk',1),
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx,
+        nqy=ny,oqy=oy,dqy=dy, ani=ani)
+
+    Result('dat'+atype,'grey pclip=98 title="data"')
+    
+    Flow('wfl3'+atype+'-byt','wfl3'+atype,
+        '''
+        byte pclip=98 gainpanel=a
+        ''')
+
+    Flow('wfl'+atype+'-byt','wfl'+atype,
+        '''
+        byte pclip=98 gainpanel=a
+        ''')
+
+    for i in range(0,201,20):
+        Plot('wfl%s-%03d-z' % (atype,i),'wfl'+atype+'-byt',
+            '''
+            window n3=1 n4=1 f4=%d | grey pclip=85 gainpanel=a 
+            ''' % i)
+        Plot('wfl%s-%03d-x' % (atype,i),'wfl'+atype+'-byt',
+            '''
+            window f3=1 n4=1 f4=%d | grey pclip=85 gainpanel=a 
+            ''' % i)
+        Result('wfl%s-%03d' % (atype,i),['wfl%s-%03d-z' % (atype,i), 'wfl%s-%03d-x' % (atype,i)],
+            'SideBySideAniso')
+
+        two.append('Fig/wfl%s-%03d.vpl' % (atype,i))
+
+        Plot('wfl3%s-%03d-z' % (atype,i),'wfl3'+atype+'-byt',
+            '''
+            window n4=1 f4=0 n5=1 f5=%d | 
+            grey3 frame1=%d frame2=%d frame3=%d
+            ''' % 
+            (i, oz+nz/2*dz,ox+nx/2*dx,oy+ny/2*dy))
+
+        Plot('wfl3%s-%03d-x' % (atype,i),'wfl3'+atype+'-byt',
+            '''
+            window n4=1 f4=1 n5=1 f5=%d | 
+            grey3 frame1=%d frame2=%d frame3=%d
+            ''' % 
+            (i, oz+nz/2*dz,ox+nx/2*dx,oy+ny/2*dy))
+
+        Plot('wfl3%s-%03d-y' % (atype,i),'wfl3'+atype+'-byt',
+            '''
+            window n4=1 f4=2 n5=1 f5=%d | 
+            grey3 frame1=%d frame2=%d frame3=%d
+            ''' % 
+            (i, oz+nz/2*dz,ox+nx/2*dx,oy+ny/2*dy))
+
+        Result('wfl3%s-%03d' % (atype,i),['wfl3%s-%03d-' % (atype,i) +k for k in ['z','x','y']], 'SideBySideAniso')
+        three.append('Fig/wfl3%s-%03d.vpl' % (atype,i))
+
+proj = Project()
+proj.Alias('two',two)
+proj.Alias('three',three)
+End()

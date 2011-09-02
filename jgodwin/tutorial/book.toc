@@ -1,60 +1,61 @@
 \gdef \the@ipfilectr {@-1}
 \gdef \the@ipfilectr {}
 \gdef \the@ipfilectr {@-2}
+\contentsline {chapter}{\numberline {1}Introduction}{i}{chapter.1}
 \gdef \the@ipfilectr {}
 \gdef \the@ipfilectr {@-3}
-\contentsline {chapter}{\numberline {1}Quick reference}{1}{chapter.1}
-\contentsline {section}{\numberline {1.1}Environmental variables}{1}{section.1.1}
-\contentsline {section}{\numberline {1.2}Command line usage}{1}{section.1.2}
-\contentsline {section}{\numberline {1.3}Useful programs}{2}{section.1.3}
-\contentsline {section}{\numberline {1.4}SCons commands}{2}{section.1.4}
+\contentsline {chapter}{\numberline {2}Quick reference}{1}{chapter.2}
+\contentsline {section}{\numberline {2.1}Environmental variables}{1}{section.2.1}
+\contentsline {section}{\numberline {2.2}Command line usage}{1}{section.2.2}
+\contentsline {section}{\numberline {2.3}Useful programs}{2}{section.2.3}
+\contentsline {section}{\numberline {2.4}SCons commands}{2}{section.2.4}
 \gdef \the@ipfilectr {}
 \gdef \the@ipfilectr {@-4}
-\contentsline {chapter}{\numberline {2}Users tutorials}{3}{chapter.2}
-\contentsline {section}{\numberline {2.1}Introduction to Madagascar}{3}{section.2.1}
-\contentsline {subsection}{\numberline {2.1.1}Madagascar's design}{4}{subsection.2.1.1}
-\contentsline {subsection}{\numberline {2.1.2}RSF file format}{4}{subsection.2.1.2}
-\contentsline {subsection}{\numberline {2.1.3}Additional documentation}{6}{subsection.2.1.3}
-\contentsline {section}{\numberline {2.2}Command line interface}{6}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Using programs}{6}{subsection.2.2.1}
-\contentsline {subsection}{\numberline {2.2.2}Self-documentation}{7}{subsection.2.2.2}
-\contentsline {subsection}{\numberline {2.2.3}Piping}{8}{subsection.2.2.3}
-\contentsline {subsection}{\numberline {2.2.4}Interacting with files from the command line}{8}{subsection.2.2.4}
-\contentsline {section}{\numberline {2.3}Plotting}{9}{section.2.3}
-\contentsline {subsection}{\numberline {2.3.1}VPLOT}{10}{subsection.2.3.1}
-\contentsline {subsection}{\numberline {2.3.2}Creating plots}{10}{subsection.2.3.2}
-\contentsline {subsection}{\numberline {2.3.3}Visualizing plots}{10}{subsection.2.3.3}
-\contentsline {subsection}{\numberline {2.3.4}Converting VPLOT to other formats}{11}{subsection.2.3.4}
-\contentsline {subsection}{\numberline {2.3.5}Scripting plot generation}{11}{subsection.2.3.5}
-\contentsline {section}{\numberline {2.4}Scripting Madagascar}{11}{section.2.4}
-\contentsline {subsection}{\numberline {2.4.1}Shell scripting}{12}{subsection.2.4.1}
-\contentsline {subsection}{\numberline {2.4.2}SCons}{12}{subsection.2.4.2}
-\contentsline {subsection}{\numberline {2.4.3}SConstructs and commands}{12}{subsection.2.4.3}
-\contentsline {subsection}{\numberline {2.4.4}Creating an SConstruct}{14}{subsection.2.4.4}
-\contentsline {subsection}{\numberline {2.4.5}Executing SCons}{15}{subsection.2.4.5}
-\contentsline {subsection}{\numberline {2.4.6}Common errors in SConstructs}{16}{subsection.2.4.6}
-\contentsline {subsection}{\numberline {2.4.7}Additional SCons commands}{18}{subsection.2.4.7}
+\contentsline {chapter}{\numberline {3}Users tutorials}{3}{chapter.3}
+\contentsline {section}{\numberline {3.1}Introduction to Madagascar}{3}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}Madagascar's design}{4}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}RSF file format}{4}{subsection.3.1.2}
+\contentsline {subsection}{\numberline {3.1.3}Additional documentation}{6}{subsection.3.1.3}
+\contentsline {section}{\numberline {3.2}Command line interface}{6}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Using programs}{6}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Self-documentation}{7}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}Piping}{8}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.4}Interacting with files from the command line}{8}{subsection.3.2.4}
+\contentsline {section}{\numberline {3.3}Plotting}{9}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}VPLOT}{10}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Creating plots}{10}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}Visualizing plots}{10}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}Converting VPLOT to other formats}{11}{subsection.3.3.4}
+\contentsline {subsection}{\numberline {3.3.5}Scripting plot generation}{11}{subsection.3.3.5}
+\contentsline {section}{\numberline {3.4}Scripting Madagascar}{11}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Shell scripting}{12}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}SCons}{12}{subsection.3.4.2}
+\contentsline {subsection}{\numberline {3.4.3}SConstructs and commands}{12}{subsection.3.4.3}
+\contentsline {subsection}{\numberline {3.4.4}Creating an SConstruct}{14}{subsection.3.4.4}
+\contentsline {subsection}{\numberline {3.4.5}Executing SCons}{15}{subsection.3.4.5}
+\contentsline {subsection}{\numberline {3.4.6}Common errors in SConstructs}{16}{subsection.3.4.6}
+\contentsline {subsection}{\numberline {3.4.7}Additional SCons commands}{17}{subsection.3.4.7}
 \contentsline {subsubsection}{Viewing plots}{18}{section*.2}
 \contentsline {subsubsection}{Viewing only one plot}{18}{section*.3}
 \contentsline {subsubsection}{Building specific targets}{18}{section*.4}
 \contentsline {subsubsection}{Cleaning up}{18}{section*.5}
 \contentsline {subsubsection}{Dry-runs}{18}{section*.6}
-\contentsline {subsubsection}{Parallel executions}{19}{section*.7}
-\contentsline {subsection}{\numberline {2.4.8}Final thoughts}{19}{subsection.2.4.8}
-\contentsline {section}{\numberline {2.5}Advanced SCons}{19}{section.2.5}
-\contentsline {subsection}{\numberline {2.5.1}Multiple input files}{19}{subsection.2.5.1}
-\contentsline {subsection}{\numberline {2.5.2}Multiple outputs}{22}{subsection.2.5.2}
-\contentsline {subsection}{\numberline {2.5.3}None inputs}{22}{subsection.2.5.3}
-\contentsline {subsection}{\numberline {2.5.4}Toggling standard input and standard output}{22}{subsection.2.5.4}
-\contentsline {subsection}{\numberline {2.5.5}Plots with a different output name}{23}{subsection.2.5.5}
-\contentsline {section}{\numberline {2.6}Integrating Python with SCons}{23}{section.2.6}
-\contentsline {subsection}{\numberline {2.6.1}A forewarning}{23}{subsection.2.6.1}
-\contentsline {subsection}{\numberline {2.6.2}Variables}{24}{subsection.2.6.2}
-\contentsline {subsection}{\numberline {2.6.3}String substitution}{24}{subsection.2.6.3}
-\contentsline {subsection}{\numberline {2.6.4}Dictionaries}{24}{subsection.2.6.4}
-\contentsline {subsection}{\numberline {2.6.5}Loops}{25}{subsection.2.6.5}
-\contentsline {subsection}{\numberline {2.6.6}Functions}{26}{subsection.2.6.6}
-\contentsline {subsection}{\numberline {2.6.7}Modules}{27}{subsection.2.6.7}
-\contentsline {subsection}{\numberline {2.6.8}Classes}{27}{subsection.2.6.8}
-\contentsline {subsection}{\numberline {2.6.9}Final thoughts}{27}{subsection.2.6.9}
+\contentsline {subsubsection}{Parallel executions}{18}{section*.7}
+\contentsline {subsection}{\numberline {3.4.8}Final thoughts}{19}{subsection.3.4.8}
+\contentsline {section}{\numberline {3.5}Advanced SCons}{19}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Multiple input files}{19}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Multiple outputs}{22}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}None inputs}{22}{subsection.3.5.3}
+\contentsline {subsection}{\numberline {3.5.4}Toggling standard input and standard output}{22}{subsection.3.5.4}
+\contentsline {subsection}{\numberline {3.5.5}Plots with a different output name}{23}{subsection.3.5.5}
+\contentsline {section}{\numberline {3.6}Integrating Python with SCons}{23}{section.3.6}
+\contentsline {subsection}{\numberline {3.6.1}A forewarning}{23}{subsection.3.6.1}
+\contentsline {subsection}{\numberline {3.6.2}Variables}{24}{subsection.3.6.2}
+\contentsline {subsection}{\numberline {3.6.3}String substitution}{24}{subsection.3.6.3}
+\contentsline {subsection}{\numberline {3.6.4}Dictionaries}{24}{subsection.3.6.4}
+\contentsline {subsection}{\numberline {3.6.5}Loops}{25}{subsection.3.6.5}
+\contentsline {subsection}{\numberline {3.6.6}Functions}{26}{subsection.3.6.6}
+\contentsline {subsection}{\numberline {3.6.7}Modules}{27}{subsection.3.6.7}
+\contentsline {subsection}{\numberline {3.6.8}Classes}{27}{subsection.3.6.8}
+\contentsline {subsection}{\numberline {3.6.9}Final thoughts}{27}{subsection.3.6.9}
 \gdef \the@ipfilectr {}

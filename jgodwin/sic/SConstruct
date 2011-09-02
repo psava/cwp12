@@ -1,0 +1,144 @@
+from rsf.proj import *
+
+par = dict(
+    nx = 401,dx=0.01,ox=0,
+    nz = 201,dz=0.01,oz=0,
+    nt = 1001,dt = 0.002, ot=0.0,
+    kt = 100, freq=20,
+    xsou = 2, zsou = 0,
+    jsnap=2,snap=1,verb=1,nb=60
+)
+
+
+def awefd(dat,wfl,wav,vel,den,sou,rec,
+    snap=True,jsnap=5,dabc=True,nb=20,
+    cfl=False,verb=True,free=False,nbell=5,srctype=0,
+    nz=1,oz=0,dz=1,
+    nx=1,ox=0,dx=1,**kw):
+
+    Flow([dat,wfl],[wav,sou,rec,vel,den],
+        ''' 
+        awe 
+        wfl=${TARGETS[1]}
+        sou=${SOURCES[1]}
+        rec=${SOURCES[2]}
+        vel=${SOURCES[3]}
+        den=${SOURCES[4]}
+        snap=%(snap)d
+        jsnap=%(jsnap)d
+        dabc=%(dabc)d
+        nb=%(nb)d
+        verb=%(verb)d
+        nbell=%(nbell)d
+        fsrf=%(free)d
+        nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+        nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+        ''' % locals())
+
+Flow('wavelet',None,
+    '''
+    spike n1=%(nt)d o1=%(ot)f d1=%(dt)f k1=%(kt)d l1=%(kt)d | 
+    sfricker1 frequency=%(freq)f | 
+    sftransp plane=12 
+    ''' % par)
+
+Flow('ss',None,
+    '''
+    spike n1=2 nsp=2 mag=%(xsou)f,%(zsou)f k1=1,2 l1=1,2
+    ''' % par)
+
+Flow('rr-x',None,
+    '''
+    spike n1=%(nx)d o1=%(ox)f d1=%(dx)f  | 
+    math output="x1" | transp
+    ''' % par)
+
+Flow('rr-z',None,
+    '''
+    spike n1=%(nx)d o1=%(ox)f d1=%(dx)f  | 
+    math output="0" | transp
+    ''' % par)
+Flow('rr','rr-x rr-z','cat axis=1 ${SOURCES[1]}')
+
+Flow('vp',None,
+    '''
+    spike n1=%(nz)d o1=%(oz)f d1=%(dz)f   
+    n2=%(nx)d o2=%(ox)f d2=%(dx)f  
+    k1=100 l1=%(nz)d | add mode=a add=2.0
+    ''' % par)
+
+Flow('vo','vp',
+    '''
+    math output="2.0"
+    ''')
+
+Flow('ro','vp','math output="1.0"')
+
+Plot('vp','grey pclip=100 allpos=y bias=2.0')
+Plot('ro','grey pclip=100 allpos=y bias=2.0')
+
+awefd('dat','wfl','wavelet','vp','ro','ss','rr',**par)
+awefd('do','wo','wavelet','vo','ro','ss','rr',**par)
+
+Plot('wfl','grey pclip=100 gainpanel=a')
+
+Flow('dat-r','dat do',
+    '''
+    add scale=1,-1 mode=a ${SOURCES[1]} | 
+    reverse which=2 opt=i
+    ''')
+
+awefd('dat-j','wfl-j','dat-r','vp','ro','rr','ss',**par)
+awefd('do-j','wo-j','dat-r','vo','ro','rr','ss',**par)
+
+Flow('wfl-r','wfl-j',
+    '''
+    reverse which=4 opt=i
+    ''')
+Flow('wo-r','wo-j',
+    '''
+    reverse which=4 opt=i
+    ''')
+
+Plot('wfl-r','grey pclip=100 gainpanel=a')
+
+Flow('wfl-ss','wfl',
+    '''
+    transp plane=23 | transp plane=12 | scale axis=123
+    ''')
+
+Flow('wo-ss','wo-r',
+    '''
+    transp plane=23 | transp plane=12 | scale axis=123
+    ''')
+
+Flow('wr-ss','wfl-r',
+    '''
+    transp plane=23 | transp plane=12 | scale axis=123
+    ''')
+
+
+Flow('semo','wfl-ss wo-ss',
+    '''
+    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23
+    ''')
+
+Flow('semr','wfl-ss wr-ss',
+    '''
+    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23
+    ''')
+
+Flow('img','wfl wfl-r',
+    '''
+    add mode=p ${SOURCES[1]} | stack axis=3
+    ''')
+
+Flow('img-o','wfl wo-r',
+    '''
+    add mode=p ${SOURCES[1]} | stack axis=3
+    ''')
+
+Plot('img','grey pclip=100')
+Plot('img-o','grey pclip=100')
+
+End()

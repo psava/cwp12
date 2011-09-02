@@ -9,4 +9,8 @@
 *.out
 *.aux
 *.log
+*.gz
+*.zip
+*.tar
+*.bz2
 

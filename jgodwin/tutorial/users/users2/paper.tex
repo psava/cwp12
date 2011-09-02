@@ -1,15 +1,17 @@
-\section{Users 2 - Plotting}
+\section{Plotting}
 
 Madagascar also has a robust package of tools for plotting the results of your computations in multi-dimensions! These plots are created using a vector plotting library originally developed by Joe Dellinger at SEP called VPLOT. VPLOT provides a method for making plots that are small in size, aesthetically pleasing, and easily compatible with Latex for rapid creation of production quality images.
-[edit]
 
 \subsection{VPLOT}
 The VPLOT file format (.vpl suffix) is a self-contained binary data format that describes how to draw the plot on the screen using an interpreter. Since VPLOT is not a standard imaging format, VPLOT files must be viewed with third-party interpreters which we call pens. Each pen interfaces VPLOT with a third-party graphing library such as X11, plplot, opengl, and others. This flexibility makes VPLOT files almost as portable as standard image formats such as: jpeg, png, and gif. Unlike rasterized formats, VPLOT files can be scaled to any size without losing image quality. This feature alone makes VPLOT worth the work, because you don't have to regenerate your images each time you want to change their size!
 
 \subsection{Creating plots}
 To generate VPLOT files, we need to pass our computed RSF files through vplot filters, that convert RSF data files to VPLOT files. The vplot filters are named by the type of plot that they produce. The full list of available vplot filters (plot types) is:
-\begin{tabular}{| l | l | }
-    \hline
+
+\begin{center}
+\begin{table}
+    \begin{tabularx}{0.8\textwidth}{|l |X| }
+    \hline 
 sfgraph & create line plots, or scatter plots \\
 sfgrey & create raster plots or 2D image plots \\
 sfgrey3 & create 3D image plots of panels (or slices) of a 3D cube \\
@@ -17,8 +19,13 @@ sfbox & make box-line plots \\
 sfcontour & make contour plots \\
 sfcontour3 & make contour plots of 3D surfaces \\
 sfplotrays & make plots of rays \\
-\hline
-\end{tabular}
+\hline 
+\end{tabularx}
+\end{table}
+\end{center}
+
+
+
 More details about what each plot does, its available parameters and what data inputs each file takes can be found in the appendix.
 
 To actually create a plot, we can use the plotting programs on the command line in the same fashion that we would use a Madagascar program:

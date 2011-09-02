@@ -1,4 +1,4 @@
-\section{Users 1 - Command line interface}
+\section{Command line interface}
 Madagascar was designed initially to be used from the command line. Programmers create Madagascar programs (prefixed with the sf designation) that read and write Madagascar files. These programs are designed to be as general as possible, each one operates on any dataset in RSF format, provided you also supply the correct parameters and have the right type of data for the program. Thus, each Madagascar program can be used in different ways that the original developer may not have foreseen, which makes your life easier as a user!
 
 \subsection{Using programs}
@@ -31,21 +31,27 @@ sfwindow < junk.rsf n1=10 > junk-win.rsf
 Of course, we can specify as many parameters as we'd like on the command line. To figure out which parameters are needed for a specific program, just type the name of the program with no input files our output files on the command line as follows:
 \begin{verbatim}
 sfwindow
-which brings up the self-documentation, which looks something like the following:
+\end{verbatim}
+Which brings up the following information:
+\begin{verbatimtab}[4]
 NAME
         sfwindow
 DESCRIPTION
         Window a portion of a dataset. 
 SYNOPSIS
-        sfwindow < in.rsf > out.rsf verb=n squeeze=y j#=(1,...) d#=(d1,d2,...) f#=(0,...) min#=(o1,o2,,...) n#=(0,...) max#=(o1+(n1-1)*d1,o2+(n1-1)*d2,,...)
+        sfwindow < in.rsf > out.rsf verb=n squeeze=y j#=(1,...) 
+        d#=(d1,d2,...) f#=(0,...) min#=(o1,o2,,...) n#=(0,...) 
+        max#=(o1+(n1-1)*d1,o2+(n1-1)*d2,,...)
 PARAMETERS
         float   d#=(d1,d2,...)  sampling in #-th dimension 
         largeint f#=(0,...)     window start in #-th dimension 
         int     j#=(1,...)      jump in #-th dimension 
-        float   max#=(o1+(n1-1)*d1,o2+(n1-1)*d2,,...)   maximum in #-th dimension 
+        float   max#=(o1+(n1-1)*d1,o2+(n1-1)*d2,,...)   
+            maximum in #-th dimension 
         float   min#=(o1,o2,,...)       minimum in #-th dimension 
         largeint n#=(0,...)     window size in #-th dimension 
-        bool    squeeze=y [y/n] if y, squeeze dimensions equal to 1 to the end 
+        bool    squeeze=y [y/n] 
+            if y, squeeze dimensions equal to 1 to the end 
         bool    verb=n [y/n]    Verbosity flag
 USED IN
         bei/dpmv/krchdmo
@@ -57,19 +63,23 @@ USED IN
         bei/fld/synmarine
         bei/fld/yc
         bei/ft1/autocor
+\end{verbatimtab}
+
+The self-documentation tells us the function of the program, as well as the parameters that are available to be specified. The parameter format is type - name=default value [options] and then a short description of the parameter. File parameters request a name of a file. For example: 
+\begin{verbatim} 
+file=junk.rsf 
 \end{verbatim}
-The self-documentation tells us the function of the program, as well as the parameters that are available to be specified. The parameter format is type - name=default value [options] and then a short description of the parameter. File parameters request a name of a file. For example: \begin{verbatim} file=junk.rsf \end{verbatim}
 
 \subsection{Piping}
 Sometimes we want to chain multiple commands together without writing intermediate Madagascar RSF files in the process. Fortunately, we can do this using another standard UNIX construct, Pipes. Pipes allow us to connect the standard output from one Madagascar program to the standard input to another program without first writing to a file. For example we could do the following without pipes:
 \begin{verbatim}
-  sfwindow < junk.rsf > junk-win.rsf
-  sftransp < junk-win.rsf > junk2.rsf
-  \end{verbatim}
+sfwindow < junk.rsf > junk-win.rsf
+sftransp < junk-win.rsf > junk2.rsf
+\end{verbatim}
 Or we could do the equivalent using pipes on one line:
 \begin{verbatim}
-  sfwindow < junk.rsf | sftransp > junk2.rsf
-  \end{verbatim}
+sfwindow < junk.rsf | sftransp > junk2.rsf
+\end{verbatim}
 Pipes simply make these statements more compact, and allow us to reduce the number of files that we need to save to disk. If you're doing something many times over, then pipes will make your life significantly easier. I highly recommend that you use pipes! Also, you should know that you can chain as many commands together as necessary using Pipes.
 
 \subsection{Interacting with files from the command line}
@@ -87,7 +97,7 @@ junk.rsf:
     n1=100         d1=0.004       o1=0          label1="Time" unit1="s" 
     n2=34          d2=0.1         o2=0          label2="Distance" unit2="km" 
 	3400 elements 13600 bytes
-    \end{verbatim}
+\end{verbatim}
 
 sfattr - get file attributes
 SFATTR is also commonly used from the command line to check files for correct values. Most often, we use sfattr to ensure that files are not filled with zeros, or with NaN's after a long computation, or to make sure that the values are reasonable. sfattr can be used to obtain basic statistics about the files as well.

@@ -1,4 +1,4 @@
-\section{Users 3 - Scripting Madagascar}
+\section{Scripting Madagascar}
 
 While Madagascar has a robust command line interface for creating, manipulating and plotting files, we often want to create scripts that will perform these operations manually for us.  Scripting is especially important when processing large amounts of data, or performing a complex chain of file manipulations in order to ensure that operations are completed in the right order or with proper parameters.  Scripts also introduce a degree of reproducibility into our work because we can in theory send a script to another individual, and they can run the script to regenerate our results.  
 
@@ -20,7 +20,7 @@ For simple processing flows, shell scripting is a quick and easy approach to sav
 
 SCons is a build manager written in 100\% Python.  As a build manager, SCons keeps track of three items for each file built in the script: the name of the output file(s), the name of the input file(s), and the rule (Madagascar program(s) with options) used to build the output file(s) from the input file(s).  The advantage to keeping track of these items is that SCons can then check to see if any of those items have changed and if so mark the output file to be rebuilt.  If no changes are detected, and the output file already exists, then SCons \emph{skips} the output file and goes onto build other files.  This gives the user the ability to avoid re-running portions of their scripts that previously completed without issue, which is very important when working on processing flows with large datasets where individual commands may take hours to execute.  SCons also allows us to run multiple processing commands at the same time on computers with sufficient capabilities, further reducing the amount of time that it takes for us to process data in Madagascar.  Now, we'll discuss how to create SCons scripts and use SCons on the command line.
 
-\subsubsection{SConstructs and commands}
+\subsection{SConstructs and commands}
 
 SCons scripts are referred to as SConstructs.  In order to use SCons, you must create an SConstruct in the local directory where you want to work. Since SCons is written in Python, an SConstruct is simply a text file written using Python syntax.  If you don't know Python, you can still use SCons, because the syntax is very simple.
 
@@ -95,7 +95,8 @@ Here's a sample SConstruct:
 \begin{verbatim}
 from rsf.proj import *  # Remember, this statement comes first... ALWAYS
 
-Flow("spike",None,"sfspike n1=100 k1=50") # None is a trick, see Users 4 for more information
+Flow("spike",None,"sfspike n1=100 k1=50") 
+# None is a trick, see Users 4 for more information
 Flow("spike1","spike","sfadd scale=4.0")
 Flow("noise","spike1","sfnoise")
 
@@ -109,7 +110,7 @@ End() # Remember, this always ends the script.
 \end{verbatim}
 Note: you do not have to order your Flow, Plot and Result commands as shown above.  You can mix Flow, Plot and Result in any order.  SCons automatically establishes the relationships between related files and commands.
 
-\subsubsection{Executing SCons}
+\subsection{Executing SCons}
 
 Now that you have an SConstruct, you can start processing data the Madagascar way.  To do so open a terminal and navigate to the local directory where your SConstruct is located.  To execute your SConstruct simply run: \textbf{scons} .  When you run SCons, it will check to make sure that all necessary dependencies are found and that all of your commands inside the SConstruct are valid.  If not, SCons will return an error message showing you where you made a mistake.  If everything is OK, then SCons will begin creating your files in the local directory and will output its progress as it executes the Madagascar programs on the command line.  For example, running the sample SConstruct from above should show something similar to the following output:
 
@@ -129,7 +130,7 @@ scons: done building targets.
 
 If the execution of scons ends with, "scons: done building targets" then the script completed successfully.  Check your local directory for your output files. 
 
-\subsubsection{Common errors}
+\subsection{Common errors in SConstructs}
 There are two common errors that most users will experience when executing SConstructs: missing dependency errors, and misconfiguration errors.  We'll demonstrate both of these errors to help new users troubleshoot them below. 
 
  The first error is caused by missing a dependency in the SConstruct.  To introduce this error into your SConstruct modify the sample SConstruct from above to the following:
@@ -163,8 +164,10 @@ The second error, is caused by having a misconfigured command.  To demonstrate t
 \begin{verbatim}
 from rsf.proj import *  # Remember, this statement comes first... ALWAYS
 
-Flow("spike",None,"sfspike n1=100 k1=50") # None is a trick, see Users 4 for more information
-Flow("spike1","spike","sfasd scale=4.0") # HERE IS THE ERROR, NOTE sfasd instead of sfadd
+Flow("spike",None,"sfspike n1=100 k1=50") 
+# None is a trick, see Users 4 for more information
+Flow("spike1","spike","sfasd scale=4.0") 
+# HERE IS THE ERROR, NOTE sfasd instead of sfadd
 Flow("noise","spike1","sfnoise")
 
 Plot("spike",'sfgraph title="spike" ' ) # Note string nesting
@@ -190,31 +193,31 @@ Again, the error message is pretty descriptive and could help you track down the
 
 These are only two of the most common errors that new users will see.  For additional information about debugging SConstructs, or for exceptionally strange errors please consult the RSF Users mailing list.
 
-\subsubsection{Additional SCons commands}
+\subsection{Additional SCons commands}
 
 Here are some additional SCons commands that are useful to know.
 
-Viewing plots:
+\subsubsection{Viewing plots}
 
 If you're running an SConstruct and want to view the plots that it creates as it creates them, then you can use: \textbf{scons view} to force SCons to show the plots interactively.  Doing so allows you to view your output at runtime and stop the SConstruct as it's running if you don't like what you see.
 
-Viewing only one plot:
+\subsubsection{Viewing only one plot}
 
 If you want to view the plot associated with only a single file you can tell SCons to view that plot by using the command: \textbf{scons file.view} where file is the filename of the item that you want to view.  For example: scons spike.view would show the plot of the spike.rsf file.  The advantage to using this command is that SCons will only build the dependencies needed to view that specific plot, which can save you a lot of time in longer processing scripts.
 
-Building specific targets:
+\subsubsection{Building specific targets}
 
 If you want to build a specific RSF file, or a few specific RSF files you can simply specify them on the command line when you execute SCons as follows: \textbf{scons file.rsf file2.rsf file3.rsf ...}.  The advantage to doing this, is that SCons will only build those files and their dependencies instead of running through the entire script.
 
-Cleaning up: 
+\subsubsection{Cleaning up}
 
 After we've executed our SConstruct and viewed the results of the processings flows, we might decide that we want to clean up our project and go work on something else.  Normally, one would have to delete all of the files and then move on, but SCons automates this process using the command: \textbf{scons -c}.  Simply execute it in the local directory and SCons will remove all of the built RSF files, and VPLOT files.  SCons will not remove files that it does not have rules for.
 
-Dry-runs:
+\subsubsection{Dry-runs}
 
 Sometimes we want to test an SConstruct through the end of the script without waiting for it to run completely.  To do so, we can use \textbf{scons -n} which tells SCons to simulate an actual execution. During a dry-run SCons will check all of the commands, and dependencies to ensure that they exist and are properly configured.  If not, then SCons will tell you which commands are misconfigured.  This command can save you hours of debugging!  Use it liberally.
 
-Parallel executions:
+\subsubsection{Parallel executions}
 
 For long scripts we can use parallel execution to run multiple processing commands at the same time.  Parallel execution requires that the commands can function independently of one another (i.e. there are commands that do not depend on each other's output).  To use parallel execution use: \textbf{pscons} which launches the maximum number of parallel jobs that your computer can handle at once.  Parallel execution can greatly speed up your processing flows if SCons can parallelize it.  In the worst case, SCons won't be able to parallelize your script and it will run at the same speed as if you just used \textbf{scons}.
 

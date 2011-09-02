@@ -1,0 +1,34 @@
+from rsf.proj import *
+import zipfile,SCons
+
+Fetch('NEAR_A_MSI_5_EROSSHAPE_V1_0.zip','asteroid',
+    top='pds',
+    server='http://sbn.psi.edu')
+
+def unzip_emitter(target,source,env):
+    zip = zipfile.ZipFile(str(source[0]),'r')
+    names = zip.namelist()
+    for name in names:
+        target.append(name)
+    zip.close()
+    target.pop(0)
+    return target,source
+
+def unzip(target,source,env):
+    zip = zipfile.ZipFile(str(source[0]),'r')
+    zip.extractall(str(target[0]))
+    zip.close()
+
+
+proj = Project()
+unzipBuilder = Builder(action=unzip,
+    emitter=unzip_emitter,
+    target_factory=SCons.Node.FS.Entry,
+    source_factory=SCons.Node.FS.Entry)
+
+proj.Append(BUILDERS={'Unzip':unzipBuilder})
+
+proj.Unzip('data','NEAR_A_MSI_5_EROSSHAPE_V1_0.zip')
+
+
+End()

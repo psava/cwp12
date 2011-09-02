@@ -1,5 +1,4 @@
 from rsf.tex import *
 
-Paper('chapter',use='hyperref')
 
-End()
+End(lclass='paper',use='picture,graphicx')

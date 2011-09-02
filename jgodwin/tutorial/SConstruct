@@ -1,5 +1,22 @@
-from rsf.tex import *
+#from rsf.tex import *
 
-Paper('book',use='hyperref',lclass='book',options='twoside')
+#Paper('book',use='hyperref',lclass='book',options='twoside')
 
-End()
+#End()
+import sys
+print sys.path
+
+from rsf.book import *
+
+chapters=Split(
+'''
+quick
+users
+''')
+
+Book(chapters,
+       author='Jeff Godwin',
+              title='A brief introduction to Madagascar')
+
+End(options='book',
+   use='graphicx,color,amsmath,amssymb,amsbsy,hyperref,listings,framed,tabularx')

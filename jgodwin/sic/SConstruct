@@ -118,27 +118,48 @@ Flow('wr-ss','wfl-r',
     ''')
 
 
+mthr = 0.5
+
 Flow('semo','wfl-ss wo-ss',
     '''
-    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23
-    ''')
+    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23 |
+    mask min=%f max=1.0 | dd type=float
+    ''' % (mthr))
 
 Flow('semr','wfl-ss wr-ss',
     '''
-    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23
-    ''')
+    semblance ${SOURCES[1]} m=0 | transp plane=12 | transp plane=23 | 
+    mask min=%f max=1.0 | dd type=float
+    ''' % (mthr))
 
-Flow('img','wfl wfl-r',
+Flow('prod-r','wfl wfl-r',
     '''
-    add mode=p ${SOURCES[1]} | stack axis=3
+    add mode=p ${SOURCES[1]}
     ''')
 
-Flow('img-o','wfl wo-r',
+Flow('prod-o','wfl wo-r',
     '''
-    add mode=p ${SOURCES[1]} | stack axis=3
+    add mode=p ${SOURCES[1]}
     ''')
 
-Plot('img','grey pclip=100')
+Flow('img-r','prod-r','stack axis=3')
+Flow('img-o','prod-o','stack axis=3')
+
+Plot('img-r','grey pclip=100')
 Plot('img-o','grey pclip=100')
+
+Flow('img-sr','wfl wfl-r semr', 
+    '''
+    add mode=p ${SOURCES[1:3]} | stack axis=3
+    ''')
+
+Plot('img-sr','grey pclip=100')
+Flow('img-so','wfl wo-r semo', 
+    '''
+    add mode=p ${SOURCES[1:3]} | stack axis=3
+    ''')
+
+Plot('img-sr','grey pclip=100')
+
 
 End()

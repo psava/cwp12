@@ -13,4 +13,7 @@
 *.zip
 *.tar
 *.bz2
+*.bbl
+*.blg
+*.pdfsync
 

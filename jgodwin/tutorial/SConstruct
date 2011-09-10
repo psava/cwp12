@@ -10,8 +10,10 @@ from rsf.book import *
 
 chapters=Split(
 '''
-quick
 users
+authors
+devs
+quick
 ''')
 
 Book(chapters,

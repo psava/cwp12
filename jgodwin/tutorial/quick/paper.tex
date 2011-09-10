@@ -18,7 +18,7 @@ These are the environmental variables that are used in Madagascar programs:
 
 Using programs on the command line:
 \begin{verbatim}
-sfprogram < input.rsf arg1=val1 arg2=val2\ldots > output.rsf
+sfprogram < input.rsf arg1=val1 arg2=val2 ... > output.rsf
 \end{verbatim}
 Example:
 \begin{verbatim}
@@ -26,7 +26,7 @@ sftransp < junk.rsf plane=12 > junk2.rsf
 \end{verbatim}
 Example, with Pipes:
 \begin{verbatim}
-sfspike n1=100 k1=10 | sfricker1 frequency=40 > ricker.rsf
+sftransp < junk.rsf plane=12 | sftransp plane=23 | sftransp plane=34 > junk2.rsf
 \end{verbatim}
 
 \section{Useful programs}

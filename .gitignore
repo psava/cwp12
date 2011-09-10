@@ -16,4 +16,7 @@
 *.bbl
 *.blg
 *.pdfsync
+*.lot
+*.lof
+*.cfg
 

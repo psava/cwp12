@@ -1,10 +1,10 @@
 \section{Integrating Python with SCons}
 
-Because SCons is written in Python, we can take advantage of all the features of the Python programming language.  By doing so, we are able to make our life a lot easier, by compartmentalizing build commands, creating functions for commonly used scripts, and use Python to help organize our scripts and make them easier to understand.  Instead of giving an exhaustive tutorial of the combination of SCons and Python, we're going to demonstrate a few of the more commonly features of Python inside of SConstructs.  We leave it to the end user to develop additional techniques that further exploit the power of Python.
+Because SCons is written in Python, we can take advantage of all the features of the Python programming language.  By doing so, we are able to make our life a lot easier by: compartmentalizing build commands, creating functions for commonly used scripts, organizing our scripts to make them easier to understand.  Instead of giving an exhaustive tutorial of the combination of SCons and Python, we're going to demonstrate a few of the more commonly features of Python inside of SConstructs.  We leave it to the end user to develop additional techniques that further exploit the power of Python.
 
 \subsection{A forewarning}
 
-While Python and SCons are compatible with one another they are not completely interchangeable.  To understand why that is the case, you need to understand the underlying design of SCons. SCons is a \emph{declarative} language, which means that you tell SCons what to do through the: Flow, Plot, and Result commands, and then SCons decides how and when to execute those commands.  Python on the other hand is \emph{imperative}, which means that as Python reads a Python script, it executes the commands immediately.  Python does not take time to decide how or when to execute your commands.  This point causes a bit of confusion to users who start to combine Python and SCons together because they expect SCons commands to execute in the order that they place them, which is not the case.  Because of that, you may not be able to use certain Python features in their native Python way.  For example, loops which require repeated computation, and whose results depend on the result of the last iteration are not possible using SCons.  It is also not usually possible to use Python variables that change during execution with SCons because the variable value that SCons will use is \emph{always} the last value of the variable.  Typically, you cannot use conditional statements in SCons, where the choice depends on a file that SCons will build.  
+While Python and SCons are compatible with one another they are not completely interchangeable.  To understand why that is the case, you need to understand the underlying design of SCons. SCons is a \emph{declarative} language, which means that you tell SCons what to do through the: Flow, Plot, and Result commands, and then SCons decides how and when to execute those commands.  Python on the other hand is \emph{imperative}, which means that as Python reads a Python script, it executes the commands immediately.  Python does not take time to decide how or when to execute your commands.  This point causes a bit of confusion to users who start to combine Python and SCons together because they expect SCons commands to execute in the order that they place them, which is not the case.  Because of this, you may not be able to use certain Python features in their native Python way.  For example, loops which require repeated computation, and whose results depend on the result of the last iteration are not possible using SCons.  It is also not usually possible to use Python variables that change during execution with SCons because the variable value that SCons will use is \emph{always} the last value of the variable.  Typically, you cannot use conditional statements in SCons, where the choice depends on a file that SCons will build.  
 
 To be safe, you should always assume that whatever Python does happens \emph{before} SCons starts running commands.
 
@@ -23,7 +23,7 @@ Note: variables must be converted to strings in order to be combined into the co
 
 \subsection{String substitution}
 
-While using variables is convenient, formatting them in the fashion shown above is not convenient.  Fortunately, Python allows us to format variables for strings in an easier way using: string substitution.  Using string substitution, we can avoid all the nastiness of converting variables to strings.  String substitution works in the same way as the C - printf function works, we use markers that indicate where values should be substituted and what format they should be in.  The above example using string substitution is:
+While using variables is convenient, formatting them in the fashion shown above is not convenient.  An easier way to format variables for strings is to use string substitution.   String substitution works in the same way as the C - printf function works, i.e. we place markers that indicate where values should be substituted and what format they should be in.  The above example using string substitution is:
 
 \begin{verbatimtab}[4]
 nx = 100
@@ -68,8 +68,7 @@ Flow('model',None,
 \end{verbatimtab}
 Notice that the formatters now have the name of the variable inside parentheses: \%(nx)d before the formatting expression.  Then, the entire dictionary is passed to the string for substitution.  At runtime, Python places the values for the keys from the dictionary into the string.  If the values are the wrong type, or the key does not exist in the dictionary, then Python will throw an error at runtime, and prevent you from running with a bad value.
 
-By using dictionaries with string substitution, we can add flexibility to our scripts, and we can improve their readability, which ultimately improves the ability of others to reproduce our work.  Thus, you should strive to use these tricks whenever possible in your
-SConstructs.
+By using dictionaries with string substitution, we can add flexibility to our scripts, and improve their readability, which ultimately improves the ability of others to reproduce our work.  Thus, you should strive to use dictionaries wherever possible in your SConstructs.
 
 \subsection{Loops}
 
@@ -86,11 +85,11 @@ End()
 \end{verbatimtab}
 In order for the loop to work, you need to make sure that all the files that are created have a unique file name.  The easiest way to do so is to use the loop index in the filename, the count variable in this case.  The count variable must be a string, because only strings can be concatenated together in Python.   If you want to make more complicated file names (from nested loops) then examine the printf like syntax for Python strings. 
 
-All the usual Python rules apply to these loops.  Typically, for loops are easier to understand than while loops in Python, and so we recommend using for loops instead.
+All the usual Python rules apply to these loops.  Typically, for loops are easier to understand than while loops in Python, and so we recommend using for loops for most purposes.
 
 \subsection{Functions}
 
-Python functions are incredibly useful for SConstructs as well, because you can compartmentalize certain calls to commonly used Flows, and you can reuse code from one SConstruct to another.  For the best use of Python functions you should use the following conventions:
+Python functions are incredibly useful because you can compartmentalize repeated uses of commonly used \textbf{Flow}s, and then use them in multiple SConstructs.  For the best use of Python functions you should use the following conventions:
 
 \begin{itemize}
 \item always use keyword=value arguments to help document your code,
@@ -98,13 +97,14 @@ Python functions are incredibly useful for SConstructs as well, because you can 
 \item use default values for all arguments, even if they are None,
 \item use the locals() dictionary to get the values of the arguments,
 \item always perform an action inside the function (i.e. create a Flow, Plot or Result),
-\item do not return anything from the function.
+\item do not return anything from the function,
+\item and always accept **kwargs as the last argument to allow for dictionary substitution.
 \end{itemize}
 
 Here's an example of a well-defined function to create a Ricker wavelet with a peak frequency specified by the user:
 
 \begin{verbatimtab}[4]
-def ricker(out='wave',freq=20.0,kt=100,nt=1001,dt=0.01,ot=0.0):
+def ricker(out='wave',freq=20.0,kt=100,nt=1001,dt=0.01,ot=0.0,**kwargs):
 	Flow(out,None,
 		'''
 		sfspike n1=%(nt)d o1=%(ot)f d1=%(d1)f 
@@ -136,7 +136,7 @@ ricker('wave',**parameters)
 which will look for all the named arguments to the ricker function in the parameter dictionary, and send their values to the function.  When there are many parameters, and you have already set them in the dictionary, then automatic parameter fetching is the best way to go.
 
 \subsection{Modules}
-Of course, functions can be compiled into groups and then placed into Python modules for widespread re-use throughout your SConstructs.  Python modules are currently located in \$RSFROOT/book/Recipes, and you should place your modules there as well.  As usual, you must use correct Python syntax to access functions contained within modules.  For example, if you create a module called myutil.py, then you can access your functions in the following manner:
+Of course, functions can be compiled into groups and then placed into Python modules for widespread re-use throughout your SConstructs.  Python modules are currently located in \$RSFROOT/book/Recipes, which is where you should place your modules as well.  As usual, you must use correct Python syntax to access functions contained within modules.  For example, if you create a module called myutil.py, then you can access your functions in the following manner:
 
 \begin{verbatimtab}[4]
 import myutil

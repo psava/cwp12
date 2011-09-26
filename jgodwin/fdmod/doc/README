@@ -1,0 +1,18 @@
+This folder allows you to build the manual for the 
+acoustic and elastic modeling codes.
+
+The awe and ewe folders contain example SConstructs to help you get 
+modeling.
+
+For more details on acceptable parameters for modeling see the 
+detailed manual available online, or you can build it yourself in this
+folder.
+
+To build the documentation, make sure you have installed all of 
+the Madagascar Latex modules, and then run:
+   
+   scons 
+
+in this directory.
+
+To build the examples, go into the directory of choice and run scons.

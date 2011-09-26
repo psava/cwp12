@@ -1,0 +1,14 @@
+from rsf.proj import *
+# Used to build all Java Mains, programs that do not belong to java packages
+directories = \
+'''
+main cip
+'''
+
+proj = Project()
+
+dirs = directories.split()
+srcdirs = map(lambda x: 'src/'+x,dirs)
+
+proj.Java('bin',srcdirs)
+map(lambda x,y: proj.Jar('jar/'+x+'.jar',y), dirs,srcdirs)

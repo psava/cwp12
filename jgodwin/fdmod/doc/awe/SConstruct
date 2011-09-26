@@ -1,0 +1,178 @@
+from rsf.proj import *
+
+# Model parameters
+# Model dimensions first
+nx = 101; dx=0.01; ox=0.0; # Units don't matter; just be consistent these are km
+ny = 101; dy=0.01; oy=0.0; # Units don't matter; just be consistent these are km
+nz = 101; dz=0.01; oz=0.0;
+nt = 1001; dt=0.001; ot=0.0 # Time units (in seconds)
+# Model values, we use constant velocity to illustrate 
+# however your models can be arbitrarily complex.
+vp = 3.0 # Velocity must have same units as model (km/s) in this case
+ro = 1.0 # Density needs to be consistent
+# Wavelet parameters
+frequency = 25 # Peak frequency for ricker wavelet (in Hz)
+kt = 101 # Peak time sample for the wavelet
+
+
+# Plotting parameters for 3D plots
+frame1=50
+frame2=50
+frame3=50
+
+# Start by building the wavelet
+# Wavelet axes are axis 1 - source, axis 2 - time
+# We can use multiple sources, each one can have a different wavelet, which is why
+# we would concatenate them on axis 1.
+Flow('wavelet',None,
+    '''
+    spike n1=%d o1=%f d1=%f | 
+    ricker1 frequency=%f | transp
+    ''' % (nt,ot,dt,frequency))
+
+Result('wavelet','transp | graph pclip=100 title="Wavelet"')
+
+# Make the source location.  This is a coordinate given in X,Y,Z on axis 1, and axis 2
+# has the source location for each separate source.  For this example, we only use one
+# source at one location.
+#
+# 2D source location
+Flow('ss2',None,
+    '''
+    spike n1=2 k1=1,2 l1=1,2 nsp=2 mag=%f,%f
+    ''' % (ox+dx*nx/2,oz+dz*nz/2))
+
+# Make the receiver locations.  Same rules as source locations.  In this case, we
+# make receivers across the whole surface.
+Flow('rr2',None,
+    '''
+    spike n1=%d n2=2 o1=%f d1=%f | 
+    math output="x1" | 
+    cut f1=1
+    ''' % (nx,ox,dx))
+
+# 3D source location
+Flow('ss3',None,
+    '''
+    spike n1=3 k1=1,2,3 l1=1,2,3 nsp=3 mag=%f,%f,%f
+    ''' %  \
+    (ox+dx*nx/2,oy+dy*ny/2,oz+dz*nz/2))
+
+# 3D receiver location
+
+Flow('rr3_x',None,
+    '''
+    spike n1=%d o1=%f d1=%f n2=%d o2=%d d2=%f |
+    math output="x1" | put n1=1 n2=%d
+    ''' % (nx,ox,dx,ny,oy,dy,nx*ny))
+
+Flow('rr3_y',None,
+    '''
+    spike n1=%d o1=%f d1=%f n2=%d o2=%d d2=%f |
+    math output="x2"  | put n1=1 n2=%d
+    ''' % (nx,ox,dx,ny,oy,dy,nx*ny))
+
+# Use x twice, then zero the results for z to make sure we're at the surface.
+Flow('rr3','rr3_x rr3_y rr3_x',
+    '''
+    cat axis=1  ${SOURCES[1:3]} | 
+    cut f1=2  
+    ''') 
+
+# Create velocity model and density model
+#
+# Models are ALWAYS organized in the following format:
+# Axis 1 - Z (depth) positive down
+# Axis 2 - X, horizontal one
+# Axis 3 - Y, horizontal two
+# 2D models only have axes 1 and 2.
+Flow('vp2',None,
+    '''
+    spike n1=%d o1=%f d1=%f
+    n2=%d o2=%f d2=%f | 
+    math output="%f"
+    ''' % (nz,oz,dz,nx,ox,dx,vp))
+
+Flow('ro2','vp2',
+    '''
+    math output="%f"
+    ''' % (ro))
+
+Result('vp2','grey mean=y scalebar=y')
+Result('ro2','grey mean=y scalebar=y')
+
+# 3D velocity and density model
+
+Flow('vp3','vp2',
+    ''' 
+    spray axis=3 n=%d o=%f d=%f
+    ''' % (ny,oy,dy))
+
+Flow('ro3','ro2',
+    ''' 
+    spray axis=3 n=%d o=%f d=%f
+    ''' % (ny,oy,dy))
+
+Result('vp3','byte pclip=100 | grey3 frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3))
+Result('ro3','byte pclip=100 | grey3 frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3))
+
+
+# Define a function to actually do the modeling
+def awefd(data,wfld,wavelet,vel,den,sou,rec,**kw):
+    # This is Python magic
+    arguments = [ item[0]+'='+str(int(item[1])) \
+        if type(item[1])==bool \
+        else item[0]+'='+str(item[1]) \
+        for item in kw.items()]
+
+    Flow([data,wfld],[wavelet,vel,den,sou,rec],
+        '''
+        awe
+        wfl=${TARGETS[1]}
+        vel=${SOURCES[1]}
+        den=${SOURCES[2]}
+        sou=${SOURCES[3]}
+        rec=${SOURCES[4]}
+        '''  + ' '.join(arguments))
+
+
+# 2D modeling
+awefd('data2','wfl2','wavelet','vp2','ro2','ss2','rr2', # Now set modeling parameters
+    snap=True,jsnap=5,dabc=True,nb=20,verb=True,free=False,
+    nqz=nz,oqz=oz,dqz=dz, # These are wavefield snapshot parameters (domain of snapshots)
+    nqx=nx,oqx=ox,dqx=dx)
+
+Result('data2','grey pclip=99')
+Result('wfl2','grey pclip=100 gainpanel=a')
+
+
+# 3D modeling
+awefd('data3','wfl3','wavelet','vp3','ro3','ss3','rr3', # Now set modeling parameters
+    snap=True,jsnap=5,dabc=True,nb=20,verb=True,free=False,
+    nqz=nz,oqz=oz,dqz=dz, # These are wavefield snapshot parameters (domain of snapshots)
+    nqx=nx,oqx=ox,dqx=dx,
+    nqy=ny,oqy=oy,dqy=dy)
+
+
+Result('data3',
+    '''
+    transp plane=23 | 
+    put n1=%d o1=%f d1=%f
+    n2=%d o2=%f d2=%f | 
+    byte pclip=98 gainpanel=a | 
+    grey3 frame1=%d frame2=%d frame3=%d
+    ''' % (nx,ox,dx,ny,oy,dy,frame2,frame3,nt/2))
+
+Flow('wfl3-byt','wfl3',
+        '''
+        byte pclip=98 gainpanel=a 
+        ''')
+
+for i in range(0,nt/5,20):
+    Result('wfl3-%03d' % i ,'wfl3-byt',
+        '''
+        window n4=1 f4=%d | 
+        grey3 frame1=%d frame2=%d frame3=%d
+        ''' % (i,frame1,frame2,frame3))
+
+End()

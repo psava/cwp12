@@ -4,13 +4,13 @@ from rsf.proj import *
 import stiffness
 
 # Define model dimensions 
-nx = 201; dx = 5.0; ox = 0.0
-ny = 201; dy = 5.0; oy = 0.0
-nz = 201; dz = 5.0; oz = 0.0
-nt = 2001; dt = 0.0005; ot = 0.0
+nx = 101; dx = 10.0; ox = 0.0
+ny = 101; dy = 10.0; oy = 0.0
+nz = 101; dz = 10.0; oz = 0.0
+nt = 1001; dt = 0.001; ot = 0.0
 # Wavelet parameters
 kt = 100
-frequency = 30
+frequency = 20
 # Model Thomsen parameters
 vp = 3000
 vs = 1500
@@ -44,11 +44,6 @@ Flow('wavelet',None,
     spike n1=%d o1=%f d1=%f k1=%d l1=%d | 
     ricker1 frequency=%f | spray axis=2 n=2 | transp plane=13
     ''' % (nt,ot,dt,kt,kt+1,frequency))
-
-Flow('wava','wavelet',
-    '''
-    window n2=1 squeeze=n |  transp plane=23 
-    ''')
 # This is the wavelet in 3D
 Flow('wavelet3',None,
     '''
@@ -173,24 +168,7 @@ def ewefd(dat,wfl,wav,ccc,sou,rec,den,**kw):
 
     Flow([dat,wfl],[wav,sou,rec,ccc,den],
         '''
-        ../sfewe_fixed
-        wfl=${TARGETS[1]}
-        sou=${SOURCES[1]}
-        rec=${SOURCES[2]}
-        ccc=${SOURCES[3]}
-        den=${SOURCES[4]}
-        ''' + ' '.join(arguments))
-def ewefd_old(dat,wfl,wav,ccc,sou,rec,den,**kw):
-    # Python magic...
-  
-    arguments = [ item[0]+'='+str(int(item[1])) \
-        if type(item[1])==bool \
-        else item[0]+'='+str(item[1]) \
-        for item in kw.items() ]
-
-    Flow([dat,wfl],[wav,sou,rec,ccc,den],
-        '''
-        sfewe
+        ewe_fixed
         wfl=${TARGETS[1]}
         sou=${SOURCES[1]}
         rec=${SOURCES[2]}
@@ -198,43 +176,8 @@ def ewefd_old(dat,wfl,wav,ccc,sou,rec,den,**kw):
         den=${SOURCES[4]}
         ''' + ' '.join(arguments))
 
-
-def awefd(dat,wfl,wav,ccc,sou,rec,den,**kw):
-    # Python magic...
-  
-    arguments = [ item[0]+'='+str(int(item[1])) \
-        if type(item[1])==bool \
-        else item[0]+'='+str(item[1]) \
-        for item in kw.items() ]
-
-    Flow([dat,wfl],[wav,sou,rec,ccc,den],
-        '''
-        awe
-        wfl=${TARGETS[1]}
-        sou=${SOURCES[1]}
-        rec=${SOURCES[2]}
-        vel=${SOURCES[3]}
-        den=${SOURCES[4]}
-        ''' + ' '.join(arguments))
-
-
-
-awefd('a2d-dat','a2d-wfl','wava','vp','ss','rr','ro',
-        snap=True,jsnap=5,dabc=True,nb=20,
-        cfl=False,verb=True,free=False,nbell=5,srctype=0,
-        nqz=nz,oqz=oz,dqz=dz,
-        nqx=nx,oqx=ox,dqx=dx)
-
-Flow('a2d-wfl-byt','a2d-wfl','byte gainpanel=a pclip=95')
 
 two = []
-for i in range(0,201,20):
-    Result('wfl-a2d-%03d' % i, 'a2d-wfl-byt',
-        '''
-        window n3=1 f3=%d | grey gainpanel=a pclip=85 
-        ''' % i)
-    two.append('Fig/wfl-a2d-%03d.vpl' % i)
- 
 three = []
 for atype in ['iso','vti','ort','tti']:
     ani = 0
@@ -243,13 +186,7 @@ for atype in ['iso','vti','ort','tti']:
     ewefd('dat'+atype,'wfl'+atype,'wavelet','cc'+atype,'ss','rr','ro-win',
         snap=True,jsnap=5,dabc=True,nb=20,
         cfl=False,verb=True,free=False,nbell=5,srctype=2,
-        nqz=nz,oqz=oz,dqz=dz,ompnth=4,
-        nqx=nx,oqx=ox,dqx=dx, ani=ani,debug=1)
-
-    ewefd_old('old_dat'+atype,'old_wfl'+atype,'wavelet','cc'+atype,'ss','rr','ro',
-        snap=True,jsnap=5,dabc=True,nb=20,
-        cfl=False,verb=True,free=False,nbell=5,srctype=2,
-        nqz=nz,oqz=oz,dqz=dz,ompnth=4,
+        nqz=nz,oqz=oz,dqz=dz,
         nqx=nx,oqx=ox,dqx=dx, ani=ani)
        
     # 3D elastic modeling
@@ -263,22 +200,15 @@ for atype in ['iso','vti','ort','tti']:
 
     Result('dat'+atype,'grey pclip=98 title="data"')
     
-    Result('old_dat'+atype,'grey pclip=98 title="data"')
-    
     Flow('wfl3'+atype+'-byt','wfl3'+atype,
         '''
-        byte pclip=82 gainpanel=a
+        byte pclip=98 gainpanel=a
         ''')
 
     Flow('wfl'+atype+'-byt','wfl'+atype,
         '''
-        byte pclip=82 gainpanel=a
+        byte pclip=98 gainpanel=a
         ''')
-    Flow('old_wfl'+atype+'-byt','old_wfl'+atype,
-        '''
-        byte pclip=82 gainpanel=a
-        ''')
-
 
     for i in range(0,201,20):
         Plot('wfl%s-%03d-z' % (atype,i),'wfl'+atype+'-byt',
@@ -292,20 +222,7 @@ for atype in ['iso','vti','ort','tti']:
         Result('wfl%s-%03d' % (atype,i),['wfl%s-%03d-z' % (atype,i), 'wfl%s-%03d-x' % (atype,i)],
             'SideBySideAniso')
 
-        Plot('old_wfl%s-%03d-z' % (atype,i),'old_wfl'+atype+'-byt',
-            '''
-            window n3=1 n4=1 f4=%d | grey pclip=85 gainpanel=a 
-            ''' % i)
-        Plot('old_wfl%s-%03d-x' % (atype,i),'old_wfl'+atype+'-byt',
-            '''
-            window f3=1 n4=1 f4=%d | grey pclip=85 gainpanel=a 
-            ''' % i)
-        Result('old_wfl%s-%03d' % (atype,i),['old_wfl%s-%03d-z' % (atype,i), 'old_wfl%s-%03d-x' % (atype,i)],
-            'SideBySideAniso')
-
-
         two.append('Fig/wfl%s-%03d.vpl' % (atype,i))
-        two.append('Fig/old_wfl%s-%03d.vpl' % (atype,i))
 
         Plot('wfl3%s-%03d-z' % (atype,i),'wfl3'+atype+'-byt',
             '''

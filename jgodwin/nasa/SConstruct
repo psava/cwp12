@@ -1,34 +1,50 @@
 from rsf.proj import *
-import zipfile,SCons
+import zipfile,SCons,os,atexit
 
-Fetch('NEAR_A_MSI_5_EROSSHAPE_V1_0.zip','asteroid',
+data = 'data/NEAR_A_MSI_5_EROSSHAPE_V1_0/data/vertex/ver64q.tab'
+
+proj = Project()
+proj.Fetch('NEAR_A_MSI_5_EROSSHAPE_V1_0.zip','asteroid',
     top='pds',
     server='http://sbn.psi.edu')
 
-def unzip_emitter(target,source,env):
-    zip = zipfile.ZipFile(str(source[0]),'r')
-    names = zip.namelist()
-    for name in names:
-        target.append(name)
-    zip.close()
-    target.pop(0)
-    return target,source
-
 def unzip(target,source,env):
+    # Source is the name of a zip file including extension
+    # Target is the name of a directory to put the output in
     zip = zipfile.ZipFile(str(source[0]),'r')
     zip.extractall(str(target[0]))
     zip.close()
 
-
-proj = Project()
 unzipBuilder = Builder(action=unzip,
-    emitter=unzip_emitter,
     target_factory=SCons.Node.FS.Entry,
     source_factory=SCons.Node.FS.Entry)
 
 proj.Append(BUILDERS={'Unzip':unzipBuilder})
 
 proj.Unzip('data','NEAR_A_MSI_5_EROSSHAPE_V1_0.zip')
+proj.Clean('data','data')
+
+Flow('vertex.vtk',data,
+    '''
+    %s python/convert_vertex2vtk.py in=$SOURCE out=$TARGET
+    ''' % WhereIs('python'),stdin=0,stdout=-1)
+
+Flow('distance.vtk',data,
+    '''
+    %s python/compute_distance_map.py in=$SOURCE out=$TARGET
+    ''' % WhereIs('python'),stdin=0,stdout=-1)
+
+Flow('mask.asc','distance.vtk',
+    '''
+    %s python/rasterize_vtk.py in=$SOURCE out=$TARGET tol=0.1 maxpts=200000
+    ''' % WhereIs('python'),stdin=0,stdout=-1)
+
+Flow('mask.rsf','mask.asc',
+    '''
+    %s "n1=%d\\n n2=%d\\n n3=%d\\n in=\\"$SOURCE\\"\\n data_format=\\"ascii_int\\" \\n"
+    ''' % (WhereIs('printf'),657,341,243))
+Flow('mask.hh','mask.rsf','sfdd form=native')
+
 
 
 End()

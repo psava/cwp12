@@ -1,0 +1,198 @@
+from rsf.proj import *
+# Stiffness module has methods to convert Thomsen
+# parameters to Cij
+import stiffness
+
+# Define model dimensions 
+nx = 201; dx = 10.0; ox = 0.0
+nz = 201; dz = 10.0; oz = 0.0
+nt = 2001; dt = 0.001; ot = 0.0
+# Wavelet parameters
+kt = 100
+frequency = 20
+# Model Thomsen parameters
+vp = 3000
+vs = 1500
+
+epsilon=0.1
+epsilon2=0.2
+
+delta = 0.2
+delta2=0.1
+delta3=0.05
+
+gamma = 0.3
+gamma2=0.18
+
+nu   = 15.0
+alpha = 20.0
+
+# Create the elastic wavelet
+# The modeling code supports many source types, for example:
+# stress, acceleration, etc.
+# This demonstrates the use of the stress type only.  For 
+# stress sources, we can only modify the diagonal components (principal
+# stresses.  For off-diagonal components, we need to use tensor source
+# type.  We use a Ricker wavelet for now, but other wavelets are possible.
+
+# Wavelet axes are: axis 1 - Source, axis 2 - component, axis 3 - time
+
+# This is the wavelet in 2D
+Flow('wavelet',None,
+    '''
+    spike n1=%d o1=%f d1=%f k1=%d l1=%d | 
+    ricker1 frequency=%f | spray axis=2 n=2 | transp plane=13
+    ''' % (nt,ot,dt,kt,kt+1,frequency))
+Plot('wavelet','transp | graph')
+
+# Make the source location in both 2D and 3D
+Flow('ss',None,
+    '''
+    spike n1=2 k1=1,2 l1=1,2 nsp=2 mag=%f,%f
+    ''' % (dx*nx/2,dz*nz/2))
+
+# Make the receiver location in both 2D and 3D
+
+Flow('rr-z',None,'spike n1=%d o1=%f d1=%f | math output="x1"' % (nz,oz,dz))
+Flow('rr-x',None,'spike n1=%d o1=%f d1=%f | math output="20"' % (nz,oz,dz))
+
+Flow('rr','rr-x rr-z',
+    '''
+    cat axis=2 ${SOURCES[1:-3]} | transp | 
+    window n2=30 f2=5 j2=2
+    ''')
+#Flow('rr',None,
+#    '''
+#    spike n1=2 k1=1,2 l1=1,2 nsp=2 mag=%f,%f
+#    ''' % (dx*nx/2,0))
+
+# Function to make various model parameters
+def modelcubes(name,value):
+
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f | add add=%f
+        ''' % (nz,oz,dz,nx,ox,dx,value))
+
+modelcubes('vp',vp)
+modelcubes('vs',vs)
+modelcubes('del1',delta)
+modelcubes('del2',delta2)
+modelcubes('del3',delta3)
+modelcubes('eps1',epsilon)
+modelcubes('eps2',epsilon2)
+modelcubes('gam1',gamma)
+modelcubes('gam2',gamma2)
+modelcubes('nu',nu)
+modelcubes('alp',alpha)
+
+# Density needs to be handled carefully.  
+# We need different densities to compute the Thomsen parameters and
+# for the modeling code.  
+
+# Make density model for the Thomsen parameters
+Flow('ro','vp',
+    '''
+    math output="%f"
+    '''  % (1.0))
+
+# Now interpolate the Thomsen density model for the elastic
+# modeling code.  We need to interpolate to the half grid (see documentation).
+
+# Madagascar has limited bidirectional interpolation methods so we just fake it here.
+# If you need to use variable density models, then make a model that is half-shifted
+# in addition to the regular density model.  Remember, bilinear interpolation may not
+# be appropriate for your model.  If your density model has hard boundaries (i.e. sharp
+# wrt the wavelet wavelength) then you will need to be careful doing interpolation.  
+# Otherwise, you can introduce artifacts into the modeling software.
+Flow('ro-win','ro',
+    '''
+    window n1=%d n2=%d
+    ''' % (nz-1,nx-1))
+
+
+# Now that we have created the Thomsen parameter cubes, we construct the stiffness
+# coefficient cubes that actually go into the modeling software.  To do this,
+# we call the stiffness module.
+
+# Isotropic
+stiffness.iso2d('cciso','vp','vs','ro',None)
+
+# VTI
+stiffness.vti2d('ccvti','vp','vs','ro','eps1','del1',None)
+
+# Orthorhombic
+stiffness.ort2d('ccort','vp','vs','ro','eps1','del1',None)
+
+# TTI
+stiffness.tti2d('cctti','vp','vs','ro','eps1','del1','nu',None)
+
+def ewefd(dat,wfl,wav,ccc,sou,rec,den,**kw):
+    # Python magic...
+  
+    arguments = [ item[0]+'='+str(int(item[1])) \
+        if type(item[1])==bool \
+        else item[0]+'='+str(item[1]) \
+        for item in kw.items() ]
+
+    Flow([dat,wfl],[wav,sou,rec,ccc,den],
+        '''
+        ../../../sfewe_fixed
+        wfl=${TARGETS[1]}
+        sou=${SOURCES[1]}
+        rec=${SOURCES[2]}
+        ccc=${SOURCES[3]}
+        den=${SOURCES[4]}
+        ''' + ' '.join(arguments))
+
+
+def plotElasticData2d(data,pclip=99,result=False,**kw):
+    Plot(data+'-z','window n2=1 | grey pclip=98 title="data"')
+    Plot(data+'-x','window f2=1 | grey pclip=98 title="data"')
+    if result:
+        Result(data,[data+'-z',data+'-x'],'SideBySideAniso')
+    
+def plotElasticWfld2d(wfld,snapshots,pclip=99,**kw):
+    Flow(wfld+'-byt',wfld,
+        '''
+        byte pclip=%f gainpanel=a
+        ''' % pclip)
+
+    for timestep in snapshots:
+        Plot(wfld+'-%03d-z' % (timestep),wfld+'-byt',
+            '''
+            window n3=1 n4=1 f4=%d | grey 
+            ''' % timestep)
+        Plot(wfld+'-%03d-x' % (timestep),wfld+'-byt',
+            '''
+            window f3=1 n4=1 f4=%d | grey pclip=85 gainpanel=a 
+            ''' % timestep)
+        Result(wfld+'-%03d' % (timestep),[wfld+'-%03d-z' % (timestep), wfld+'-%03d-x' % (timestep)],
+            'SideBySideAniso')
+
+
+
+
+two = []
+#for atype,ani in [('iso',0),('vti',0),('ort',0),('tti',0)]:
+for atype,ani in [('iso',0)]:
+    # 2D elastic modeling
+    ewefd('dat'+atype,'wfl'+atype,'wavelet','cc'+atype,'ss','rr','ro-win',
+        snap=True,jsnap=5,dabc=True,nb=20,
+        cfl=False,verb=True,free=False,nbell=5,srctype=2,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx, ani=ani)
+
+    plotElasticWfld2d('wfl'+atype,range(0,401,20))
+
+    Flow('dat-rev'+atype,'dat'+atype,'reverse which=1 opt=i')
+    ewefd('datjunk'+atype,'wfl-rev'+atype,'dat-rev'+atype,'cc'+atype,'rr','ss','ro-win',
+        snap=True,jsnap=5,dabc=True,nb=20,
+        cfl=False,verb=True,free=False,nbell=5,srctype=1,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx, ani=ani)
+
+    plotElasticWfld2d('wfl-rev'+atype,range(0,401,20))
+
+End()

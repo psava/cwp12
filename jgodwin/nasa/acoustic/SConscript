@@ -1,0 +1,75 @@
+from rsf.proj import *
+import fdmodel as fd
+import math 
+
+par = fd.Dict(
+    nz=657, dz=0.001, oz=0.0, 
+    nx=341, dx=0.001, ox=0.0,
+    ny=243, dy=0.001, oy=0.0,
+    nt=8001, dt=1e-9, ot=0.0, kt=100,
+    freq=20e6,  # Peak frequency in Hz
+    er = 2.0 # Relative permitivitty
+    )
+
+fdpars = fd.defaults(jsnap=100,**par)
+
+# Sources
+sx, sy = par.nx/2*par.dx, par.ny/2*par.dy
+fd.point3d('sou',0,sx,sy)
+
+# Receivers
+#fd.horizontal3d('rec',0,**par)
+fd.point3d('rec',0,0,0)
+
+# Ricker wavelet
+fd.ricker('wave',**par)
+fd.waveplot('wave')
+
+# Velocity model
+fd.constant3d('den',1.0,**par)
+
+scale = -(1 - math.sqrt(1.0/par.er))
+Flow('vel','../mask.hh',
+    '''
+    dd type=float | 
+    add scale=%f  | 
+    add add=1.0   | 
+    add scale=3.0e5 | 
+    put n1=%d o1=%f d1=%f
+    n2=%d o2=%f d2=%f
+    n3=%d o3=%f d3=%f
+    '''  % (scale,par.nz,par.oz,par.dz,
+        par.nx,par.ox,par.dx,
+        par.ny,par.oy,par.dy))
+
+fd.awefd('data','vel','den','wave','sou','rec','wfld',**fdpars)
+
+Flow('wfld-byte','wfld',
+    '''
+    window n4=20 | 
+    byte gainpanel=a pclip=95
+    ''')
+for i in range(20):
+    Plot('wfld-%03d' % i, 'wfld-byte',
+        '''
+        window n4=1 f4=%d | 
+        grey3 frame1=%d frame2=%d frame3=%d
+        title="" label1="z" unit1="km"
+        label2="x" unit2="km"
+        label3="y" unit3="km"
+        flat=n bias=128
+        ''' % (i,par.nz/2,par.nx/2,par.ny/2))
+
+Plot('vel',
+        '''
+        byte pclip=100 gainpanel=a | 
+        grey3 frame1=%d frame2=%d frame3=%d
+        title="" label1="z" unit1="km"
+        label2="x" unit2="km"
+        label3="y" unit3="km"
+        flat=n 
+        ''' % (par.nz/2,par.nx/2,par.ny/2))
+
+Result('test','vel wfld-000' ,'Overlay')
+
+End()

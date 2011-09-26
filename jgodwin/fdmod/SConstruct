@@ -1,0 +1,31 @@
+import os, sys
+
+try:
+    import bldutil
+    glob_build = True # scons command launched in RSFSRC
+    srcroot = os.path.abspath('../../..') # cwd is RSFSRC/build/user/iCode
+    Import('env bindir pkgdir')
+except:
+    glob_build = False # scons command launched in the local directory
+    srcroot = os.environ.get('RSFSRC', '../..')
+    sys.path.append(os.path.join(srcroot,'framework'))
+    import bldutil
+    env = bldutil.Debug() # Debugging flags for compilers
+    bindir = pkgdir = None
+    bindir = os.path.join(os.environ.get('RSFROOT'),'bin')
+    
+targets = bldutil.UserSconsTargets()
+
+######################################################################
+# Put your programs in between the quotes, see below
+######################################################################
+
+targets.c = \
+'''
+awe ewe_fixed stiff awe_omp
+'''
+
+# Do not edit the line below
+targets.build_all(env, glob_build, srcroot, bindir, pkgdir)
+
+env.Install(bindir,['sf'+target for target in Split(targets.c)])

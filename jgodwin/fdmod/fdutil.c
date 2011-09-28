@@ -1106,12 +1106,10 @@ void sponge2d_apply(float**   uu,
     int iz,ix,ib,ibz,ibx;
     float w;
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,ibz,ibx,w)			\
     shared(fdm,uu)
-#endif
     for(ib=0; ib<fdm->nb; ib++) {
 	w = spo->w[fdm->nb-ib-1];
 

@@ -1,15 +1,19 @@
 from rsf.proj import *
 import fdmodel as fd
+import fdmod 
 import math 
 
 par = fd.Dict(
-    nz=657, dz=0.001, oz=0.0, 
-    nx=341, dx=0.001, ox=0.0,
-    ny=243, dy=0.001, oy=0.0,
+    nz=657, dz=0.001, oz=0.0, lz='z',uz='km',
+    nx=341, dx=0.001, ox=0.0, lx='x',ux='km',
+    ny=243, dy=0.001, oy=0.0, ly='y',uy='km',
     nt=8001, dt=1e-9, ot=0.0, kt=100,
     freq=20e6,  # Peak frequency in Hz
     er = 2.0 # Relative permitivitty
     )
+
+fdmodpars = par.copy()
+fdmod.param(fdmodpars)
 
 fdpars = fd.defaults(jsnap=100,**par)
 
@@ -44,11 +48,19 @@ Flow('vel','../mask.hh',
 
 fd.awefd('data','vel','den','wave','sou','rec','wfld',**fdpars)
 
+#Flow('wfld-scale','wfld',   
+#    '''
+#    scale axis=123
+#    ''')
+
 Flow('wfld-byte','wfld',
     '''
     window n4=20 | 
     byte gainpanel=a pclip=95
     ''')
+
+Flow('mask','../mask.hh','dd type=float')
+
 for i in range(20):
     Plot('wfld-%03d' % i, 'wfld-byte',
         '''
@@ -60,15 +72,25 @@ for i in range(20):
         flat=n bias=128
         ''' % (i,par.nz/2,par.nx/2,par.ny/2))
 
-Plot('vel',
+
+    Flow('wfld-vel-%03d' % i,['wfld','mask'],
         '''
-        byte pclip=100 gainpanel=a | 
-        grey3 frame1=%d frame2=%d frame3=%d
-        title="" label1="z" unit1="km"
-        label2="x" unit2="km"
-        label3="y" unit3="km"
-        flat=n 
-        ''' % (par.nz/2,par.nx/2,par.ny/2))
+        window n4=1 f4=%d | 
+        add scale=%g | 
+        add scale=30 |
+        add mode=a ${SOURCES[1]}
+        ''' % (i,1.0/2.74832e-10))
+
+        #math w=${SOURCES[1]} output="10*input+w" 
+
+#    Result('wfld-vel-%03d' % i,
+#        '''
+#        byte pclip=99 gainpanel=a | 
+#        sfgrey3 frame1=%d frame2=%d frame3=%d
+#        title="" label1="z" label2="x" label3="y"
+#        unit1="km" unit2="km" unit3="km"
+#        ''' % (par.nz/2,par.nx/2,par.ny/2))
+    Result('wfld-vel-%03d' % i, 'byte pclip=100 minval=6 maxval=6 gainpanel=a | ' + fdmod.cgrey3d('maxval=6.0 minval=6.0',fdmodpars))
 
 Result('test','vel wfld-000' ,'Overlay')
 

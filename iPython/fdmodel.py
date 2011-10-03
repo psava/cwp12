@@ -13,7 +13,7 @@ class Dict(dict):
     def __setattr__(self,name,val):
         self[name] = val
 
-def defaults(nz,oz,dz,nx,ox,dx,ny,oy,dy,**kw):
+def defaults(nz,oz,dz,nx,ox,dx,ny=1,oy=0,dy=1,**kw):
     pars = Dict(
         free=False,
         verb=True,
@@ -42,6 +42,14 @@ def constant3d(name,val,nz,oz,dz,nx,ox,dx,ny,oy,dy,**kw):
         n3=%d o3=%f d3=%f | 
         math output="%f"
         ''' % (nz,oz,dz,nx,ox,dx,ny,oy,dy,val))
+
+def constant2d(name,val,nz,oz,dz,nx,ox,dx,**kw):
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f | 
+        math output="%f"
+        ''' % (nz,oz,dz,nx,ox,dx,val))
         
 def point2d(name,z,x,**kw):
     Flow(name,None,
@@ -78,7 +86,7 @@ def vertical2d(name,x,oz,nz,dz,**kw):
         ''' %(nz,oz,dz))
     Flow(name,[name+'-z',name+'-x'],
         '''
-        cat axis=2 ${SOURCES[1]} 
+        cat axis=1 ${SOURCES[1]} 
         ''')
 
 def horizontal3d(name,z,ox,nx,dx,oy,ny,dy,**kw):
@@ -128,28 +136,53 @@ def awefd(data,vel,dens,wavelet,sou,rec,wfld=None,
     nb=10, ompnth=8, nbell=5,
     nqz=1,oqz=0,dqz=1,
     nqx=1,oqx=0,dqx=1,
-    nqy=1,oqy=0,dqy=1,**kw):
+    nqy=1,oqy=0,dqy=1,time=False,binary=None,**kw):
 
     targets = [data]
     if wfld:
         targets.append(wfld)
     sources = [wavelet,vel,dens,sou,rec]
-    print targets,sources
-    Flow(targets,sources,
-        '''
-        awe
-        wfl=${TARGETS[1]}
-        vel=${SOURCES[1]}
-        den=${SOURCES[2]}
-        sou=${SOURCES[3]}
-        rec=${SOURCES[4]}
-        ompnth=%(ompnth)d nbell=%(nbell)d
-        verb=%(verb)d free=%(free)d
-        expl=%(expl)d dabc=%(dabc)d nb=%(nb)d
-        cfl=%(cfl)d fmax=%(fmax)f 
-        abcone=%(abcone)d srctype=%(srctype)d 
-        snap=%(snap)d jdata=%(jdata)d jsnap=%(jsnap)d
-        nqx=%(nqx)d nqz=%(nqz)d nqy=%(nqy)d
-        oqz=%(oqz)f oqx=%(oqx)f oqy=%(oqy)f
-        dqy=%(dqy)f dqz=%(dqz)f dqx=%(dqx)f
-        '''  % (locals()))
+
+    if not time:
+        Flow(targets,sources,
+            '''
+            awe
+            wfl=${TARGETS[1]}
+            vel=${SOURCES[1]}
+            den=${SOURCES[2]}
+            sou=${SOURCES[3]}
+            rec=${SOURCES[4]}
+            ompnth=%(ompnth)d nbell=%(nbell)d
+            verb=%(verb)d free=%(free)d
+            expl=%(expl)d dabc=%(dabc)d nb=%(nb)d
+            cfl=%(cfl)d fmax=%(fmax)f 
+            abcone=%(abcone)d srctype=%(srctype)d 
+            snap=%(snap)d jdata=%(jdata)d jsnap=%(jsnap)d
+            nqx=%(nqx)d nqz=%(nqz)d nqy=%(nqy)d
+            oqz=%(oqz)f oqx=%(oqx)f oqy=%(oqy)f
+            dqy=%(dqy)f dqz=%(dqz)f dqx=%(dqx)f
+            '''  % (locals()))
+    else:
+        time_bin = WhereIs('time')
+        if not binary: binary = 'sfawe'
+        binary = WhereIs(binary)
+        Flow(targets,sources,
+            '''
+            %(time_bin)s 
+            %(binary)s
+            wfl=${TARGETS[1]}
+            vel=${SOURCES[1]}
+            den=${SOURCES[2]}
+            sou=${SOURCES[3]}
+            rec=${SOURCES[4]}
+            ompnth=%(ompnth)d nbell=%(nbell)d
+            verb=%(verb)d free=%(free)d
+            expl=%(expl)d dabc=%(dabc)d nb=%(nb)d
+            cfl=%(cfl)d fmax=%(fmax)f 
+            abcone=%(abcone)d srctype=%(srctype)d 
+            snap=%(snap)d jdata=%(jdata)d jsnap=%(jsnap)d
+            nqx=%(nqx)d nqz=%(nqz)d nqy=%(nqy)d
+            oqz=%(oqz)f oqx=%(oqx)f oqy=%(oqy)f
+            dqy=%(dqy)f dqz=%(dqz)f dqx=%(dqx)f
+            '''  % (locals()))
+           

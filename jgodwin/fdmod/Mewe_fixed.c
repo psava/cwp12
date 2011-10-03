@@ -315,7 +315,7 @@ with NaNs.
 
 
 #include <math.h>
-#define NOP 8 /* derivative operator half-size */
+#define NOP 3 /* derivative operator half-size */
 
 /* Coefficients are:  (-1)^(k+1)/k * (n!)^2 / (n+k)!(n-k)!
 for n = order of approximation i.e. eighth order
@@ -336,6 +336,8 @@ and k = coefficient number */
 #define C3 +0.076190   /* +8/105  */
 #define C4 -0.007142   /* -2/280  */
 #endif
+#if 0
+// These work (8th-order stencils)
 #define C1 +1.234091  /* +8/5    */
 #define C2 -0.106650   /* -2/5    */
 #define C3 +0.023036   /* +8/105  */
@@ -344,6 +346,11 @@ and k = coefficient number */
 #define C6 -0.000166   /* -2/280  */
 #define C7 +0.000017   /* -2/280  */
 #define C8 -0.000001   /* -2/280  */
+#endif 
+#define C1 +1.171875  /* +8/5    */
+#define C2 -0.065104   /* -2/5    */
+#define C3 +0.004687   /* +8/105  */
+
 #if 0
 #define C1 +0.888889  /* +8/5    */
 #define C2 -0.311111   /* -2/5    */
@@ -369,7 +376,8 @@ and k = coefficient number */
 #define DzH2(a,ix,iz,dz,dr) (1.0/dr)*(a[ix][iz]-a[ix-1][iz-1])
 #define DxH2(a,ix,iz,dx,dr) (1.0/dr)*(a[ix][iz-1]-a[ix-1][iz])
 #endif
-// These don't work wrong coefficients
+#if 0
+// 8 order
 #define DzH2(a,ix,iz,dz,dr) (1.0/dr)*(       \
         C8*(a[ix+7][iz+7] - a[ix-8][iz-8]) + \
         C7*(a[ix+6][iz+6] - a[ix-7][iz-7]) + \
@@ -388,6 +396,16 @@ and k = coefficient number */
         C3*(a[ix+2][iz-3]-a[ix-3][iz+2])   + \
         C2*(a[ix+1][iz-2]-a[ix-2][iz+1])   + \
         C1*(a[ix][iz-1]-a[ix-1][iz])       )
+#endif
+#define DzH2(a,ix,iz,dz,dr) (1.0/dr)*(       \
+        C3*(a[ix+2][iz+2] - a[ix-3][iz-3]) + \
+        C2*(a[ix+1][iz+1] - a[ix-2][iz-2]) + \
+        C1*(a[ix][iz]     - a[ix-1][iz-1]) )
+#define DxH2(a,ix,iz,dx,dr) (1.0/dr)*(       \
+        C3*(a[ix+2][iz-3]-a[ix-3][iz+2])   + \
+        C2*(a[ix+1][iz-2]-a[ix-2][iz+1])   + \
+        C1*(a[ix][iz-1]-a[ix-1][iz])       )
+
 // These are fourth order derivatives, they work correctly but we 
 // don't use them for consistency between 2D and 3D
 #if 0
@@ -408,6 +426,7 @@ and k = coefficient number */
 #define DxH1(a,ix,iz,dx,dr) (1.0/dr)*(a[ix+1][iz]-a[ix][iz+1])
 #endif
 //These dont work... Wrong coefficients
+#if 0
 #define DzH1(a,ix,iz,dz,dr) (1.0/dr)*(      \
         C8*(a[ix+8][iz+8]-a[ix-7][iz-7]) + \
         C7*(a[ix+7][iz+7]-a[ix-6][iz-6]) + \
@@ -426,6 +445,16 @@ and k = coefficient number */
         C3*(a[ix+3][iz-2]-a[ix-2][iz+3]) + \
         C2*(a[ix+2][iz-1]-a[ix-1][iz+2]) + \
         C1*(a[ix+1][iz]-a[ix][iz+1])  )
+#endif
+#define DzH1(a,ix,iz,dz,dr) (1.0/dr)*(      \
+        C3*(a[ix+3][iz+3]-a[ix-2][iz-2]) + \
+        C2*(a[ix+2][iz+2]-a[ix-1][iz-1]) + \
+        C1*(a[ix+1][iz+1]-a[ix][iz]) )
+#define DxH1(a,ix,iz,dx,dr) (1.0/dr)*(   \
+        C3*(a[ix+3][iz-2]-a[ix-2][iz+3]) + \
+        C2*(a[ix+2][iz-1]-a[ix-1][iz+2]) + \
+        C1*(a[ix+1][iz]-a[ix][iz+1])  )
+
 // These are fourth order derivatives, they work correctly but we 
 // don't use them for consistency between 2D and 3D
 #if 0
@@ -468,22 +497,67 @@ and k = coefficient number */
 //Derivatives for Displacement to Strain grid
 // These are second order stencils that work
 
+#if 0
+// 8 order
 #define D3_11(a,ix,iy,iz,dr) (1.0/dr)*( \
+        C8*(a[iy+8][ix+8][iz+8]-a[iy-7][ix-7][iz-7]) + \
+        C7*(a[iy+7][ix+7][iz+7]-a[iy-6][ix-6][iz-6]) + \
+        C6*(a[iy+6][ix+6][iz+6]-a[iy-5][ix-5][iz-5]) + \
+        C5*(a[iy+5][ix+5][iz+5]-a[iy-4][ix-4][iz-4]) + \
+        C4*(a[iy+4][ix+4][iz+4]-a[iy-3][ix-3][iz-3]) + \
+        C3*(a[iy+3][ix+3][iz+3]-a[iy-2][ix-2][iz-2]) + \
         C2*(a[iy+2][ix+2][iz+2]-a[iy-1][ix-1][iz-1]) + \
         C1*(a[iy+1][ix+1][iz+1]-a[iy][ix][iz]) )
 
 #define D3_12(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy+8][ix+8][iz-7]-a[iy-7][ix-7][iz+8]) + \
+        C7*(a[iy+7][ix+7][iz-6]-a[iy-6][ix-6][iz+7]) + \
+        C6*(a[iy+6][ix+6][iz-5]-a[iy-5][ix-5][iz+6]) + \
+        C5*(a[iy+5][ix+5][iz-4]-a[iy-4][ix-4][iz+5]) + \
+        C4*(a[iy+4][ix+4][iz-3]-a[iy-3][ix-3][iz+4]) + \
+        C3*(a[iy+3][ix+3][iz-2]-a[iy-2][ix-2][iz+3]) + \
         C2*(a[iy+2][ix+2][iz-1]-a[iy-1][ix-1][iz+2]) + \
         C1*(a[iy+1][ix+1][iz]-a[iy][ix][iz+1]) )
 
 #define D3_13(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy-7][ix+8][iz+8]-a[iy+8][ix-7][iz-7]) + \
+        C7*(a[iy-6][ix+7][iz+7]-a[iy+7][ix-6][iz-6]) + \
+        C6*(a[iy-5][ix+6][iz+6]-a[iy+6][ix-5][iz-5]) + \
+        C5*(a[iy-4][ix+5][iz+5]-a[iy+5][ix-4][iz-4]) + \
+        C4*(a[iy-3][ix+4][iz+4]-a[iy+4][ix-3][iz-3]) + \
+        C3*(a[iy-2][ix+3][iz+3]-a[iy+3][ix-2][iz-2]) + \
         C2*(a[iy-1][ix+2][iz+2]-a[iy+2][ix-1][iz-1]) + \
         C1*(a[iy][ix+1][iz+1]-a[iy+1][ix][iz]) )
 
 #define D3_14(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy-7][ix+8][iz-7]-a[iy+8][ix-7][iz+8]) + \
+        C7*(a[iy-6][ix+7][iz-6]-a[iy+7][ix-6][iz+7]) + \
+        C6*(a[iy-5][ix+6][iz-5]-a[iy+6][ix-5][iz+6]) + \
+        C5*(a[iy-4][ix+5][iz-4]-a[iy+5][ix-4][iz+5]) + \
+        C4*(a[iy-3][ix+4][iz-3]-a[iy+4][ix-3][iz+4]) + \
+        C3*(a[iy-2][ix+3][iz-2]-a[iy+3][ix-2][iz+3]) + \
         C2*(a[iy-1][ix+2][iz-1]-a[iy+2][ix-1][iz+2]) + \
         C1*(a[iy][ix+1][iz]-a[iy+1][ix][iz+1]) )
+#endif 
+#define D3_11(a,ix,iy,iz,dr) (1.0/dr)*( \
+        C3*(a[iy+3][ix+3][iz+3]-a[iy-2][ix-2][iz-2]) + \
+        C2*(a[iy+2][ix+2][iz+2]-a[iy-1][ix-1][iz-1]) + \
+        C1*(a[iy+1][ix+1][iz+1]-a[iy][ix][iz]) )
 
+#define D3_12(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy+3][ix+3][iz-2]-a[iy-2][ix-2][iz+3]) + \
+        C2*(a[iy+2][ix+2][iz-1]-a[iy-1][ix-1][iz+2]) + \
+        C1*(a[iy+1][ix+1][iz]-a[iy][ix][iz+1]) )
+
+#define D3_13(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy-2][ix+3][iz+3]-a[iy+3][ix-2][iz-2]) + \
+        C2*(a[iy-1][ix+2][iz+2]-a[iy+2][ix-1][iz-1]) + \
+        C1*(a[iy][ix+1][iz+1]-a[iy+1][ix][iz]) )
+
+#define D3_14(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy-2][ix+3][iz-2]-a[iy+3][ix-2][iz+3]) + \
+        C2*(a[iy-1][ix+2][iz-1]-a[iy+2][ix-1][iz+2]) + \
+        C1*(a[iy][ix+1][iz]-a[iy+1][ix][iz+1]) )
 #if 0 
 #define D3_11(a,ix,iy,iz,dr) (1.0/dr)*( \
         (a[iy+1][ix+1][iz+1]-a[iy][ix][iz]) )
@@ -507,22 +581,47 @@ and k = coefficient number */
 //Derivatives for Strain to Displacement grid
 //
 // These are second order derivatives that work
+#if 0
 #define D3_21(a,ix,iy,iz,dr) (1.0/dr)*( \
+        C8*(a[iy+7][ix+7][iz+7]-a[iy-8][ix-8][iz-8]) + \
+        C7*(a[iy+6][ix+6][iz+6]-a[iy-7][ix-7][iz-7]) + \
+        C6*(a[iy+5][ix+5][iz+5]-a[iy-6][ix-6][iz-6]) + \
+        C5*(a[iy+4][ix+4][iz+4]-a[iy-5][ix-5][iz-5]) + \
+        C4*(a[iy+3][ix+3][iz+3]-a[iy-4][ix-4][iz-4]) + \
+        C3*(a[iy+2][ix+2][iz+3]-a[iy-3][ix-3][iz-3]) + \
         C2*(a[iy+1][ix+1][iz+1]-a[iy-2][ix-2][iz-2]) + \
         C1*(a[iy][ix][iz]-a[iy-1][ix-1][iz-1]) )
 
 #define D3_22(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy+7][ix+7][iz-8]-a[iy-8][ix-8][iz+7]) + \
+        C7*(a[iy+6][ix+6][iz-7]-a[iy-7][ix-7][iz+6]) + \
+        C6*(a[iy+5][ix+5][iz-6]-a[iy-6][ix-6][iz+5]) + \
+        C5*(a[iy+4][ix+4][iz-5]-a[iy-5][ix-5][iz+4]) + \
+        C4*(a[iy+3][ix+3][iz-4]-a[iy-4][ix-4][iz+3]) + \
+        C3*(a[iy+2][ix+2][iz-3]-a[iy-3][ix-3][iz+2]) + \
         C2*(a[iy+1][ix+1][iz-2]-a[iy-2][ix-2][iz+1]) + \
         C1*(a[iy][ix][iz-1]-a[iy-1][ix-1][iz]) )
 
 #define D3_23(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy-8][ix+7][iz+7]-a[iy+7][ix-8][iz-8]) + \
+        C7*(a[iy-7][ix+6][iz+6]-a[iy+6][ix-7][iz-7]) + \
+        C6*(a[iy-6][ix+5][iz+5]-a[iy+5][ix-6][iz-6]) + \
+        C5*(a[iy-5][ix+4][iz+4]-a[iy+4][ix-5][iz-5]) + \
+        C4*(a[iy-4][ix+3][iz+3]-a[iy+3][ix-4][iz-4]) + \
+        C3*(a[iy-3][ix+2][iz+2]-a[iy+2][ix-3][iz-3]) + \
         C2*(a[iy-2][ix+1][iz+1]-a[iy+1][ix-2][iz-2]) + \
         C1*(a[iy-1][ix][iz]-a[iy][ix-1][iz-1]) )
 
 #define D3_24(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C8*(a[iy-8][ix+7][iz-8]-a[iy+7][ix-8][iz+7])  + \
+        C7*(a[iy-7][ix+6][iz-7]-a[iy+6][ix-7][iz+6])  + \
+        C6*(a[iy-6][ix+5][iz-6]-a[iy+5][ix-6][iz+5])  + \
+        C5*(a[iy-5][ix+4][iz-5]-a[iy+4][ix-5][iz+4])  + \
+        C4*(a[iy-4][ix+3][iz-4]-a[iy+3][ix-4][iz+3])  + \
+        C3*(a[iy-3][ix+2][iz-3]-a[iy+2][ix-3][iz+2])  + \
         C2*(a[iy-2][ix+1][iz-2]-a[iy+1][ix-2][iz+1])  + \
         C1*(a[iy-1][ix][iz-1]-a[iy][ix-1][iz]) )
-
+#endif
 #if 0
 #define D3_21(a,ix,iy,iz,dr) (1.0/dr)*( \
         (a[iy][ix][iz]-a[iy-1][ix-1][iz-1]) )
@@ -533,6 +632,25 @@ and k = coefficient number */
 #define D3_24(a,ix,iy,iz,dr) (1.0/dr)*(\
         (a[iy-1][ix][iz-1]-a[iy][ix-1][iz]) )
 #endif
+#define D3_21(a,ix,iy,iz,dr) (1.0/dr)*( \
+        C3*(a[iy+2][ix+2][iz+3]-a[iy-3][ix-3][iz-3]) + \
+        C2*(a[iy+1][ix+1][iz+1]-a[iy-2][ix-2][iz-2]) + \
+        C1*(a[iy][ix][iz]-a[iy-1][ix-1][iz-1]) )
+
+#define D3_22(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy+2][ix+2][iz-3]-a[iy-3][ix-3][iz+2]) + \
+        C2*(a[iy+1][ix+1][iz-2]-a[iy-2][ix-2][iz+1]) + \
+        C1*(a[iy][ix][iz-1]-a[iy-1][ix-1][iz]) )
+
+#define D3_23(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy-3][ix+2][iz+2]-a[iy+2][ix-3][iz-3]) + \
+        C2*(a[iy-2][ix+1][iz+1]-a[iy+1][ix-2][iz-2]) + \
+        C1*(a[iy-1][ix][iz]-a[iy][ix-1][iz-1]) )
+
+#define D3_24(a,ix,iy,iz,dr) (1.0/dr)*(\
+        C3*(a[iy-3][ix+2][iz-3]-a[iy+2][ix-3][iz+2])  + \
+        C2*(a[iy-2][ix+1][iz-2]-a[iy+1][ix-2][iz+1])  + \
+        C1*(a[iy-1][ix][iz-1]-a[iy][ix-1][iz]) )
 
 #define Dx3_2(a,ix,iy,iz,dx,dy,dz,dr) (dr/(4*dx))*(\
         D3_21(a,ix,iy,iz,dr)+D3_22(a,ix,iy,iz,dr)+D3_23(a,ix,iy,iz,dr)+D3_24(a,ix,iy,iz,dr) )

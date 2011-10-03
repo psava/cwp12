@@ -25,7 +25,11 @@ targets.c = \
 awe ewe_fixed stiff awe_omp
 '''
 
+env['CFLAGS'] = env['CFLAGS'].replace('-g','-O2')
+
 # Do not edit the line below
 targets.build_all(env, glob_build, srcroot, bindir, pkgdir)
 
-env.Install(bindir,['sf'+target for target in Split(targets.c)])
+binaries = ['sf'+target for target in Split(targets.c)]
+env.InstallAs([os.path.join(bindir,targ+'_dev') for targ in binaries],binaries)
+env.Alias('install',bindir)

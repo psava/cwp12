@@ -1,15 +1,13 @@
 from pylab import *
+
 '''
-Taken from:
-SIAM REV. ⃝c 1998 Society for Industrial and Applied Mathematics
-Vol. 40, No. 3, pp. 685–691, September 1998
-CALCULATION OF WEIGHTS IN FINITE DIFFERENCE FORMULAS∗
-BENGT FORNBERG†
+From Calculation of weights in finite difference formulas.
+Bengt Fornberg
 '''
 scale = 1.0
 m  = 1
 z = 0
-nd = 8
+nd = 6
 n = nd-1
 
 dx = 1.0

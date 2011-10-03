@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif 
 
 
 #ifndef _fdutil_h
@@ -581,12 +578,10 @@ void lint2d_inject(float**uu,
     int   ia;
     float wa;
 
-#ifdef _OPENMP
 #pragma omp parallel for \
     schedule(dynamic,1) \
     private(ia,wa) \
     shared(ca,ww,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 	wa = ww[ia];
 	
@@ -667,6 +662,16 @@ void lint3d_inject1(float***uu,
     }
 }
 
+void cut2d_extract(float **uu, float*dd, lint2d ca)
+/*< extract from wavefield without interpolation>*/
+{
+    int ia;
+//#pragma omp parallel for schedule(dynamic,1) private(ia) shared(ca,dd,uu)
+    for (ia=0;ia<ca->n;ia++) {
+	    dd[ia] = uu[ca->jx[ia]][ca->jz[ia]];
+    }
+}
+
 /*------------------------------------------------------------*/
 void lint2d_extract(float**uu,
 		    float* dd,
@@ -675,9 +680,7 @@ void lint2d_extract(float**uu,
 {
     int ia;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia) shared(ca,dd,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 	dd[ia] =
 	    uu[ ca->jx[ia]  ][ ca->jz[ia]  ] * ca->w00[ia] +
@@ -710,6 +713,14 @@ void lint3d_extract(float***uu,
     }
 }  
 
+void cut3d_extract(float ***uu, float *dd, lint3d ca) {
+/*< extract from wavefield without interpolation >*/
+    int ia;
+#pragma omp parallel for schedule(static) private(ia) shared(ca,dd,uu)
+    for( ia=0; ia < ca->n; ++ia){
+        dd[ia] = uu[ca->jy[ia]][ca->jx[ia]][ca->jz[ia]];
+    }
+}
 
 /*------------------------------------------------------------*/
 void fdbell_init(int n)
@@ -1106,27 +1117,50 @@ void sponge2d_apply(float**   uu,
     int iz,ix,ib,ibz,ibx;
     float w;
 
-#pragma omp parallel for			\
-    schedule(dynamic,1)				\
+//#pragma omp parallel for			\
+    schedule(dynamic)				\
+    private(ib,iz,ix,ibz,ibx,w)			\
+    shared(fdm,uu)
+    for(ix=0; ix<fdm->nxpad; ix++) {
+        for(ib=0; ib<fdm->nb; ib++) {
+        w = spo->w[fdm->nb-ib-1];
+        uu[ix][ib ] *= w; /*    top sponge */
+        }
+    }
+
+//#pragma omp parallel for			\
+    schedule(dynamic)				\
+    private(ib,iz,ix,ibz,ibx,w)			\
+    shared(fdm,uu)
+    for(ix=0; ix<fdm->nxpad; ix++) {
+        for(ib=0; ib<fdm->nb; ib++) {
+        w = spo->w[fdm->nb-ib-1];
+        ibz = fdm->nzpad-ib-1;
+        uu[ix][ibz] *= w; /* bottom sponge */
+        }
+    }
+
+//#pragma omp parallel for			\
+    schedule(dynamic)				\
     private(ib,iz,ix,ibz,ibx,w)			\
     shared(fdm,uu)
     for(ib=0; ib<fdm->nb; ib++) {
-	w = spo->w[fdm->nb-ib-1];
+        w = spo->w[fdm->nb-ib-1];
+        for(iz=0; iz<fdm->nzpad; iz++) {
+            uu[ib ][iz] *= w; /*   left sponge */
+        }
+    }
 
-	ibz = fdm->nzpad-ib-1;
-	for(ix=0; ix<fdm->nxpad; ix++) {
-//        fprintf(stderr,"Value before: %f\n",uu[ix][ib]);
-	    uu[ix][ib ] *= w; /*    top sponge */
-	    uu[ix][ibz] *= w; /* bottom sponge */
- //       fprintf(stderr,"Value after: %f\n",uu[ix][ib]);
-	}
-
-	ibx = fdm->nxpad-ib-1;
-	for(iz=0; iz<fdm->nzpad; iz++) {
-	    uu[ib ][iz] *= w; /*   left sponge */
-	    uu[ibx][iz] *= w; /*  right sponge */
-	}
-
+//#pragma omp parallel for			\
+    schedule(dynamic)				\
+    private(ib,iz,ix,ibz,ibx,w)			\
+    shared(fdm,uu)
+    for(ib=0; ib<fdm->nb; ib++) {
+        w = spo->w[fdm->nb-ib-1];
+	    ibx = fdm->nxpad-ib-1;
+        for(iz=0; iz<fdm->nzpad; iz++) {
+            uu[ibx][iz] *= w; /*  right sponge */
+        }
     }
 }
 
@@ -1171,39 +1205,47 @@ void sponge3d_apply(float  ***uu,
     int iz,ix,iy,ib,ibz,ibx,iby;
     float w;
 
-#ifdef _OPENMP
-#pragma omp parallel for			\
+//#pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
     shared(fdm,uu)
-#endif
-    for(ib=0; ib<fdm->nb; ib++) {
-	w = spo->w[fdm->nb-ib-1];
-
-	ibz = fdm->nzpad-ib-1;
 	for    (iy=0; iy<fdm->nypad; iy++) {
 	    for(ix=0; ix<fdm->nxpad; ix++) {
-		uu[iy][ix][ib ] *= w; /* z min */
-		uu[iy][ix][ibz] *= w; /* z max */
+            for(ib=0; ib<fdm->nb; ib++) {
+                ibz = fdm->nzpad-ib-1;
+                w = spo->w[fdm->nb-ib-1];
+                uu[iy][ix][ib ] *= w; /* z min */
+                uu[iy][ix][ibz] *= w; /* z max */
+	        }
 	    }
-	}
+    }
 
-	ibx = fdm->nxpad-ib-1;
+//#pragma omp parallel for			\
+    schedule(dynamic,1)				\
+    private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
+    shared(fdm,uu)
 	for    (iy=0; iy<fdm->nypad; iy++) {
-	    for(iz=0; iz<fdm->nzpad; iz++) {
-		uu[iy][ib ][iz] *= w; /* x min */
-		uu[iy][ibx][iz] *= w; /* x max */
-	    }
-	}
+        for(ib=0; ib<fdm->nb; ib++) {
+	        ibx = fdm->nxpad-ib-1;
+	        for(iz=0; iz<fdm->nzpad; iz++) {
+		        uu[iy][ib ][iz] *= w; /* x min */
+		        uu[iy][ibx][iz] *= w; /* x max */
+            }
+        }
+    }
 	
-	iby = fdm->nypad-ib-1;
-	for    (ix=0; ix<fdm->nxpad; ix++) {
-	    for(iz=0; iz<fdm->nzpad; iz++) {
-		uu[ib ][ix][iz] *= w; /* x min */
-		uu[iby][ix][iz] *= w; /* x max */
-	    }
-	}
-
+//#pragma omp parallel for			\
+    schedule(dynamic,1)				\
+    private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
+    shared(fdm,uu)
+    for(ib=0; ib<fdm->nb; ib++) {
+	    iby = fdm->nypad-ib-1;
+        for    (ix=0; ix<fdm->nxpad; ix++) {
+            for(iz=0; iz<fdm->nzpad; iz++) {
+            uu[ib ][ix][iz] *= w; /* x min */
+            uu[iby][ix][iz] *= w; /* x max */
+            }
+        }
     }
 } 
 

@@ -236,7 +236,8 @@ for i in range(0,201,20):
     two.append('Fig/wfl-a2d-%03d.vpl' % i)
  
 three = []
-for atype in ['iso','vti','ort','tti']:
+#for atype in ['iso','vti','ort','tti']:
+for atype in ['iso']:
     ani = 0
     if atype == 'tti': ani = 1
     # 2D elastic modeling
@@ -255,7 +256,7 @@ for atype in ['iso','vti','ort','tti']:
     # 3D elastic modeling
     ewefd('dat3'+atype,'wfl3'+atype,'wavelet3','cc3'+atype,'ss3','rr3','ro3-win',
         snap=True,jsnap=5,dabc=True,nb=20,nbell=5,
-        cfl=False,verb=True,free=False,srctype=2,ompnth=2,
+        cfl=False,verb=True,free=False,srctype=2,ompnth=4,
         ompchunk=ARGUMENTS.get('ompchunk',1),
         nqz=nz,oqz=oz,dqz=dz,
         nqx=nx,oqx=ox,dqx=dx,

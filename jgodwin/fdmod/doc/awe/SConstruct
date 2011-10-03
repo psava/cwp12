@@ -2,9 +2,9 @@ from rsf.proj import *
 
 # Model parameters
 # Model dimensions first
-nx = 101; dx=0.01; ox=0.0; # Units don't matter; just be consistent these are km
-ny = 101; dy=0.01; oy=0.0; # Units don't matter; just be consistent these are km
-nz = 101; dz=0.01; oz=0.0;
+nx = 301; dx=0.01; ox=0.0; # Units don't matter; just be consistent these are km
+ny = 301; dy=0.01; oy=0.0; # Units don't matter; just be consistent these are km
+nz = 301; dz=0.01; oz=0.0;
 nt = 1001; dt=0.001; ot=0.0 # Time units (in seconds)
 # Model values, we use constant velocity to illustrate 
 # however your models can be arbitrarily complex.
@@ -127,13 +127,14 @@ def awefd(data,wfld,wavelet,vel,den,sou,rec,**kw):
 
     Flow([data,wfld],[wavelet,vel,den,sou,rec],
         '''
-        awe
+        %s
+        %s
         wfl=${TARGETS[1]}
         vel=${SOURCES[1]}
         den=${SOURCES[2]}
         sou=${SOURCES[3]}
         rec=${SOURCES[4]}
-        '''  + ' '.join(arguments))
+        ''' % (WhereIs('time'),WhereIs('sfawe'))  + ' '.join(arguments))
 
 
 # 2D modeling
@@ -167,12 +168,12 @@ Flow('wfl3-byt','wfl3',
         '''
         byte pclip=98 gainpanel=a 
         ''')
-
-for i in range(0,nt/5,20):
-    Result('wfl3-%03d' % i ,'wfl3-byt',
-        '''
-        window n4=1 f4=%d | 
-        grey3 frame1=%d frame2=%d frame3=%d
-        ''' % (i,frame1,frame2,frame3))
-
+#
+#for i in range(0,nt/5,20):
+#    Result('wfl3-%03d' % i ,'wfl3-byt',
+#        '''
+#        window n4=1 f4=%d | 
+#        grey3 frame1=%d frame2=%d frame3=%d
+#        ''' % (i,frame1,frame2,frame3))
+#
 End()

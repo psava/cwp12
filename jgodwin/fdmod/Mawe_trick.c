@@ -1,4 +1,6 @@
 /*Acoustic time-domain FD modeling, automatically determines to use 2D or 3D modeling based on velocity file structure.
+ *
+ * VERSION 1.0 - May 6, 2011
 
 Acoustic wave equation finite difference modeling in both 2D and 3D using
 an explicit time-domain solver.
@@ -205,16 +207,10 @@ enum SourceType {ACCELERATION=0, DISPLACEMENT=1};
 int main(int argc, char* argv[])
 {
     bool verb,fsrf,snap,expl,dabc,abcone,is2D,cfl; 
+    bool ignore_interpolation = false; /* ignore interpolation for receivers - makes code faster, but only works when receivers are on grid points */
     int  jsnap,ntsnap,jdata;
     float fmax, safety;
     enum SourceType srctype;
-    
-   
-    /* OMP parameters */
-    #ifdef _OPENMP
-    	int ompnth;
-    #endif 
-    
     /* I/O files */
     sf_file Fwav=NULL; /* wavelet   */
     sf_file Fsou=NULL; /* sources   */
@@ -255,6 +251,7 @@ about being uninitialized */
     /*------------------------------------------------------------*/
     /* OMP parameters */
 
+    if( !sf_getbool("ignint",&ignore_interpolation)) ignore_interpolation = false;
     if(! sf_getbool("verb",&verb)) verb=false; /* verbosity flag */
     if(! sf_getbool("snap",&snap)) snap=false; /* wavefield snapshots flag */
     if(! sf_getbool("free",&fsrf)) fsrf=false; /* free surface flag */
@@ -347,8 +344,6 @@ if(is2D){
 
     fdm=fdutil_init(verb,fsrf,az,ax,nb,1);
 
-    sf_setn(az,fdm->nzpad); sf_seto(az,fdm->ozpad); if(verb) sf_raxa(az);
-    sf_setn(ax,fdm->nxpad); sf_seto(ax,fdm->oxpad); if(verb) sf_raxa(ax);
     /*------------------------------------------------------------*/
 
     /*------------------------------------------------------------*/
@@ -367,6 +362,8 @@ if(is2D){
 	if(!sf_getfloat("oqz",&oqz)) oqz=sf_o(az);
 	if(!sf_getfloat("oqx",&oqx)) oqx=sf_o(ax);
 
+    sf_setn(az,fdm->nzpad); sf_seto(az,fdm->ozpad); if(verb) sf_raxa(az);
+    sf_setn(ax,fdm->nxpad); sf_seto(ax,fdm->oxpad); if(verb) sf_raxa(ax);
 	dqz=sf_d(az);
 	dqx=sf_d(ax);
 
@@ -495,26 +492,36 @@ if(is2D){
 	if(verb) fprintf(stderr,"%d/%d \r",it,nt);
 
 #pragma omp parallel for				\
-    schedule(dynamic,fdm->ompchunk)			\
+    schedule(dynamic) \
     private(ix,iz)					\
-    shared(fdm,ua,uo,co,cax,caz,cbx,cbz,idx,idz)
+    shared(fdm,ua,uo,co,caz,cbz)
 	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
 	    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
-
+		
 		/* 4th order Laplacian operator */
 		ua[ix][iz] = 
 		    co * uo[ix  ][iz  ] + 
 		    caz*(uo[ix  ][iz-1] + uo[ix  ][iz+1]) +
-		    cbz*(uo[ix  ][iz-2] + uo[ix  ][iz+2]) +
-    	    cax*(uo[ix-1][iz  ] + uo[ix+1][iz  ]) +
-		    cbx*(uo[ix-2][iz  ] + uo[ix+2][iz  ]); 
-		
+		    cbz*(uo[ix  ][iz-2] + uo[ix  ][iz+2]) ; 
 		/* density term */
-		ua[ix][iz] -= (
+        /*ua[ix][iz] -= (
 		    DZ(uo,ix,iz,idz) * roz[ix][iz] +
 		    DX(uo,ix,iz,idx) * rox[ix][iz] );
+        */
 	    }
 	}   
+
+#pragma omp parallel for				\
+    schedule(dynamic)			\
+    private(ix,iz)					\
+    shared(fdm,ua,uo,co,cax,cbx)
+	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
+	    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
+        ua[ix][iz] =  ua[ix][iz] + 
+		    cax*(uo[ix-1][iz  ] + uo[ix+1][iz  ]) +
+		    cbx*(uo[ix-2][iz  ] + uo[ix+2][iz  ]);
+            }
+    }
 
 	/* inject acceleration source */
     if (srctype == ACCELERATION){
@@ -529,7 +536,7 @@ if(is2D){
 
 	/* step forward in time */
 #pragma omp parallel for	    \
-    schedule(dynamic,fdm->ompchunk) \
+    schedule(dynamic) \
     private(ix,iz)		    \
     shared(fdm,ua,uo,um,up,vt)
 	for    (ix=0; ix<fdm->nxpad; ix++) {
@@ -566,7 +573,11 @@ if(is2D){
 	}
 
 	/* extract data */
-	lint2d_extract(uo,dd,cr);
+    if(ignore_interpolation){
+        cut2d_extract(uo,dd,cr);
+    } else {
+	    lint2d_extract(uo,dd,cr);
+    }
 
 	if(snap && it%jsnap==0) {
 	    cut2d(uo,uc,fdm,acz,acx);
@@ -801,7 +812,7 @@ if(is2D){
 	if(verb) fprintf(stderr,"%d/%d \r",it,nt);
 
 #pragma omp parallel for					\
-    schedule(dynamic,fdm->ompchunk)				\
+    schedule(dynamic) \
     private(ix,iy,iz)						\
     shared(fdm,ua,uo,co,cax,cay,caz,cbx,cby,cbz,idx,idy,idz)
 	for        (iy=NOP; iy<fdm->nypad-NOP; iy++) {
@@ -811,21 +822,46 @@ if(is2D){
 		    /* 4th order Laplacian operator */
 		    ua[iy][ix][iz] = 
 			co * uo[iy  ][ix  ][iz  ] + 
-			cax*(uo[iy  ][ix-1][iz  ] + uo[iy  ][ix+1][iz  ]) +
-			cbx*(uo[iy  ][ix-2][iz  ] + uo[iy  ][ix+2][iz  ]) +
-			cay*(uo[iy-1][ix  ][iz  ] + uo[iy+1][ix  ][iz  ]) +
-			cby*(uo[iy-2][ix  ][iz  ] + uo[iy+2][ix  ][iz  ]) +
 			caz*(uo[iy  ][ix  ][iz-1] + uo[iy  ][ix  ][iz+1]) +
 			cbz*(uo[iy  ][ix  ][iz-2] + uo[iy  ][ix  ][iz+2]);
 		    
 		    /* density term */
-		    ua[iy][ix][iz] -= (
+		    /*ua[iy][ix][iz] -= (
 			DZ3(uo,ix,iy,iz,idz) * roz[iy][ix][iz] +
 			DX3(uo,ix,iy,iz,idx) * rox[iy][ix][iz] +
 			DY3(uo,ix,iy,iz,idy) * roy[iy][ix][iz] );
-		}
+            */
+		 }
 	    }   
 	}
+
+#pragma omp parallel for					\
+    schedule(dynamic) \
+    private(ix,iy,iz)						\
+    shared(fdm,ua,uo,co,cax,cay,caz,cbx,cby,cbz,idx,idy,idz)
+	for        (iy=NOP; iy<fdm->nypad-NOP; iy++) {
+	    for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
+		    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
+		    ua[iy][ix][iz] = ua[iy][ix][iz] + 
+			cax*(uo[iy  ][ix-1][iz  ] + uo[iy  ][ix+1][iz  ]) +
+			cbx*(uo[iy  ][ix-2][iz  ] + uo[iy  ][ix+2][iz  ]) ;
+            }
+        }
+    }
+
+#pragma omp parallel for					\
+    schedule(dynamic) \
+    private(ix,iy,iz)						\
+    shared(fdm,ua,uo,co,cax,cay,caz,cbx,cby,cbz,idx,idy,idz)
+	for        (iy=NOP; iy<fdm->nypad-NOP; iy++) {
+	    for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
+		    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
+		    ua[iy][ix][iz] = ua[iy][ix][iz] + 
+			cay*(uo[iy-1][ix  ][iz  ] + uo[iy+1][ix  ][iz  ]) +
+			cby*(uo[iy-2][ix  ][iz  ] + uo[iy+2][ix  ][iz  ]);
+            }
+        }
+    }
 
 	/* inject acceleration source */
     if (srctype == ACCELERATION){
@@ -840,7 +876,7 @@ if(is2D){
 
 	/* step forward in time */
 #pragma omp parallel for	    \
-    schedule(dynamic,fdm->ompchunk) \
+    schedule(static) \
     private(ix,iy,iz)		    \
     shared(fdm,ua,uo,um,up,vt)
 	for        (iy=0; iy<fdm->nypad; iy++) {
@@ -877,13 +913,17 @@ if(is2D){
 	}
 
 	/* extract data */
-	lint3d_extract(uo,dd,cr);
+    if (ignore_interpolation) {
+	    cut3d_extract(uo,dd,cr);
+    } else {
+	    lint3d_extract(uo,dd,cr);
+    }
 
 	if(snap && it%jsnap==0) {
 	    cut3d(uo,uc,fdm,acz,acx,acy);
 	    sf_floatwrite(uc[0][0],sf_n(acz)*sf_n(acx)*sf_n(acy),Fwfl);
 	}
-	if(        it%jdata==0) 
+	if(it%jdata==0) 
 	    sf_floatwrite(dd,nr,Fdat);
     }
     if(verb) fprintf(stderr,"\n");    

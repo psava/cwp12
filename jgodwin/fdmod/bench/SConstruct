@@ -1,0 +1,46 @@
+from rsf.proj import *
+import fdmodel as fd
+
+
+pars = fd.Dict(
+    nx=501,ox=0,dx=0.001,
+    ny=201,oy=0,dy=0.001,
+    nz=501,oz=0,dz=0.001,
+    nt=1001,ot=0,dt=0.001,kt=50,freq=20.0
+)
+
+fdpars = fd.defaults(snap=False,**pars)
+
+fd.constant2d('vel2',2.0,**pars)
+fd.constant2d('den2',1.0,**pars)
+
+fd.constant3d('vel3',3.0,**pars)
+fd.constant3d('den3',1.0,**pars)
+
+fd.point2d('sou2',0.15,.10)
+fd.point3d('sou3',0.15,.10,.10)
+
+fd.horizontal2d('rec2',0,**pars)
+fd.horizontal3d('rec3',0,**pars)
+
+fd.ricker('wave',**pars)
+proj = Project()
+
+for type in ['','_dev']:
+    fd.awefd('data2'+type,'vel2','den2','wave','sou2','rec2','wfld2'+type,
+        time=True,binary='sfawe'+type,
+        **fdpars)
+    Plot('data2'+type, 'grey pclip=100')
+
+proj.Alias('two',['data2'+type+'.rsf' for type in ['','_dev']])    
+
+for type in ['','_dev']:
+    fd.awefd('data3'+type,'vel3','den3','wave','sou3','rec3','wfld3'+type,
+        time=True,binary='sfawe'+type,
+        **fdpars)
+    Plot('data3'+type, 'grey pclip=100')
+
+
+proj.Alias('three',['data3'+type+'.rsf' for type in ['','_dev']])    
+print proj.Dump()
+End()

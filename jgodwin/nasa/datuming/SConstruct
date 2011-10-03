@@ -1,0 +1,24 @@
+from rsf.proj import *
+import fdmodel
+
+
+pars = fdmodel.Dict(nx=201,nz=201,ox=0,dx=1.0,oz=0,dz=1.0,
+    freq=20.0,ot=0,dt=0.001,nt=1001,kt=50)
+
+fdpars = fdmodel.defaults(ompnth=2,nb=30,**pars)
+
+fdmodel.constant2d('vel',500.0,**pars)
+fdmodel.constant2d('den',1.0,**pars)
+
+fdmodel.point2d('sou',100,50)
+
+fdmodel.vertical2d('rec',200,**pars)
+
+fdmodel.ricker('wave',**pars)
+
+fdmodel.awefd('data','vel','den','wave','sou','rec','wfld',**fdpars)
+
+Plot('data','transp | grey pclip=99')
+
+
+End()

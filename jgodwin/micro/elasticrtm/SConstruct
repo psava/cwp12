@@ -1,3 +1,6 @@
+# A test that shows that RTM in elastic media produces waves that
+# are fake and do not belong, even when using displacement sources.
+
 from rsf.proj import *
 # Stiffness module has methods to convert Thomsen
 # parameters to Cij

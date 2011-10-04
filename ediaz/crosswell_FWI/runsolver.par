@@ -1,0 +1,14 @@
+./mycscons
+-f SConstruct_operator_OF_no_reg
+y
+./mycscons
+-f SConstruct_operator_gradient_no_reg
+y
+slsS.rsf
+sol_FWI_solver_demo.rsf
+movie_FWI_solver_demo.rsf
+3
+3
+0.001
+n
+

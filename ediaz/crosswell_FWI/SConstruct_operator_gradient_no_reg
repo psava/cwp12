@@ -1,0 +1,142 @@
+from rsf.mycluster import *
+import fdmod
+
+###################
+# Have to call Cluster first
+Cluster(name='solver_demo2_grad',email='tyang@mines.edu',time=1, ppn=12)
+###################
+
+OptionInitial()
+
+AddOption('--model',
+    dest='model',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='slowness model')
+
+# input file, not used in this case 
+AddOption('--input',
+    dest='input',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='input file')
+
+# output file, here is the gradient
+AddOption('--output',
+    dest='output',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='output file')
+
+# iteration number
+AddOption('--itag',
+    dest='itag',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='iteration index')
+
+input  =  GetOption('input')
+output =  GetOption('output')
+itag   =  GetOption('itag')
+model  =  GetOption('model')
+
+NamePbsDirectory('pbs-'+itag+'-grad')
+
+nitag = itag + '-'
+
+# ------------------------------------------------------------
+f2m=0.3048
+par = dict(
+    nx=1201,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
+    nz=900, oz=6.5*f2m,dz=0.025*f2m,lz='z',uz='km',
+    nt=6000,ot=0,      dt=0.001,    lt='t',ut='s',
+    jsnap=250,
+    jwfld=20,
+    kt=600,
+    nb=100,
+    frq=5,
+    orec=2.25, jrec=1,   nrec=850,
+    osou=3.0,  jsou=50, nsou=15
+    )
+
+# wavefield save window
+par['nqx']=par['nx']
+par['nqz']=par['nz']
+par['oqx']=par['ox']
+par['oqz']=par['oz']
+
+fdmod.param(par)
+
+# sources
+par['fsou']=int((par['osou']-par['oz'])/par['dz'])
+SHOTS=range(par['fsou'],
+            par['fsou']+par['nsou']*par['jsou'],
+            par['jsou'])
+
+# ------------------------------------------------------------
+# data gradient
+# ------------------------------------------------------------
+
+# parallel flag
+Fork(time=5,ipn=1,nodes=15)
+
+for s in SHOTS:
+    stag = "-%03d"%s
+
+    # ------------------------------------------------------------
+    # adjoint source
+    Flow(nitag+'aso'+stag,[nitag+'dres'+stag,'dwght'],'math w=${SOURCES[1]} output="w*input"')
+
+    # adjoint state variables 
+    Flow(nitag+'ain'+stag,nitag+'aso'+stag,'reverse which=2 opt=i verb=y')
+
+    Flow([nitag+'jS'+stag,nitag+'wfr_tmp'+stag],[nitag+'ain'+stag,'vel1-'+itag,'dens','rr','rr'],
+         '''
+         awefd2d
+         ompchunk=%(ompchunk)d ompnth=%(ompnth)d
+         verb=y free=n snap=%(snap)s jsnap=%(jwfld)d
+         dabc=%(dabc)s nb=%(nb)d
+         vel=${SOURCES[1]}
+         den=${SOURCES[2]}
+         sou=${SOURCES[3]}
+         rec=${SOURCES[4]}
+         wfl=${TARGETS[1]}
+         snap=y verb=n
+         ''' % par)
+
+    Flow(nitag+'aS'+stag,nitag+'wfr_tmp'+stag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i'%par)
+
+# ------------------------------------------------------------
+    # data gradient
+    Flow(nitag+'dgrad'+stag,[nitag+'uS'+stag,nitag+'aS'+stag],
+         '''
+         xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100 
+         ''' % par)
+
+    # parallel flag
+    Iterate()
+
+# parallel flag
+Join()
+
+# ------------------------------------------------------------
+Flow('dgrad1-'+itag,map(lambda x: nitag+'dgrad-%03d' % x,SHOTS),
+     'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3'%len(SHOTS))
+Plot(  'dgrad1-'+itag,fdmod.cgrey('color=e pclip=100',par))
+Result('dgrad1-'+itag,['dgrad1-'+itag,'ss','rr'],'Overlay')
+
+Flow(output,'dgrad1-'+itag,
+     'math output="+1.0*input"')
+
+# ------------------------------------------------------------
+Force('./Nonlinear_CG_solver.py')
+
+End()

@@ -1,0 +1,176 @@
+from rsf.mycluster import *
+import fdmod,wei
+
+###################
+# Have to call Cluster first
+Cluster(name='solver_demo2_OF',email='tyang@mines.edu',time=1, ppn=12)
+###################
+
+OptionInitial()
+
+# input file, here is the velocity model
+AddOption('--input',
+    dest='input',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='input file')
+
+# output file, here is the data residual
+AddOption('--output',
+    dest='output',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='input file')
+
+# iteration number
+AddOption('--itag',
+    dest='itag',
+    type='string',
+    nargs=1,
+    action='store',
+    metavar='DIR',
+    help='iteration index')
+
+input  =  GetOption('input')
+output =  GetOption('output')
+itag   =  GetOption('itag')
+
+# all files start with nitag are temporary files, 
+#and they will be deleted after each iteration
+nitag = itag+'-'
+
+NamePbsDirectory('pbs-'+itag+'-OF')
+
+# ------------------------------------------------------------
+f2m=0.3048
+par = dict(
+    nx=1201,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
+    nz=900, oz=6.5*f2m,dz=0.025*f2m,lz='z',uz='km',
+    nt=6000,ot=0,      dt=0.001,    lt='t',ut='s',
+    jsnap=250,
+    jwfld=10,
+    kt=200,
+    nb=100,
+    frq=5,
+    orec=2.25, jrec=1,   nrec=850,
+    osou=3.0,  jsou=50, nsou=15
+    )
+
+# wavefield save window
+par['nqx']=par['nx']
+par['nqz']=par['nz']
+par['oqx']=par['ox']
+par['oqz']=par['oz']
+
+# wavefield frames
+par['nframe']=int((par['nt']-1)/par['jsnap'])
+    
+fdmod.param(par)
+
+# sources
+par['fsou']=int((par['osou']-par['oz'])/par['dz'])
+SHOTS=range(par['fsou'],
+            par['fsou']+par['nsou']*par['jsou'],
+            par['jsou'])
+
+# ------------------------------------------------------------
+# data residual part
+# ------------------------------------------------------------
+
+# parallel flag
+Fork(time=5,ipn=2,nodes=10)
+
+for s in SHOTS:
+    stag = "-%03d"%s
+
+    # FD forward modeling
+    Flow([nitag+'dS'+stag,nitag+'wfs_tmp'+stag],['wav',input,'dens','ss'+stag,'rr'],
+         '''
+         awefd2d
+         ompchunk=%(ompchunk)d ompnth=%(ompnth)d
+         verb=y free=n snap=y jsnap=%(jwfld)d
+         dabc=%(dabc)s nb=%(nb)d
+         vel=${SOURCES[1]}
+         den=${SOURCES[2]}
+         sou=${SOURCES[3]}
+         rec=${SOURCES[4]}
+         wfl=${TARGETS[1]}
+         ''' % par)
+
+    Flow(nitag+'uS'+stag,nitag+'wfs_tmp'+stag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g '%par)
+
+    Flow(nitag+'datS'+stag, nitag+'dS'+stag,'window squeeze=n')
+
+    # ------------------------------------------------------------
+    # wavefield comparison
+    Flow(nitag+'dif'+stag,[nitag+'datS'+stag,'datC'+stag],
+         'add scale=+1,-1 ${SOURCES[1]}')
+
+# ------------------------------------------------------------
+    # data residual
+    Flow(nitag+'dres'+stag,[nitag+'dif'+stag,'dwght'],
+         'math w=${SOURCES[1]} output="w*input"')
+
+    Flow(nitag+'dofun'+stag,nitag+'dres'+stag,
+         '''
+         add mode=p ${SOURCES[0]} | 
+         stack axis=2 | 
+         stack axis=1
+         ''')
+
+    # parallel flag
+    Iterate()
+
+# parallel flag
+Join()
+
+Flow('dres2-'+itag,map(lambda x: nitag+'dres-%03d' % x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]}' %par['nsou'])
+Flow('datS2-'+itag,map(lambda x: nitag+'datS-%03d' % x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]}' %par['nsou'])
+
+Flow('dofun2-'+itag,map(lambda x: nitag+'dofun-%03d' % x,SHOTS),
+     '''
+     cat axis=1 space=n ${SOURCES[1:%d]} |
+     stack axis=1
+     ''' %par['nsou'])
+
+# ------------------------------------------------------------
+# model residual part
+# ------------------------------------------------------------
+
+# model difference: (m-mbar)
+Flow(nitag+'mdiff',[input,'vR'],
+     'add scale=+1,-1 ${SOURCES[1]}')
+
+Flow(nitag+'mborh',[nitag+'mdiff','mmask'],
+     'add mode=p ${SOURCES[1]}')
+
+# model residual: rm = Wm S K(m-mbar)
+Flow('mres2-'+itag,[nitag+'mborh','dipf', 'mwght'],
+     '''
+     pwdsmooth2 dip=${SOURCES[1]} adj=n rect1=5 rect2=150 eps=0.01 |
+     add mode=p ${SOURCES[2]}
+     ''')
+
+# model objective function: |rm|^2
+Flow('mofun2-'+itag,'mres2-'+itag,
+     '''
+     add mode=p ${SOURCES[0]} |
+     stack axis=2 norm=y |
+     stack axis=1 norm=n 
+     ''')
+
+# ------------------------------------------------------------
+# total objective function
+# ------------------------------------------------------------
+Flow(output,['dofun2-'+itag,'mofun2-'+itag],
+     'math d=${SOURCES[0]} m=${SOURCES[1]} output="sqrt(d+m)"')
+
+# relaunch the solver
+Force('./Nonlinear_CG_solver.py')
+
+End()
+

@@ -1,45 +1,61 @@
 #include <rsf.h>
-#include "fdutil.h"
 #include <stdio.h>
 #include <math.h>
+#include "fdutility.h"
 
-#ifndef _fdutil_h
 
-typedef struct fdm2 *fdm2d;
+#ifndef _fd_utility_h
+
+typedef struct par  *fdutility_par;
 /*^*/
 
-typedef struct fdm3 *fdm3d;
+typedef struct fdm3 *fdutility_model;
 /*^*/
 
-typedef struct lcoef2 *lint2d;
+typedef struct abcone2 *fdutility_abcone2d;
 /*^*/
 
-typedef struct lcoef3 *lint3d;
+typedef struct abcone3 *fdutility_abcone3d;
 /*^*/
 
-typedef struct abc2 *abcone2d;
+typedef struct sponge *fdutility_sponge;
 /*^*/
 
-typedef struct abc3 *abcone3d;
+typedef struct lcoef2 *fdutility_lint2d;
 /*^*/
 
-typedef struct spon *sponge;
+typedef struct lcoef3 *fdutility_lint3d;
 /*^*/
 
-typedef struct ofg *ofg2d;
-/*^*/
-
-struct fdm2{
-    int nb;
-    int   nz,nzpad;
-    int   nx,nxpad;
-    float oz,ozpad;
-    float ox,oxpad;
-    float dz;
-    float dx;
+struct par {
     bool verb;
+    bool snap;
     bool free;
-    int ompchunk;
+    bool dabc;
+    bool cfl;
+    bool expl;
+    bool abcone;
+    int jsnap;
+    int jdata;
+    int srctype;
+    float fmax;
+    int nz, nx, ny, nt, ns, nr;
+    int nzpad, nxpad, nypad;
+    float oz, ox, oy, ot;
+    float dz, dx, dy, dt;
+    int nqz, nqx, nqy;
+    float oqz, oqx, oqy;
+    float dqz, dqx, dqy;
+    int nb;
+    int ani;
+    sf_file Fwav;
+    sf_file Fsou;
+    sf_file Frec;
+    sf_file Fvel;
+    sf_file Fden;
+    sf_file Fdat;
+    sf_file Fwfl;
+    bool is2d;
 };
 /*^*/
 
@@ -54,9 +70,6 @@ struct fdm3{
     float dz;
     float dx;
     float dy;
-    bool verb;
-    bool free;
-    int ompchunk;
 };
 /*^*/
 
@@ -68,6 +81,8 @@ struct lcoef2{
     float *w11;
     int *jz;
     int *jx;
+    int nbell;
+    float **bell;
 };
 /*^*/
 
@@ -84,10 +99,12 @@ struct lcoef3{
     int *jz;
     int *jx;
     int *jy;
+    int nbell;
+    float ***bell;
 };
 /*^*/
 
-struct abc2{
+struct abcone2{
     bool free;
     float *bzl;
     float *bzh;
@@ -96,7 +113,7 @@ struct abc2{
 };
 /*^*/
 
-struct abc3{
+struct abcone3{
     bool free;
     float**bzl;
     float**bzh;
@@ -107,181 +124,31 @@ struct abc3{
 };
 /*^*/
 
-struct spon{
+struct sponge{
     float *w;
-};
-/*^*/
-
-struct ofg{
-    float **tt;
 };
 /*^*/
 
 #endif
 
-static float** bell;
-static float***bell3d;
-static int    nbell;
-
-/*------------------------------------------------------------*/
-fdm2d fdutil_init(bool verb_, 
-		  bool free_,
-		  sf_axis az_, 
-		  sf_axis ax_, 
-		  int     nb_,
-		  int ompchunk_) 
-/*< init fdm utilities >*/
-{ 
-    fdm2d fdm;
-    fdm = (fdm2d) sf_alloc(1,sizeof(*fdm));
-
-    fdm->free=free_;
-    fdm->verb=verb_;
-
-    fdm->nb=nb_;
-
-    fdm->nz=sf_n(az_);
-    fdm->nx=sf_n(ax_);
-
-    fdm->dz=sf_d(az_);
-    fdm->dx=sf_d(ax_);
-
-    fdm->oz=sf_o(az_);
-    fdm->ox=sf_o(ax_);
-
-    fdm->nzpad=sf_n(az_)+2*fdm->nb;
-    fdm->nxpad=sf_n(ax_)+2*fdm->nb;
-	
-    fdm->ozpad=sf_o(az_)-fdm->nb*fdm->dz;
-    fdm->oxpad=sf_o(ax_)-fdm->nb*fdm->dx;
-
-    fdm->ompchunk=ompchunk_;
-
-    return fdm;
-}
-
-/*------------------------------------------------------------*/
-fdm3d fdutil3d_init(bool verb_, 
-		    bool free_,
-		    sf_axis az_, 
-		    sf_axis ax_, 
-		    sf_axis ay_, 
-		    int     nb_,
-		    int ompchunk_) 
-/*< init fdm utilities >*/
-{ 
-    fdm3d fdm;
-    fdm = (fdm3d) sf_alloc(1,sizeof(*fdm));
-
-    fdm->free=free_;
-    fdm->verb=verb_;
-
-    fdm->nb=nb_;
-
-    fdm->nz=sf_n(az_);
-    fdm->nx=sf_n(ax_);
-    fdm->ny=sf_n(ay_);
-
-    fdm->dz=sf_d(az_);
-    fdm->dx=sf_d(ax_);
-    fdm->dy=sf_d(ay_);
-
-    fdm->oz=sf_o(az_);
-    fdm->ox=sf_o(ax_);
-    fdm->oy=sf_o(ay_);
-
-    fdm->nzpad=sf_n(az_)+2*fdm->nb;
-    fdm->nxpad=sf_n(ax_)+2*fdm->nb;
-    fdm->nypad=sf_n(ay_)+2*fdm->nb;
-	
-    fdm->ozpad=sf_o(az_)-fdm->nb*fdm->dz;
-    fdm->oxpad=sf_o(ax_)-fdm->nb*fdm->dx;
-    fdm->oypad=sf_o(ay_)-fdm->nb*fdm->dy;
-
-    fdm->ompchunk=ompchunk_;
-
-    return fdm;
-}
-
-/*------------------------------------------------------------*/
-ofg2d offgrid_init(fdm2d fdm)
-/*< init off-grid interpolation >*/
-{
-    ofg2d ofg;
-    ofg = (ofg2d) sf_alloc(1,sizeof(*ofg));
+fdutility_model fdutility_model_init(int nb){
     
-    ofg->tt = sf_floatalloc2(fdm->nzpad,fdm->nxpad);
-    
-    return ofg;
 }
 
-/*------------------------------------------------------------*/
-void offgridfor(float **ti,
-		ofg2d  ofg,
-		fdm2d  fdm)
-/*< forward off-grid interpolation (in place) >*/
-{
-    int iz,ix;
 
-    /* zero output */
-    for     (ix=0;ix<fdm->nx;ix++) {
-	for (iz=0;iz<fdm->nz;iz++) {
-	    ofg->tt[ix][iz]=0;
-	}
-    }
+float*** fdutility_read_model(char *filename, fdutility_model model){
+    sf_file Fmodel = sf_input(filename);
+    int n1 = model->nz;
+    int n2 = model->nx;
+    int n3 = model->ny;
 
-    for     (ix=0;ix<fdm->nx-1;ix++) {
-	for (iz=0;iz<fdm->nz-1;iz++) {
-	    ofg->tt[ix][iz] =
-		ti[ix  ][iz  ] + 
-		ti[ix+1][iz  ] + 
-		ti[ix  ][iz+1] + 
-		ti[ix+1][iz+1];
-	}
-    }   
-
-    /* copy to input array */
-    for     (ix=0;ix<fdm->nx;ix++) {
-	for (iz=0;iz<fdm->nz;iz++) {
-	    ti[ix][iz] = 0.25 * ofg->tt[ix][iz];
-	}
-    }
+    float ***array = sf_floatalloc3(n1,n2,n3);
+    sf_floatread(Fmodel,array,n1*n2*n3);
+    sf_fileclose(Fmodel);
+    return array;
 }
 
-/*------------------------------------------------------------*/
-void offgridadj(float **ti,
-		ofg2d  ofg,
-		fdm2d  fdm)
-/*< adjoint off-grid interpolation (in place) >*/
-{
-    int iz,ix;
-
-    /* zero output */
-    for     (ix=0;ix<fdm->nx;ix++) {
-	for (iz=0;iz<fdm->nz;iz++) {
-	    ofg->tt[ix][iz]=0;
-	}
-    }
-    
-    for     (ix=0;ix<fdm->nx-1;ix++) {
-	for (iz=0;iz<fdm->nz-1;iz++) {
-	    ofg->tt[ix  ][iz  ] += ti[ix][iz];
-	    ofg->tt[ix+1][iz  ] += ti[ix][iz];
-	    ofg->tt[ix  ][iz+1] += ti[ix][iz];
-	    ofg->tt[ix+1][iz+1] += ti[ix][iz];
-	}
-    }   
-
-    /* copy to input array */
-    for     (ix=0;ix<fdm->nx;ix++) {
-	for (iz=0;iz<fdm->nz;iz++) {
-	    ti[ix][iz] = 0.25 * ofg->tt[ix][iz];
-	}
-    }
-}
-
-/*------------------------------------------------------------*/
-void expand(float** a, 
+void fdutililty_expand(float** a, 
 	    float** b, 
 	    fdm2d fdm)
 /*< expand domain >*/
@@ -309,8 +176,7 @@ void expand(float** a,
     }
 }
 
-/*------------------------------------------------------------*/
-void expand3d(float ***a, 
+void fdutility_expand3d(float ***a, 
 	      float ***b, 
 	      fdm3d  fdm)
 /*< expand domain >*/
@@ -356,8 +222,7 @@ void expand3d(float ***a,
 }
 
 
-/*------------------------------------------------------------*/
-void cut2d(float**  a,
+void fdutility_cut2d(float**  a,
 	   float**  b,
 	   fdm2d  fdm,
 	   sf_axis c1, 
@@ -377,8 +242,7 @@ void cut2d(float**  a,
     }
 }
 
-/*------------------------------------------------------------*/
-void cut3d(float*** a,
+void fdutility_cut3d(float*** a,
 	   float*** b,
 	   fdm3d  fdm,
 	   sf_axis c1, 
@@ -403,29 +267,7 @@ void cut3d(float*** a,
 }
 
 /*------------------------------------------------------------*/
-void bfill(float** b, 
-	   fdm2d fdm)
-/*< fill boundaries >*/
-{
-    int iz,ix;
-    
-    for     (ix=0; ix<fdm->nxpad; ix++) {
-	for (iz=0; iz<fdm->nb;    iz++) {
-	    b[ix][           iz  ] = b[ix][           fdm->nb  ];
-	    b[ix][fdm->nzpad-iz-1] = b[ix][fdm->nzpad-fdm->nb-1];
-	}
-    }
-    
-    for     (ix=0; ix<fdm->nb;    ix++) {
-	for (iz=0; iz<fdm->nzpad; iz++) {
-	    b[           ix  ][iz] = b[           fdm->nb  ][iz];
-	    b[fdm->nxpad-ix-1][iz] = b[fdm->nxpad-fdm->nb-1][iz];
-	}
-    }
-}
-
-/*------------------------------------------------------------*/
-lint2d lint2d_make(int    na, 
+lint2d fdutility_lint2d_make(int    na, 
 		   pt2d*  aa, 
 		   fdm2d fdm)
 /*< init 2D linear interpolation >*/
@@ -477,7 +319,7 @@ lint2d lint2d_make(int    na,
 }
 
 /*------------------------------------------------------------*/
-lint3d lint3d_make(int    na, 
+lint3d fdutility_lint3d_make(int    na, 
 		   pt3d*  aa, 
 		   fdm3d fdm)
 /*< init 3D linear interpolation >*/
@@ -546,7 +388,7 @@ lint3d lint3d_make(int    na,
 
 
 /*------------------------------------------------------------*/
-void lint2d_hold(float**uu,
+void fdutility_lint2d_hold(float**uu,
 		 float *ww,
 		 lint2d ca)
 /*< hold fixed value in field >*/
@@ -554,9 +396,7 @@ void lint2d_hold(float**uu,
     int   ia;
     float wa;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia,wa) shared(ca,ww,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 	wa = ww[ia];
 	
@@ -568,7 +408,7 @@ void lint2d_hold(float**uu,
 }
 
 /*------------------------------------------------------------*/
-void lint2d_inject(float**uu,
+void fdutility_lint2d_inject(float**uu,
 		   float *ww,
 		   lint2d ca)
 /*< inject into wavefield >*/
@@ -591,7 +431,7 @@ void lint2d_inject(float**uu,
 }
 
 /*------------------------------------------------------------*/
-void lint3d_inject(float***uu,
+void fdutility_lint3d_inject(float***uu,
 		   float  *ww,
 		   lint3d  ca)
 /*< inject into wavefield >*/
@@ -599,9 +439,7 @@ void lint3d_inject(float***uu,
     int   ia;
     float wa;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia,wa) shared(ca,ww,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 	wa = ww[ia];
 	
@@ -617,16 +455,14 @@ void lint3d_inject(float***uu,
 }
 
 /*------------------------------------------------------------*/
-void lint2d_inject1(float**uu,
+void fdutility_lint2d_inject1(float**uu,
 		    float  ww,
 		    lint2d ca)
 /*< inject into wavefield >*/
 {
     int   ia;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia) shared(ca,ww,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 
 	uu[ ca->jx[ia]   ][ ca->jz[ia]   ] -= ww * ca->w00[ia];
@@ -637,16 +473,14 @@ void lint2d_inject1(float**uu,
 }
 
 /*------------------------------------------------------------*/
-void lint3d_inject1(float***uu,
+void fdutility_lint3d_inject1(float***uu,
 		    float   ww,
 		    lint3d  ca)
 /*< inject into wavefield >*/
 {
     int   ia;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia) shared(ca,ww,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 
 	uu[ ca->jy[ia]   ][ ca->jx[ia]   ][ ca->jz[ia]   ] -= ww * ca->w000[ia];
@@ -660,7 +494,7 @@ void lint3d_inject1(float***uu,
     }
 }
 
-void cut2d_extract(float **uu, float*dd, lint2d ca)
+void fdutility_cut2d_extract(float **uu, float*dd, lint2d ca)
 /*< extract from wavefield without interpolation>*/
 {
     int ia;
@@ -671,7 +505,7 @@ void cut2d_extract(float **uu, float*dd, lint2d ca)
 }
 
 /*------------------------------------------------------------*/
-void lint2d_extract(float**uu,
+void fdutility_lint2d_extract(float**uu,
 		    float* dd,
 		    lint2d ca)
 /*< extract from wavefield >*/
@@ -688,16 +522,14 @@ void lint2d_extract(float**uu,
     }
 }  
 
-void lint3d_extract(float***uu,
+void fdutility_lint3d_extract(float***uu,
 		    float  *dd,
 		    lint3d  ca)
 /*< extract from wavefield >*/
 {
     int ia;
 
-#ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic,1) private(ia) shared(ca,dd,uu)
-#endif
     for (ia=0;ia<ca->n;ia++) {
 	dd[ia] =
 	    uu[ ca->jy[ia]  ][ ca->jx[ia]  ][ ca->jz[ia]  ] * ca->w000[ia] +
@@ -711,7 +543,7 @@ void lint3d_extract(float***uu,
     }
 }  
 
-void cut3d_extract(float ***uu, float *dd, lint3d ca) {
+void fdutility_cut3d_extract(float ***uu, float *dd, lint3d ca) {
 /*< extract from wavefield without interpolation >*/
     int ia;
 #pragma omp parallel for schedule(static) private(ia) shared(ca,dd,uu)
@@ -721,7 +553,7 @@ void cut3d_extract(float ***uu, float *dd, lint3d ca) {
 }
 
 /*------------------------------------------------------------*/
-void fdbell_init(int n)
+void fdutility_fdbell2d_init(int n)
 /*< init bell taper >*/
 {
     int   iz,ix;
@@ -740,7 +572,7 @@ void fdbell_init(int n)
 }
 
 /*------------------------------------------------------------*/
-void fdbell3d_init(int n)
+void fdutility_fdbell3d_init(int n)
 /*< init bell taper >*/
 {
     int   iz,ix,i3;
@@ -761,63 +593,7 @@ void fdbell3d_init(int n)
 }
 
 /*------------------------------------------------------------*/
-void lint2d_bell(float**uu,
-		 float *ww,
-		 lint2d ca)
-/*< apply bell taper >*/
-{
-    int   ia,iz,ix;
-    float wa;
-
-    for    (ix=-nbell;ix<=nbell;ix++) {
-	for(iz=-nbell;iz<=nbell;iz++) {
-	    
-	    for (ia=0;ia<ca->n;ia++) {
-		wa = ww[ia] * bell[nbell+ix][nbell+iz];
-
-		uu[ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w00[ia];
-		uu[ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w01[ia];
-		uu[ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w10[ia];
-		uu[ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w11[ia];
-	    }
-
-	}
-    }
-}
-
-/*------------------------------------------------------------*/
-void lint3d_bell(float***uu,
-		 float  *ww,
-		 lint3d  ca)
-/*< apply bell taper >*/
-{
-    int   ia,iz,ix,iy;
-    float wa;
-
-    for        (iy=-nbell;iy<=nbell;iy++) {
-	for    (ix=-nbell;ix<=nbell;ix++) {
-	    for(iz=-nbell;iz<=nbell;iz++) {
-		
-		for (ia=0;ia<ca->n;ia++) {
-		    wa = ww[ia] * bell3d[nbell+iy][nbell+ix][nbell+iz];
-		    
-		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w000[ia];
-		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w001[ia];
-		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w010[ia];
-		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w011[ia];
-		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w100[ia];
-		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w101[ia];
-		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w110[ia];
-		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w111[ia];
-		}
-		
-	    }
-	}
-    }
-}
-
-/*------------------------------------------------------------*/
-abcone2d abcone2d_make(int     nop,
+abcone2d fdutility_abcone2d_make(int     nop,
 		       float    dt,
 		       float**  vv,
 		       bool   free, 
@@ -858,7 +634,7 @@ http://sepwww.stanford.edu/public/docs/sep11/11_12_abs.html
 }
 
 /*------------------------------------------------------------*/
-abcone3d abcone3d_make(int     nop,
+abcone3d fdutility_abcone3d_make(int     nop,
 		       float    dt,
 		       float ***vv,
 		       bool   free, 
@@ -920,7 +696,7 @@ http://sepwww.stanford.edu/public/docs/sep11/11_12_abs.html
 
 
 /*------------------------------------------------------------*/
-void abcone2d_apply(float**   uo,
+void fdutility_abcone2d_apply(float**   uo,
 		    float**   um,
 		    int      nop,
 		    abcone2d abc,
@@ -929,12 +705,10 @@ void abcone2d_apply(float**   uo,
 {
     int iz,ix,iop;
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(iz,ix,iop)				\
     shared(fdm,nop,uo,um,abc)
-#endif
     for(ix=0;ix<fdm->nxpad;ix++) {
 	for(iop=0;iop<nop;iop++) {
 
@@ -956,12 +730,10 @@ void abcone2d_apply(float**   uo,
 	}
     }
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(iz,ix,iop)				\
     shared(fdm,nop,uo,um,abc)
-#endif
     for(iz=0;iz<fdm->nzpad;iz++) {
 	for(iop=0;iop<nop;iop++) {
 
@@ -983,7 +755,7 @@ void abcone2d_apply(float**   uo,
 }
 
 /*------------------------------------------------------------*/
-void abcone3d_apply(float  ***uo,
+void fdutility_abcone3d_apply(float  ***uo,
 		    float  ***um,
 		    int      nop,
 		    abcone3d abc,
@@ -992,13 +764,10 @@ void abcone3d_apply(float  ***uo,
 {
     int iz,ix,iy,iop;
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(iz,ix,iy,iop)			\
     shared(fdm,nop,uo,um,abc)
-#endif
-
     for    (iy=0;iy<fdm->nypad;iy++) {
 	for(ix=0;ix<fdm->nxpad;ix++) {
 	    for(iop=0;iop<nop;iop++) {
@@ -1022,13 +791,10 @@ void abcone3d_apply(float  ***uo,
 	}
     }
     
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(iz,ix,iy,iop)			\
     shared(fdm,nop,uo,um,abc)
-#endif
-
     for    (iy=0;iy<fdm->nypad;iy++) {
 	for(iz=0;iz<fdm->nzpad;iz++) {
 	    for(iop=0;iop<nop;iop++) {
@@ -1050,13 +816,10 @@ void abcone3d_apply(float  ***uo,
 	}
     }
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(iz,ix,iy,iop)			\
     shared(fdm,nop,uo,um,abc)
-#endif
-
     for    (ix=0;ix<fdm->nxpad;ix++) {
 	for(iz=0;iz<fdm->nzpad;iz++) {
 	    for(iop=0;iop<nop;iop++) {
@@ -1082,7 +845,7 @@ void abcone3d_apply(float  ***uo,
 
 
 /*------------------------------------------------------------*/
-sponge sponge_make(int nb)
+sponge fdutility_sponge_make(int nb)
 /*< init boundary sponge >*/
 
 /* Sponge boundary conditions multiply incoming wavefields
@@ -1107,7 +870,7 @@ contrasts */
 }
 
 /*------------------------------------------------------------*/
-void sponge2d_apply(float**   uu,
+void fdutility_sponge2d_apply(float**   uu,
 		    sponge   spo,
 		    fdm2d    fdm)
 /*< apply boundary sponge >*/
@@ -1162,7 +925,7 @@ void sponge2d_apply(float**   uu,
     }
 }
 
-void sponge2d_apply_test(float**   uu,
+void fdutility_sponge2d_apply_test(float**   uu,
 		    sponge   spo,
 		    fdm2d    fdm)
 /*< apply boundary sponge >*/
@@ -1170,12 +933,10 @@ void sponge2d_apply_test(float**   uu,
     int iz,ix,ib,ibz,ibx;
     float w;
 
-#ifdef _OPENMP
 #pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,ibz,ibx,w)			\
     shared(fdm,uu)
-#endif
     for(ib=0; ib<fdm->nb; ib++) {
 	w = spo->w[ib];
 
@@ -1195,7 +956,7 @@ void sponge2d_apply_test(float**   uu,
 }
 
 /*------------------------------------------------------------*/
-void sponge3d_apply(float  ***uu,
+void fdutility_sponge3d_apply(float  ***uu,
 		    sponge   spo,
 		    fdm3d    fdm)
 /*< apply boundary sponge >*/
@@ -1247,81 +1008,190 @@ void sponge3d_apply(float  ***uu,
     }
 } 
 
-float min(float x, float y){
-    if (x < y) return x;
-    else return y;
-}
 
-bool cfl_generic(
-    float vpmin, float vpmax, 
-    float dx, float dy, float dz,
-    float dt, float fmax, float safety, 
-    int intervals, char *wave) 
-/*< cfl check for both 2d and 3d acoustic fdcode >*/
-{ 
-    int dim = 3;
-    float dmin;
-
-    if (dy < 0)dim = 2;  
-    
-    if (dim == 2) dmin = min(dx,dz); 
-    else dmin = min(dx,min(dy,dz)); 
-    
-    float tdp = dt * vpmax *sqrt(2); // maximum distance
-    if (dmin > tdp) sf_warning("CFL: Stability check ... %s-wave... PASSED", wave);
-    else { 
-        sf_error("CFL: Stability check ... FAILED ... minimum grid sampling: %f !> %f", dmin, tdp); 
-    } 
-    float wplength = safety*vpmin / fmax;
-  
-    bool passed;
-    if (dim == 2) passed = wplength > intervals*sqrt(dx*dx+dz*dz);
-    else passed = wplength > intervals*sqrt(dx*dx+dy*dy+dz*dz); 
-    
-    if (passed) {
-        sf_warning("CFL: Accuracy check ... %s-wave ... PASSED", wave); 
-    }
-    else {  
-        if (dim == 2) {
-            sf_warning("CFL: fmax must be less than < %f",
-                safety*vpmin/sqrt(dx*dx+dz*dz)); 
-        }
-        else {
-            sf_warning("CFL: fmax must be less than < %f",
-                safety*vpmin/sqrt(dx*dx+dy*dy+dz*dz));
-            sf_error("CFL: Accuracy check ... %s-wave ... FAILED",wave);   
-        }
-    }
-    return true;
-}
-
-bool cfl_elastic(
-    float vpmin, float vpmax, 
-    float vsmin, float vsmax,
-    float dx, float dy, float dz,
-    float dt, float fmax, float safety, 
-    int intervals) 
-/*< cfl check for both 2d and 3d elastic fdcode >*/
+/*------------------------------------------------------------*/
+void fdutility_lint2d_bell(float**uu,
+		 float *ww,
+		 lint2d ca)
+/*< apply bell taper >*/
 {
-    bool ppass = cfl_generic(vpmin,vpmax,
-                              dx,dy,dz,dt,
-                              fmax,safety,intervals,"P");
-    bool spass = cfl_generic(vsmin,vsmax,
-                              dx,dy,dz,dt,
-                              fmax,safety,intervals,"S");
+    int   ia,iz,ix;
+    float wa;
 
-    return ppass && spass;
+    for    (ix=-nbell;ix<=nbell;ix++) {
+	for(iz=-nbell;iz<=nbell;iz++) {
+	    
+	    for (ia=0;ia<ca->n;ia++) {
+		wa = ww[ia] * bell[nbell+ix][nbell+iz];
+
+		uu[ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w00[ia];
+		uu[ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w01[ia];
+		uu[ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w10[ia];
+		uu[ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w11[ia];
+	    }
+
+	}
+    }
 }
 
-bool cfl_acoustic(
-    float vpmin, float vpmax,
-    float dx, float dy, float dz,
-    float dt, float fmax, float safety,
-    int intervals)
-/*< cfl check for acoustic wave equation >*/
+/*------------------------------------------------------------*/
+void fdutility_lint3d_bell(float***uu,
+		 float  *ww,
+		 lint3d  ca)
+/*< apply bell taper >*/
 {
-    bool ppass = cfl_generic(vpmin,vpmax,
-                              dx,dy,dz,dt,
-                              fmax,safety,intervals,"P");
-    return ppass;
+    int   ia,iz,ix,iy;
+    float wa;
+
+    for        (iy=-nbell;iy<=nbell;iy++) {
+	for    (ix=-nbell;ix<=nbell;ix++) {
+	    for(iz=-nbell;iz<=nbell;iz++) {
+		
+		for (ia=0;ia<ca->n;ia++) {
+		    wa = ww[ia] * bell3d[nbell+iy][nbell+ix][nbell+iz];
+		    
+		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w000[ia];
+		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w001[ia];
+		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w010[ia];
+		    uu[ iy+ca->jy[ia]   ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w011[ia];
+		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]   ] -= wa * ca->w100[ia];
+		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]   ][ iz+ca->jz[ia]+1 ] -= wa * ca->w101[ia];
+		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]   ] -= wa * ca->w110[ia];
+		    uu[ iy+ca->jy[ia]+1 ][ ix+ca->jx[ia]+1 ][ iz+ca->jz[ia]+1 ] -= wa * ca->w111[ia];
+		}
+		
+	    }
+	}
+    }
+}
+
+fdutility_par fdutility_init_par(int argc, char* argv[], bool elastic)
+{
+    sf_init(argc,argv);
+    fdutility_par fdpar = (fdutility_par) sf_alloc(1,sizeof(*fdutility_par));
+    if (! sf_getbool("verb",&fdpar->verb)) fdpar->verb = false; /* verbose output */
+    if (! sf_getbool("snap",&fdpar->snap)) fdpar->snap = false; /* output wfld snapshots */
+    if (! sf_getbool("free",&fdpar->free)) fdpar->free = false; /* free surface */
+    if (! sf_getbool("expl",&fdpar->expl)) fdpar->expl = false; /* exploding reflector */
+    if (! sf_getbool("cfl",&fdpar->cfl)) fdpar->cfl = false; /* use CFL and stability check?*/
+    if (! sf_getbool("dabc",&fdpar->dabc)) fdpar->dabc = false; /* sponge boundary? */
+    if (! sf_getbool("abcone",&fdpar->abcone)) fdpar->abcone = false; /* plane-wave destruction boundary?*/
+
+    if (! sf_getint("jsnap",&fdpar->jsnap)) fdpar->jsnap = 1; /* output wfld every jsnap time steps */
+    if (! sf_getint("jdata",&fdpar->jdata)) fdpar->jdata = 1; /* output data every jdata time steps */
+    if (! sf_getint("srctype",&fdpar->srctype)) fdpar->srctype = 0; /* source type: 0 - acceleration, 1 - displacement*/
+    if (! sf_getint("nb",&fdpar->nb)) fdpar->nb = 0; /* # of boundary cells on each side for sponge*/
+    if (! sf_getint("ani",&fdpar->ani)) fdpar->ani = -1; /* Type of anisotropy (elastic only) */
+
+    if(fdpar->ani != -1){
+        sf_warning("Elastic simulation chosen\n");
+    } else {
+        sf_warning("Acoustic simulation chosen\n");
+    }
+
+    if (fdpar->verb){
+        sf_warning("Opening files...\n");
+    }
+
+    fdpar->Fwav = sf_input("in");
+    fdpar->Fsou = sf_input("sou");
+    fdpar->Frec = sf_input("rec");
+    if (elastic) fdpar->Fvel = sf_input("ccc");
+    else fdpar->Fvel = sf_input("vel");
+    fdpar->Fden = sf_input("den");
+    fdpar->Fdat = sf_output("out");
+    if (fdpar->snap) fdpar->Fwav=sf_output("wfl");
+    else fdpar->Fwav = NULL;
+
+    sf_axis at = sf_iaxa(fdpar->Fwav,1); sf_setlabel(at,"t");
+    sf_axis az = sf_iaxa(fdpar->Fvel,1); sf_setlabel(az,"z");
+    sf_axis ax = sf_iaxa(fdpar->Fvel,2); sf_setlabel(ax,"x");
+    sf_axis ay = sf_iaxa(fdpar->Fvel,3); sf_setlabel(ay,"y"); 
+    sf_axis as = sf_iaxa(fdpar->Fsou,2); sf_setlabel(as,"sou");
+    sf_axis ar = sf_iaxa(fdpar->Frec,2); sf_setlabel(ar,"rec");
+
+    fdpar->nt = sf_n(at); fdpar->ot = sf_o(at); fdpar->dt = sf_d(at);
+    fdpar->nz = sf_n(az); fdpar->oz = sf_o(az); fdpar->dz = sf_d(az);
+    fdpar->nx = sf_n(ax); fdpar->ox = sf_o(ax); fdpar->dx = sf_d(ax);
+    fdpar->ny = sf_n(ay); fdpar->oy = sf_o(ay); fdpar->dy = sf_d(ay);
+
+    if (! sf_getint("nqz",&fdpar->nqz)) fdpar->nqz = sf_n(az); /* # of output samples in wfld snapshots */
+    if (! sf_getint("nqx",&fdpar->nqx)) fdpar->nqx = sf_n(ax); /* # of output samples in wfld snapshots */
+    if (! sf_getint("nqy",&fdpar->nqy)) fdpar->nqy = sf_n(ay); /* # of output samples in wfld snapshots */
+    if (! sf_getfloat("dqz",&fdpar->dqz)) fdpar->dqz = sf_d(az); /* sampling interval for wfld snapshots */
+    if (! sf_getfloat("dqx",&fdpar->dqx)) fdpar->dqx = sf_d(ax); /* sampling interval for wfld snapshots */
+    if (! sf_getfloat("dqy",&fdpar->dqy)) fdpar->dqy = sf_d(ay); /* sampling interval for wfld snapshots */
+    if (! sf_getfloat("oqz",&fdpar->oqz)) fdpar->oqz = sf_o(az); /* origin for wfld snapshots */
+    if (! sf_getfloat("oqx",&fdpar->oqx)) fdpar->oqx = sf_o(ax); /* origin for wfld snapshots */
+    if (! sf_getfloat("oqy",&fdpar->oqy)) fdpar->oqy = sf_o(ay); /* origin for wfld snapshots */
+
+    fdpar->nzpad = fdpar->nz+2*nb; //+2 is for the abcone boundary
+    fdpar->nxpad = fdpar->nx+2*nb;
+    if (fdpar->ny != 1) fdpar->nypad = fdpar->ny+2*nb; 
+    else fdpar->nypad = 1; //if 2D don't pad 
+    if (fdpar->abcone) { //Pad with two extra cells so that we can run abcone at the boundary
+        fdpar->nzpad += 2;
+        fdpar->nxpad += 2;
+        fdpar->nypad += 2;
+    }
+
+
+
+    sf_axis tdat = sf_maxa(fdpar->nt/fdpar->jdata,fdpar->ot,fdpar->dt*fdpar->jdata); sf_setlabel(tdat,"data t");
+    sf_axis zwfl = sf_maxa(fdpar->nqz,fdpar->oqz,fdpar->dqz); sf_setlabel("z wfl");
+    sf_axis xwfl = sf_maxa(fdpar->nqx,fdpar->oqx,fdpar->dqx); sf_setlabel("x wfl");
+    sf_ayis ywfl = sf_maya(fdpar->nqy,fdpar->oqy,fdpar->dqy); sf_setlabel("y wfl");
+
+    if(fdpar->verb){
+        sf_warning("Input axes information: \n");
+        sf_raxa(at);
+        sf_raxa(az);
+        sf_raxa(ax);
+        sf_raxa(ay);
+        sf_raxa(as);
+        sf_raxa(ar);
+        sf_warning("Output axes information: \n");
+        sf_raxa(tdat);
+
+        if (fdpar->snap){
+            sf_raxa(zwfl);
+            sf_raxa(xwfl);
+            sf_raxa(ywfl);
+        }
+    }
+    if(fdpar->snap){
+        if(fdpar->verb) sf_warning("Checking snapshot coordinates...");
+        float zmin = fdpar->oz; 
+        float zmax = fdpar->oz+(fdpar->nz-1)*fdpar->dz;
+        float xmin = fdpar->ox;
+        float xmax = fdpar->ox+(fdpar->nx-1)*fdpar->dx;
+        float ymin = fdpar->oy;
+        float ymay = fdpar->oy+(fdpar->ny-1)*fdpar->dy;
+
+        float qzmin = fdpar->oqz; 
+        float qzmax = fdpar->oqz+(fdpar->nqz-1)*fdpar->dqz;
+        float qxmin = fdpar->oqx;
+        float qxmax = fdpar->oqx+(fdpar->nqx-1)*fdpar->dqx;
+        float qymin = fdpar->oqy;
+        float qymax = fdpar->oqy+(fdpar->nqy-1)*fdpar->dqy;
+
+        if (qzmin >= zmin && qzmax <= zmax && \
+           qxmin >= xmin && qxmax <= xmax && \
+           qymin >= ymin && qymax <= ymax){
+            if(fdpar->verb) sf_warning("Passed\n");
+        } else {
+            sf_error("Wavefield snapshot domain outside of wavefield computation domain\n");
+        }
+    }
+    return fdpar;
+}
+
+void fdutility_zero_array(float ***array,int n1, int n2, int n3){
+    for(int i3=0; i3 < n3; ++i3){
+        for(int i2=0; i2 < n2; ++i2){
+            for(int i1=0; i1 < n1; ++i1){
+                array[i3][i2][i1] = 0;
+            }
+        }
+    }
 }

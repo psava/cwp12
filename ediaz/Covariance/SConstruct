@@ -1,0 +1,7 @@
+from rsf.proj import *
+
+Program('cov.c')
+
+
+
+        

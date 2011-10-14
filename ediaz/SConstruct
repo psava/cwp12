@@ -1,0 +1,12 @@
+## 
+ # GPGN658 - acoustic FD modeling 
+ ##
+
+from rsf.proj import *
+import fdmod
+
+proj = Project()
+proj.Program('sfderiv2',Split('MderivN.c '),CCFLAGS='',LIBS=['rsf','m'])
+
+
+End()

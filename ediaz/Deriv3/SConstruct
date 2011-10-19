@@ -1,0 +1,4 @@
+from rsf.proj import *
+
+Program('sfderiv3','Mderiv3.c')
+

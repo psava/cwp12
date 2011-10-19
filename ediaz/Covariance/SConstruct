@@ -1,7 +1,10 @@
 from rsf.proj import *
 
-Program('cov.c')
+Program('cov.exe','cov.c')
+
+Flow ('vp','vp.asc','dd form=native')
 
 
-
+nlags=300
+Flow (['test','mean_vp'],'vp','./cov.exe w_mean=100 nlags=%d mean=${TARGETS[1]} '%(nlags))
         

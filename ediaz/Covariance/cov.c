@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
              mean[i1] = mean[i1-1] +scale*(trace[i3] - trace[abs(i1-w_mean-1)]);	
 	}
 	/* write a trace */
-	sf_floatwrite(mean,n1,out);
+	sf_floatwrite(mean,n1,meanout);
 
         for (n=0;n<nlags; n++){
              cov[n]=0.0f;
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
              cov[n]*=1.0/k;
              fprintf(stderr,"%4d %10.4f\n",n,cov[n]);
          }
-         sf_floatwrite(cov,nlags,meanout);
+         sf_floatwrite(cov,nlags,out);
 
     }
 

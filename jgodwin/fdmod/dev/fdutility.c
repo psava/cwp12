@@ -29,6 +29,7 @@ typedef struct lcoef3 *fdutility_lint3d;
 
 struct par {
     bool verb;
+    bool debug;
     bool snap;
     bool free;
     bool dabc;
@@ -178,9 +179,11 @@ void fdutililty_expand(float** a,
 
 void fdutility_expand3d(float ***a, 
 	      float ***b, 
-	      fdm3d  fdm)
+	      fdutility_par fdm)
 /*< expand domain >*/
 {
+
+    
     int iz,ix,i3;
 
     for         (i3=0;i3<fdm->ny;i3++) {
@@ -1065,11 +1068,11 @@ void fdutility_lint3d_bell(float***uu,
     }
 }
 
-fdutility_par fdutility_init_par(int argc, char* argv[], bool elastic)
+fdutility_par fdutility_init_par(bool elastic)
 {
-    sf_init(argc,argv);
     fdutility_par fdpar = (fdutility_par) sf_alloc(1,sizeof(*fdutility_par));
     if (! sf_getbool("verb",&fdpar->verb)) fdpar->verb = false; /* verbose output */
+    if (! sf_getbool("debug",&fdpar->verb)) fdpar->debug= false; /* verbose output */
     if (! sf_getbool("snap",&fdpar->snap)) fdpar->snap = false; /* output wfld snapshots */
     if (! sf_getbool("free",&fdpar->free)) fdpar->free = false; /* free surface */
     if (! sf_getbool("expl",&fdpar->expl)) fdpar->expl = false; /* exploding reflector */
@@ -1083,10 +1086,10 @@ fdutility_par fdutility_init_par(int argc, char* argv[], bool elastic)
     if (! sf_getint("nb",&fdpar->nb)) fdpar->nb = 0; /* # of boundary cells on each side for sponge*/
     if (! sf_getint("ani",&fdpar->ani)) fdpar->ani = -1; /* Type of anisotropy (elastic only) */
 
-    if(fdpar->ani != -1){
-        sf_warning("Elastic simulation chosen\n");
-    } else {
-        sf_warning("Acoustic simulation chosen\n");
+    if(fdpar->ani == -1 && elastic){
+        sf_error("Must specify type of anisotropy! ani=-1 right now\n");
+    } else if (elastic) {
+        sf_warning("Specified: %d anisotropy\n",ani);
     }
 
     if (fdpar->verb){
@@ -1125,14 +1128,16 @@ fdutility_par fdutility_init_par(int argc, char* argv[], bool elastic)
     if (! sf_getfloat("oqx",&fdpar->oqx)) fdpar->oqx = sf_o(ax); /* origin for wfld snapshots */
     if (! sf_getfloat("oqy",&fdpar->oqy)) fdpar->oqy = sf_o(ay); /* origin for wfld snapshots */
 
+    if (fdpar->ny == 1) fdpar->is2d = true;
+    else fdpar-> d3 = false;
     fdpar->nzpad = fdpar->nz+2*nb; //+2 is for the abcone boundary
     fdpar->nxpad = fdpar->nx+2*nb;
-    if (fdpar->ny != 1) fdpar->nypad = fdpar->ny+2*nb; 
+    if (! fdpar->is2d) fdpar->nypad = fdpar->ny+2*nb; 
     else fdpar->nypad = 1; //if 2D don't pad 
     if (fdpar->abcone) { //Pad with two extra cells so that we can run abcone at the boundary
         fdpar->nzpad += 2;
         fdpar->nxpad += 2;
-        fdpar->nypad += 2;
+        if (! fdpar->is2d) fdpar->nypad += 2;
     }
 
 

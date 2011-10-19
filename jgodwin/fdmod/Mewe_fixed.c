@@ -1138,24 +1138,42 @@ if (is2d){
 	 * ezz = Fz(uz)
 	 * ezx = Bx(uz) + Bz(ux)
 	 */
+     if(debug) sf_warning("stepping stress");
 #pragma omp parallel for	    \
-    schedule(static,ompchunk)		\
+    schedule(dynamic)		\
     private(iz,ix) \
     shared(sfdm,tzz,tzx,txx,uoz,uox,dx,dz,dr)
 	for    (ix=NOP-1; ix < sfdm->nxpad-NOP+1; ix++) {
 	    for(iz=NOP-1; iz < sfdm->nzpad-NOP+1; iz++) {
             txx[ix][iz] = Dx1(uox,ix,iz,dx,dz,dr);
-            tzz[ix][iz] = Dz1(uoz,ix,iz,dx,dz,dr);
-            tzx[ix][iz] = Dx1(uoz,ix,iz,dx,dz,dr) + Dz1(uox,ix,iz,dx,dz,dr);
 	    }
 	}		
+#pragma omp parallel for	    \
+    schedule(dynamic)		\
+    private(iz,ix) \
+    shared(sfdm,tzz,tzx,txx,uoz,uox,dx,dz,dr)
+	for    (ix=NOP-1; ix < sfdm->nxpad-NOP+1; ix++) {
+	    for(iz=NOP-1; iz < sfdm->nzpad-NOP+1; iz++) {
+            tzz[ix][iz] = Dz1(uoz,ix,iz,dx,dz,dr);
+        }
+    }
+
+#pragma omp parallel for	    \
+    schedule(dynamic)		\
+    private(iz,ix) \
+    shared(sfdm,tzz,tzx,txx,uoz,uox,dx,dz,dr)
+	for    (ix=NOP-1; ix < sfdm->nxpad-NOP+1; ix++) {
+	    for(iz=NOP-1; iz < sfdm->nzpad-NOP+1; iz++) {
+            tzx[ix][iz] = Dx1(uoz,ix,iz,dx,dz,dr) + Dz1(uox,ix,iz,dx,dz,dr);
+        }
+    }
 	/*------------------------------------------------------------*/
 	/* from strain to stress                                      */
 	/*------------------------------------------------------------*/
     switch(type){
         case ORTHORHOMBIC:
 #pragma omp parallel for	    \
-    schedule(static,ompchunk)		\
+    schedule(dynamic)		\
     private(iz,ix,szz,szx,sxx)			\
     shared(sfdm,tzz,tzx,txx,c11,c33,c55,c13)
             for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
@@ -1177,7 +1195,7 @@ if (is2d){
         break;
         case TRICLINIC:
 #pragma omp parallel for	    \
-    schedule(static,ompchunk)		\
+    schedule(dynamic)		\
     private(iz,ix,szz,szx,sxx)			\
     shared(sfdm,tzz,tzx,txx,c11,c33,c55,c13,c15,c35)
             for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
@@ -1209,6 +1227,7 @@ if (is2d){
 	/*------------------------------------------------------------*/
 	/* Francesco: the z component of the traction must be zero at the free surface */
 	
+    if(debug) sf_warning("freesurface");
 	if(fsrf) {
         //sf_warning("USING BROKEN FREE SURFACE");
 	    for(ix=sfdm->nb; ix < sfdm->nxpad-nb; ix++) {
@@ -1237,6 +1256,7 @@ if (is2d){
 	    lint2d_bell(tzx,ww[it][2],cs);
     }
 	
+    if(debug) sf_warning("source");
     /*if(dabc){
         sponge2d_apply(txx,spo,fdm);
         sponge2d_apply(tzx,spo,fdm);
@@ -1251,16 +1271,25 @@ if (is2d){
 	 * az = Fx(txz) + Bz(tzz)
 	 */
 #pragma omp parallel for			\
-    schedule(static,ompchunk)		\
+    schedule(dynamic)		\
     private(iz,ix)				\
     shared(fdm,tzz,tzx,txx,uaz,uax,dx,dz,dr)
 	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
 	    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
             uax[ix][iz] = Dx2( txx,ix,iz,dx,dz,dr) + Dz2( tzx,ix,iz,dx,dz,dr );
-            uaz[ix][iz] = Dx2( tzx,ix,iz,dx,dz,dr) + Dz2( tzz,ix,iz,dx,dz,dr );
 	    }
 	}
+ #pragma omp parallel for			\
+    schedule(dynamic)		\
+    private(iz,ix)				\
+    shared(fdm,tzz,tzx,txx,uaz,uax,dx,dz,dr)
+	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
+	    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
+           uaz[ix][iz] = Dx2( tzx,ix,iz,dx,dz,dr) + Dz2( tzz,ix,iz,dx,dz,dr );
+           }
+    }
 
+    if(debug) sf_warning("acceleration");
 	/*------------------------------------------------------------*/
 	/* inject acceleration source                                 */
 	/*------------------------------------------------------------*/
@@ -1273,7 +1302,7 @@ if (is2d){
 	/* step forward in time                                       */
 	/*------------------------------------------------------------*/
 #pragma omp parallel for				\
-    schedule(static,ompchunk)			\
+    schedule(dynamic)			\
     private(iz,ix)					\
     shared(fdm,uoz,uox,umz,umx,upz,upx,uaz,uax,ro)
 	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
@@ -1282,12 +1311,22 @@ if (is2d){
                 -           umz[ix][iz] 
                 +           uaz[ix][iz] * ro[ix][iz]; 
 
+	    }
+	}
+
+#pragma omp parallel for				\
+    schedule(dynamic) \
+    private(iz,ix)					\
+    shared(fdm,uoz,uox,umz,umx,upz,upx,uaz,uax,ro)
+	for    (ix=NOP; ix<fdm->nxpad-NOP; ix++) {
+	    for(iz=NOP; iz<fdm->nzpad-NOP; iz++) {
             upx[ix][iz] = 2*uox[ix][iz] 
                 -           umx[ix][iz] 
                 +           uax[ix][iz] * ro[ix][iz]; 
 	    }
 	}
 
+    if(debug) sf_warning("boundaries");
 	if(srctype == DISPLACEMENT) {
 	    lint2d_bell(upz,ww[it][0],cs); 
 	    lint2d_bell(upx,ww[it][1],cs);
@@ -1322,6 +1361,7 @@ if (is2d){
     }
     */
 
+    if(debug) sf_warning("sponging");
        /* sponge ABC */
     if(dabc){
         //sf_warning("I AM SPONGING EVERYWHERE");
@@ -1353,6 +1393,7 @@ if (is2d){
  	/*------------------------------------------------------------*/
 	/* cut wavefield and save */
 	/*------------------------------------------------------------*/
+    if(debug) sf_warning("extracting");
 	lint2d_extract(uoz,dd[0],cr);
 	lint2d_extract(uox,dd[1],cr);
 
@@ -1792,7 +1833,7 @@ if (is2d){
 	 * ezx = Dx(uz) + Dz(ux)
 	 */
 #pragma omp parallel for					\
-    schedule(static,ompchunk)				\
+    schedule(dynamic)				\
     private(ix,iy,iz)						\
     shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
 	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
@@ -1817,7 +1858,7 @@ switch (type){
 
 case TRICLINIC:
 #pragma omp parallel for						\
-    schedule(static,ompchunk)					\
+    schedule(dynamic)					\
     private(ix,iy,iz,sxx,syy,szz,sxy,syz,szx)				\
     shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,c11,c12,c13,c14,c15,c16,c22,c23,c24,c25,c26,c33,c34,c35,c36,c44,c45,c46,c55,c56,c66)
 	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
@@ -1879,7 +1920,7 @@ break;
 
 case ORTHORHOMBIC:
 #pragma omp parallel for						\
-    schedule(static,ompchunk)					\
+    schedule(dynamic)					\
     private(ix,iy,iz,sxx,syy,szz,sxy,syz,szx)				\
     shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,c11,c22,c33,c44,c55,c66,c12,c13,c23)
 	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
@@ -1939,12 +1980,12 @@ break; }
 	    for(iy=0; iy<sfdm->nypad; iy++) {
 		    for(ix=0; ix<sfdm->nxpad; ix++) {
 		        for(iz=0; iz < sfdm->nb; iz++) {
-                    txx[iy][ix][iz]=0;
-                    tyy[iy][ix][iz]=0;
+                    //txx[iy][ix][iz]=0;
+                    //tyy[iy][ix][iz]=0;
                     tzz[iy][ix][iz]=0;
                     tyz[iy][ix][iz]=0;
                     tzx[iy][ix][iz]=0;
-                    txy[iy][ix][iz]=0;
+                    //txy[iy][ix][iz]=0;
                 }
 		    }
 	    }
@@ -1989,7 +2030,7 @@ break; }
 	 */	
      if(debug) fprintf(stderr,"Going from stress to acceleration \n");
 #pragma omp parallel for					\
-    schedule(static,ompchunk)				\
+    schedule(dynamic)				\
     private(ix,iy,iz)						\
     shared(fdm,txx,tyy,tzz,txy,tyz,tzx,uax,uay,uaz,dx,dy,dz,dr)
 	for        (iy=NOP; iy<fdm->nypad-NOP; iy++) {
@@ -2022,7 +2063,7 @@ break; }
 	/*------------------------------------------------------------*/
     if(debug) fprintf(stderr,"Trying to step forward in time\n");
 #pragma omp parallel for						\
-    schedule(static,ompchunk)					\
+    schedule(dynamic)					\
     private(ix,iy,iz)							\
     shared(fdm,uox,uoy,uoz,umx,umy,umz,upx,upy,upz,uax,uay,uaz,ro)
 	for        (iy=NOP; iy<fdm->nypad-NOP; iy++) {

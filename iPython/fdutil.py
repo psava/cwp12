@@ -1,60 +1,125 @@
-class Axis:
-    def __init__(self,n,o,d):
-        self.n = n
-        self.o = o
-        self.d = d
-        self.min = o
-        self.max = o+(n-1)*d
+from rsf.proj import *
 
-class Model2D:
+
+def defaults(nz,oz,dz,nx,ox,dx,ny=1,oy=0,dy=1,**kw):
+    pars = dict(
+        free=False,
+        verb=True,
+        snap=True,
+        expl=False,
+        dabc=True,
+        cfl=False,
+        abcone=False,
+        srctype=0,
+        fmax=0.0, nb=10, nbell=5,
+        jdata=1, jsnap=1, ompnth=4,
+        nqz=nz,oqz=oz,dqz=dz,
+        nqx=nx,oqx=ox,dqx=dx,
+        nqy=ny,oqy=oy,dqy=dy)
+
+    for key,val in kw.items():
+        if key in pars.keys():
+            pars[key] = val
+    return pars
+
+def constant3d(name,val,nz,oz,dz,nx,ox,dx,ny,oy,dy,**kw):
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f
+        n3=%d o3=%f d3=%f | 
+        math output="%f"
+        ''' % (nz,oz,dz,nx,ox,dx,ny,oy,dy,val))
+
+def constant2d(name,val,nz,oz,dz,nx,ox,dx,**kw):
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f | 
+        math output="%f"
+        ''' % (nz,oz,dz,nx,ox,dx,val))
+        
+def point2d(name,z,x,**kw):
+    Flow(name,None,
+        'spike n1=2 n2=1 nsp=2 k1=1,2 l1=1,2 mag=%f,%f' %(x,z))
+
+def point3d(name,z,x,y,**kw):
+    Flow(name,None,
+        '''
+        spike n1=3 n2=1 nsp=3 k1=1,2,3 l1=1,2,3 mag=%f,%f,%f
+        ''' % (x,y,z))
+
+def rec2horizontal2d(output,input,ox,nx,dx,**kw):
     '''
-    A 2D model is defined with the Z-axis as the fast axis, 
-    and the X-axis as the slow axis.  
-
-    Model2D provides a series of commands for creating and
-    manipulating data with the same dimensionality.  
-
-    Subclasses define further ideas.
+    Put receivers in horizontal grid format again...
+    aka change the coordinates from receiver to space.
     '''
-    def __init__(self,zaxis,xaxis):
-        self.z = zaxis
-        self.x = xaxis
-    
-    def homogeneous(self,file,value):
-        ''' Create a homogeneous file with the model dimensions  
-        and value'''
-        Flow(file,None,
-            '''
-            spike
-            n1=%d o1=%f d1=%f
-            n2=%d o2=%f d2=%f
-            nsp=1 mag=%f
-            ''' % (self.z.n,self.z.o,self.z.d,
-                self.x.n,self.x.o,self.x.d,value))
+    Flow(output,input,
+        '''
+        put o1=%f d1=%f
+        ''' % (ox,dx))
 
-    def heterogeneous(self,file,spike_command):
-        ''' Create a heterogeneous file using the given command to spike '''
-        Flow(file,None,
-            '''
-            spike
-            n1=%d o1=%f d1=%f
-            n2=%d o2=%f d2=%f
-            ''' % (self.z.n,self.z.o,self.z.d,
-                self.x.n,self.x.o,self.x.d,value))
+def horizontal2d(name,z,ox,nx,dx,**kw):
+    Flow(name+'-x',None,
+        '''
+        math n1=1 n2=%d o2=%f d2=%f output="x2"
+        ''' %(nx,ox,dx))
+    Flow(name+'-z',None,
+        '''
+        math n1=1 n2=%d o2=%f d2=%f output="%f"
+        ''' %(nx,ox,dx,z))
+    Flow(name,[name+'-x',name+'-z'],
+        '''
+        cat axis=1 ${SOURCES[1]} 
+        ''')
 
-    def view(self,file,**kw):
-        ''' View a model file using sfgrey: kw are arguments to pass
-        to sfgrey'''
-        Result(file,
-                '''
-                grey 
-                parallel2=n labelrot=n wantaxis=y title=""
-                pclip=100
-                min1=%g max1=%g label1=%s unit1=%s
-                min2=%g max2=%g label2=%s unit2=%s
-                screenratio=%g screenht=%g wantscalebar=%s
-                ''' + 
-                ' '.join(map(lambda x: "%s=%s" % (x[0],x[1]),kw)))
+def vertical2d(name,x,oz,nz,dz,**kw):
+    Flow(name+'-x',None,
+        '''
+        math n1=1 n2=%d o2=%f d2=%f output="%f"
+        ''' %(nz,oz,dz,x))
+    Flow(name+'-z',None,
+        '''
+        math n1=1 n2=%d o2=%f d2=%f output="x2"
+        ''' %(nz,oz,dz))
+    Flow(name,[name+'-x',name+'-z'],
+        '''
+        cat axis=1 ${SOURCES[1]} 
+        ''')
 
+def rec2vertical2d(output,input,oz,dz,**kw):
+    Flow(output,input,
+        '''
+        put o1=%f d1=%f
+        ''' % (oz,dz))
+
+def horizontal3d(name,z,ox,nx,dx,oy,ny,dy,**kw):
+    Flow(name+'-z_',None,
+        '''
+        math n1=%d n2=%d o1=%f o2=%f d1=%f d2=%f 
+        output="%f"
+        ''' % (nx,ny,ox,oy,dx,dy,z))
+    Flow(name+'-x',name+'-z_',
+        '''
+        math output="x1" | put n1=1 n2=%d
+        ''' % (nx*ny))
+    Flow(name+'-y',name+'-z_',
+        '''
+        math output="x2" | put n1=1 n2=%d
+        ''' % (ny*nx))
+    Flow(name+'-z',name+'-z_',
+        '''
+        put n1=1 n2=%d
+        ''' % (nx*ny))
+    Flow(name,[name+'-'+s for s in ['x','y','z']],
+        '''
+        cat axis=1 ${SOURCES[1:3]}
+        ''' )
+
+def rec2horizontal3d(name,rec,ox,nx,dx,oy,ny,dy,**kw):
+    Flow(name,rec,
+        '''
+        put n1=%d o1=%f d1=%f n2=%d o2=%f d2=%f
+        ''' % (nx,ox,dx,ny,oy,dy))
 
 

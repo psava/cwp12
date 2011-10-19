@@ -3,9 +3,9 @@ import fdmodel as fd
 
 
 pars = fd.Dict(
-    nx=501,ox=0,dx=0.001,
+    nx=1001,ox=0,dx=0.001,
     ny=201,oy=0,dy=0.001,
-    nz=501,oz=0,dz=0.001,
+    nz=1001,oz=0,dz=0.001,
     nt=1001,ot=0,dt=0.001,kt=50,freq=20.0
 )
 

@@ -459,7 +459,7 @@ lint2d lint2d_make(int    na,
 	    f1 = (aa[ia].z-fdm->ozpad)/fdm->dz - ca->jz[ia];
 	    f2 = (aa[ia].x-fdm->oxpad)/fdm->dx - ca->jx[ia];
 	} else {
-        sf_warning("YOUR SOURCES ARE OUTSIDE OF THE GRID!!!\n");
+        sf_error("YOUR SOURCES ARE OUTSIDE OF THE GRID!!!\n");
 	    ca->jz[ia] = 0; 
 	    ca->jx[ia] = 0;
 	    
@@ -521,6 +521,7 @@ lint3d lint3d_make(int    na,
 	    f3 = (aa[ia].y-fdm->oypad)/fdm->dy - ca->jy[ia];
 
 	} else {
+        sf_error("SOURCE LOCATION OUTSIDE OF GRID: index: %d\n",ia);
 	    ca->jz[ia] = 0; 
 	    ca->jx[ia] = 0;
 	    ca->jy[ia] = 0;
@@ -1203,7 +1204,7 @@ void sponge3d_apply(float  ***uu,
     int iz,ix,iy,ib,ibz,ibx,iby;
     float w;
 
-//#pragma omp parallel for			\
+#pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
     shared(fdm,uu)
@@ -1218,7 +1219,7 @@ void sponge3d_apply(float  ***uu,
 	    }
     }
 
-//#pragma omp parallel for			\
+#pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
     shared(fdm,uu)
@@ -1232,7 +1233,7 @@ void sponge3d_apply(float  ***uu,
         }
     }
 	
-//#pragma omp parallel for			\
+#pragma omp parallel for			\
     schedule(dynamic,1)				\
     private(ib,iz,ix,iy,ibz,ibx,iby,w)		\
     shared(fdm,uu)

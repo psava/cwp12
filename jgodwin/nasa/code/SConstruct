@@ -22,10 +22,10 @@ targets = bldutil.UserSconsTargets()
 
 targets.c = \
 '''
-awe ewe_fixed stiff awe_omp
+viscoawe
 '''
 
-env['CFLAGS'] = env['CFLAGS'].replace('-g','-O4')
+env['CFLAGS'] = env['CFLAGS'].replace('-g','-O3')
 
 # Do not edit the line below
 targets.build_all(env, glob_build, srcroot, bindir, pkgdir)

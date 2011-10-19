@@ -1,0 +1,447 @@
+from rsf.cluster import *
+import fdmod
+
+debug = True
+
+Cluster(name='beusa',email='jgodwin@mines.edu',
+    time=3,nodetype='core12',ppn=12)
+
+# Model parameters
+par = { 
+'nx':75 ,'dx':.010, 'ox':-.35,  'lx':'x','ux':'km',
+'ny':100 ,'dy':.010, 'oy':-.02,  'ly':'y','uy':'km',
+'nz':390 ,'dz':.005, 'oz':1.737, 'lz':'z','uz':'km',
+'nt':2501,'ot':0,'dt':.0005,'lt':'t','ut':'s','kt':200,
+'jsnap':5
+}
+fdmod.param(par)
+
+nperf = 32 # How many perf shots are there?
+perfs = [20] # Which perfs to image, this is a list?
+#gnames = ['test','test2','test3']
+gnames = ['test']
+#nrpg = [-1,10,3] # How many receivers per group, this is a list of groups to test?
+nrpg = [-1] # How many receivers per group, this is a list of groups to test? -1, use only 1 grp per borehole
+nrA  = 37 # How many receivers in A?
+nrB  = 39 # How many receivers in B?
+segy = 'data/BEUSA_cont_data_for_CSM_all_perf_shots.sgy' # Name of data file
+
+# READ SEGY data
+Flow('data headers',segy,
+    '''
+    segyread tape=${SOURCES[0]}
+    tfile=${TARGETS[1]} | put n2=228 n3=32 label2="trace" label3="perf"
+    ''', stdin=0)
+
+# CLEAN the DATA
+# Keep every 3 trace, starting with 2 (shows events the best)
+Flow('clean','data',
+    '''
+    window j2=3 f2=2 | 
+    bandpass flo=30 fhi=140 | 
+    sfdespike | scale axis=12 
+    ''' % par)
+
+Result('clean','grey pclip=100')
+
+# CONVERT HEADERS to ASCII
+Flow('headers.csv','headers',
+    '''
+    disfil col=91  number=n format="%d,"
+    ''')
+# CONVERT HEADERS to receiver locations
+Flow('gz','headers','window n2=228 f1=12 n1=1 squeeze=n | sfdd type=float')
+Flow('gx','headers','window n2=228 f1=23 n1=1 squeeze=n | sfdd type=float')
+Flow('gy','headers','window n2=228 f1=24 n1=1 squeeze=n | sfdd type=float')
+
+# Get source locations
+Flow('sz','headers','window j2=228 f1=13 n1=1 squeeze=n | sfdd type=float')
+Flow('sx','headers','window j2=228 f1=21 n1=1 squeeze=n | sfdd type=float')
+Flow('sy','headers','window j2=228 f1=22 n1=1 squeeze=n | sfdd type=float')
+
+# Convert to feet, then to meters
+Flow('rr','gx gy gz',
+    '''
+    cat axis=1 ${SOURCES[1:3]} | 
+    add scale=0.0000001 | 
+    add scale=0.3048 abs=y
+    ''')
+
+Flow('rr-zxy','gz gx gy',
+    '''
+    cat axis=1 ${SOURCES[1:3]} | 
+    add scale=0.0000001 | 
+    add scale=0.3048 abs=y
+    ''')
+
+Flow('sou-zxy','sz sx sy',
+    '''
+    cat axis=1 ${SOURCES[1:3]} | 
+    add scale=0.0000001 | 
+    add scale=0.3048 abs=y
+    ''')
+
+Flow('sou','sx sy sz',
+    '''
+    cat axis=1 ${SOURCES[1:3]} | 
+    add scale=0.0000001 | 
+    add scale=0.3048 abs=y
+    ''')
+
+# Source locations taken from headers (sou)
+# Source x locations
+sx = [0.004724,0.004496,0.004267,0.003962,0.003772,0.003772,0.00381,0.00381,0.003886,0.004077,0.004153,0.004305,0.004343,0.004229,0.003886,0.003124,0.001105,0.0001143,0.00141,0.002743,0.003505,0.003658,0.001943,0.001943,0.001943,0.0002286,0.0004572,0.0004191,7.62e-05,0.0001524,0.0002667,0.001791]
+# Source y locations
+sy = [0.09713,0.06973,0.04233,0.01492,0.01251,0.03993,0.06736,0.09479,0.1222,0.1496,0.1771,0.2045,0.2319,0.2594,0.2868,0.3142,0.3965,0.4239,0.4513,0.4787,0.5061,0.5335,0.602,0.602,0.6022,0.6706,0.698,0.7254,0.7529,0.7803,0.8077,0.8626]
+# Source z locations
+sz = [3.481,3.482,3.484,3.485,3.485,3.486,3.486,3.487,3.487,3.487,3.488,3.488,3.488,3.489,3.489,3.49,3.491,3.491,3.491,3.492,3.492,3.491,3.49,3.49,3.49,3.489,3.489,3.488,3.488,3.488,3.488,3.489]
+
+assert len(sx) == len(sy) == len(sz)
+
+Flow('rr-A','rr','window j2=3 | window n2=37')
+Flow('rr-B','rr','window j2=3 | window f2=37')
+Flow('rr-all','rr','window j2=3')
+
+# Make the velocity model
+velocities = [10810.0,11000.0,13300.0,13200.0,13700.0,12800.0,11800.0,11500.0,11200.0,11000.0,12200.0,13500.0,13500.0,16600.0,17000.0,17000.0,11100.0,11100.0,15500.0,15700.0,15700.0,14400.0,14300.0,13300.0,10000.0,10000.0,10700.0,13300.0,10200.0,13230.0,18270.0,18690.0,12810.0,16695.0,13335.0,12075.0,9870.0,11865.0,11340.0,9502.5,9765.0,18165.0,17010.0]
+
+depths = [6000.0,6100.0,6200.0,6300.0,6400.0,6450.0,6500.0,6550.0,6600.0,6620.0,6700.0,6750.0,6920.0,7100.0,7130.0,7180.0,7250.0,7350.0,7370.0,7400.0,7450.0,7550.0,7600.0,7650.0,7700.0,7800.0,7850.0,7900.0,8000.0,9160.0,9300.0,9600.0,9750.0,9800.0,10350.0,10500.0,11200.0,11240.0,11500.0,11660.0,11800.0,11940.0]
+
+# Convert depth to index
+id = [ int((x*.3048/1000.0 - par['oz'])/par['dz']) for x in depths]
+id.insert(0,1) # Starting index is 1
+# Fix the indices, so that they start from 1 and go to nz for the end indices
+fid = []
+for ii in range(len(depths)):
+    fid.append(id[ii+1]-1)
+fid.append(par['nz'])
+
+# Convert velocities from ft/s to km/s
+vel = [x*.3048/1000.0 for x in velocities]
+
+def flatten(vals):
+    return reduce(lambda x,y: str(x)+','+str(y),vals)
+
+#print len(vel), len(id), len(fid)
+#for i in range(len(id)):
+#    print id[i],fid[i]
+assert len(vel) == len(id) == len(fid)
+
+
+# Make the velocity file.
+Flow('vp',None,
+    '''
+    spike n1=%(nz)d o1=%(oz)f d1=%(dz)f 
+    ''' % (par) + 
+    '''
+    k1=%s l1=%s nsp=%d mag=%s | 
+    ''' % (flatten(id),flatten(fid),len(vel),flatten(vel)) + 
+    '''
+    spray axis=2 n=%(nx)d o=%(ox)f d=%(dx)f | 
+    spray axis=3 n=%(ny)d o=%(oy)f d=%(dy)f | 
+    sfsmooth rect1=2 repeat=3
+    ''' % (par))
+
+Result('vp','byte gainpanel=a pclip=100 | ' +fdmod.cgrey3d('',par))
+
+# Make density
+Flow('ro','vp','math output="1.0"')
+
+def windowreceivers(rr,nr,nrpg,prefix,transpose=False): 
+    '''
+    Window the receivers rr and the data using the number of receivers nr, and the num rec per group nrpg
+    '''
+    rgroups = []
+    j = 0
+    for i in range(0,nr,nrpg):
+        n = nrpg
+        if i + nrpg > nr:
+            n = nr-i
+        if transpose:
+            Flow(rr+'-%s-%03d' % (prefix,j), rr, 'window n2=%d f2=%d | transp' % (n,i))
+        else:
+            Flow(rr+'-%s-%03d' % (prefix,j), rr, 'window n2=%d f2=%d' % (n,i))
+        rgroups.append(rr+'-%s-%03d' % (prefix,j))
+        j += 1
+    
+    if len(rgroups) == 0:
+        if transpose:
+            Flow(rr+'-%s-%03d' % (prefix,0), rr,'transp')
+            rgroups.append(rr+'-%s-%03d' % (prefix,0))
+        else:
+            rgroups = [rr]
+    return rgroups
+
+
+fdmod.wavelet('wav_',60,par)
+Flow('wav','wav_','transp')
+Result('wav', 'transp | graph pclip=100')
+
+# Make the individual perf records
+for perf in perfs:
+    ttag = '-%03d' % perf
+    Flow('da-A'+ttag,'clean',
+        '''
+        window n2=37 n3=1 f3=%d | reverse which=1 opt=i |
+        sfpad n1out=%d
+        ''' % (perf,par['nt']))
+    Flow('da-B'+ttag,'clean',
+        '''
+        window f2=37 n3=1 f3=%d | reverse which=1 opt=i | 
+        sfpad n1out=%d
+        ''' % (perf,par['nt']))
+
+    Flow('ss'+ttag,'sou',
+        '''
+        window n2=1 f2=%d squeeze=n
+        ''' % (perf))
+
+    # Synthesize data for this perf,shot given its predicted location
+    fdmod.awefd3d('syn-dat'+ttag,'syn-wfl'+ttag,'wav','vp','ro','ss'+ttag,'rr-all',
+        'jsnap=%d' % par['nt'],
+        par)
+
+    Flow('syn-dat-rev'+ttag,'syn-dat'+ttag,
+        '''
+        transp | reverse which=1 opt=i | window f1=800 | 
+        sfpad n1out=%d | transp
+        ''' % par['nt'])
+
+    Flow('syn-A'+ttag,'syn-dat-rev'+ttag,'window n1=37')
+    Flow('syn-B'+ttag,'syn-dat-rev'+ttag,'window f1=37')
+    
+    
+    fdmod.awefd3d('junk-syn'+ttag,
+                'syn-wfld'+ttag,
+                'syn-dat-rev'+ttag,
+                'vp',
+                'ro',
+                'rr-all',
+                'ss'+ttag,
+                '''
+                jsnap=%(jsnap)d nb=30 snap=y
+                nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+                nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+                nqy=%(ny)d oqy=%(oy)f dqy=%(dy)f
+                ''' % (par),par)
+
+    Flow('syn-wfld-byt'+ttag,'syn-wfld'+ttag,'byte pclip=99 gainpanel=a')
+    frame1=int((sz[perf]-par['oz'])/par['dz'])
+    frame2=int((sx[perf]-par['ox'])/par['dx'])
+    frame3=int((sy[perf]-par['oy'])/par['dy'])
+
+    for i in range(0,par['nt']/par['jsnap'],2):
+        Result('syn-wfld%s-%04d' % (ttag,i), 'syn-wfld-byt'+ttag,
+            '''
+            window n4=1 f4=%d | 
+            ''' %(i)+ fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+
+def image(tag,perf,wflds,par):
+    Flow('pic-%s-%d' % (tag,perf),wflds,
+        '''
+        add mode=p ${SOURCES[1:-1]} 
+        ''')
+
+    Flow('pic-space-%s-%d' % (tag,perf),'pic-%s-%d' % (tag,perf),
+        '''
+        stack axis=4
+        ''')
+    
+    Flow('sic-%s-%d' % (tag,perf),wflds,
+        '''
+        semblance3d ${SOURCES[1:-1]}
+        ''')
+    
+    Flow('sic-space-%s-%d' % (tag,perf),'sic-%s-%d' % (tag,perf),
+        '''
+        thr mode=hard thr=0.4 | 
+        stack axis=4
+        ''')
+
+    frame1=int((sz[perf]-par['oz'])/par['dz'])
+    frame2=int((sx[perf]-par['ox'])/par['dx'])
+    frame3=int((sy[perf]-par['oy'])/par['dy'])
+
+    Result('sic-space-%s-%d' % (tag,perf), 
+        '''
+        byte gainpanel=a pclip=100 | 
+        '''+ 
+        fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+
+    Result('pic-space-%s-%d' % (tag,perf), 
+        '''
+        byte gainpanel=a pclip=100 | 
+        ''' + 
+        fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+
+    Flow('pic-byt-%s-%d' % (tag,perf),
+         'pic-%s-%d' % (tag,perf),
+         'byte gainpanel=a pclip=100')
+    
+    Flow('sic-byt-%s-%d' % (tag,perf),
+         'sic-%s-%d' % (tag,perf),
+         'byte gainpanel=a pclip=100')
+
+    if debug:
+        Flow('cwfld-%s-%d' % (tag,perf),
+            wflds,
+            '''
+            add mode=a ${SOURCES[1:-1]}
+            ''')
+        Flow('cwfld-byt-%s-%d' % (tag,perf),
+             'cwfld-%s-%d' % (tag,perf),
+             ''' 
+             byte gainpanel=a pclip=99.6
+             ''')
+
+
+    for it in range(0,par['nt']/par['jsnap'],2):
+        Result('sic-%s-%d-%04d' % (tag,perf,it),'sic-byt-%s-%d' % (tag,perf),
+            '''
+            window n4=1 f4=%d | 
+            ''' % (it) + fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+
+        Result('pic-%s-%d-%04d' % (tag,perf,it),'pic-byt-%s-%d' % (tag,perf),
+            '''
+            window n4=1 f4=%d | 
+            ''' % (it) + fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+        
+        if debug:
+            Result('cwfld-%s-%d-%04d' % (tag,perf,it),'cwfld-byt-%s-%d' % (tag,perf),
+                '''
+                window n4=1 f4=%d | 
+                ''' % (it) + fdmod.cgrey3d('frame1=%d frame2=%d frame3=%d' % (frame1,frame2,frame3),par))
+
+
+
+
+
+k = 0
+# For each group of receivers that we're interested in (this is the big loop)
+for group in nrpg:
+    tag = gnames[k]
+    groupsA = windowreceivers('rr-A',nrA,group,tag)
+    groupsB = windowreceivers('rr-B',nrB,group,tag)
+    
+    # For each perf shot that we want to image
+
+    for perf in perfs:
+        dataA = windowreceivers('da-A-%03d' % perf, nrA,group,tag,True)
+        dataB = windowreceivers('da-B-%03d' % perf, nrB,group,tag,True)
+
+        synA = windowreceivers('syn-A-%03d' % perf, nrA,group,tag)
+        synB = windowreceivers('syn-B-%03d' % perf, nrB,group,tag)
+
+        wflds = []
+        synwflds = []
+
+        assert len(groupsA) == len(dataA)
+        Fork(nodes=5,ipn=2,time=5)
+        for ia in range(len(groupsA)):
+            recA = groupsA[ia]
+            datA = dataA[ia]
+            fdmod.awefd3d('junk-A-%s-%03d-%03d' % (tag,perf,ia),
+                'wfld-A-%s-%03d-%03d' %(tag,perf,ia),
+                datA,
+                'vp',
+                'ro',
+                recA,
+                recA,
+                '''
+                jsnap=%(jsnap)d nb=30 snap=y
+                nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+                nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+                nqy=%(ny)d oqy=%(oy)f dqy=%(dy)f
+                ''' % (par),par)
+
+            Flow('wfld-A-%s-%03d-%03d-scale' %(tag,perf,ia),
+                'wfld-A-%s-%03d-%03d' % (tag,perf,ia),
+                '''
+                scale axis=1234
+                ''')
+
+            wflds.append('wfld-A-%s-%03d-%03d-scale' % (tag,perf,ia))
+
+
+            dsaA = synA[ia]
+            fdmod.awefd3d('junk-syn-A-%s-%03d-%03d' % (tag,perf,ia),
+                'syn-wfld-A-%s-%03d-%03d' %(tag,perf,ia),
+                dsaA,
+                'vp',
+                'ro',
+                recA,
+                recA,
+                '''
+                jsnap=%(jsnap)d nb=30 snap=y
+                nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+                nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+                nqy=%(ny)d oqy=%(oy)f dqy=%(dy)f
+                ''' % (par),par)
+            Flow('syn-wfld-A-%s-%03d-%03d-scale' %(tag,perf,ia),
+                'syn-wfld-A-%s-%03d-%03d' % (tag,perf,ia),
+                '''
+                scale axis=1234
+                ''')
+
+            synwflds.append('syn-wfld-A-%s-%03d-%03d-scale' % (tag,perf,ia))
+
+            Iterate()
+        Join()
+
+        assert len(groupsB) == len(dataB)
+        Fork(nodes=5,ipn=2,time=10)
+        for ib in range(len(groupsB)):
+            recB = groupsB[ib]
+            datB = dataB[ib]
+            fdmod.awefd3d('junk-B-%s-%03d-%03d' % (tag,perf,ib),
+                'wfld-B-%s-%03d-%03d' %(tag,perf,ib),
+                datB,
+                'vp',
+                'ro',
+                recB,
+                recB,
+                '''
+                jsnap=%(jsnap)d nb=30 snap=y
+                nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+                nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+                nqy=%(ny)d oqy=%(oy)f dqy=%(dy)f
+                ''' % (par),par)
+            Flow('wfld-B-%s-%03d-%03d-scale' %(tag,perf,ib),
+                'wfld-B-%s-%03d-%03d' % (tag,perf,ib),
+                '''
+                scale axis=1234
+                ''')
+            wflds.append('wfld-B-%s-%03d-%03d-scale' % (tag,perf,ib))
+
+            dsaB = synB[ib]
+            fdmod.awefd3d('junk-syn-B-%s-%03d-%03d' % (tag,perf,ib),
+                'syn-wfld-B-%s-%03d-%03d' %(tag,perf,ib),
+                dsaB,
+                'vp',
+                'ro',
+                recB,
+                recB,
+                '''
+                jsnap=%(jsnap)d nb=30 snap=y
+                nqz=%(nz)d oqz=%(oz)f dqz=%(dz)f
+                nqx=%(nx)d oqx=%(ox)f dqx=%(dx)f
+                nqy=%(ny)d oqy=%(oy)f dqy=%(dy)f
+                ''' % (par),par)
+            Flow('syn-wfld-B-%s-%03d-%03d-scale' %(tag,perf,ib),
+                'syn-wfld-B-%s-%03d-%03d' % (tag,perf,ib),
+                '''
+                scale axis=1234
+                ''')
+
+            synwflds.append('syn-wfld-B-%s-%03d-%03d-scale' % (tag,perf,ib))
+
+            Iterate()
+
+        Join()
+
+
+        image(tag,perf,wflds,par)
+        image(tag+'-syn',perf,synwflds,par)
+    k += 1
+
+End()

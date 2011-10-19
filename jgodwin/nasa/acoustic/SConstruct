@@ -4,18 +4,27 @@ import fdmod
 import math 
 
 par = fd.Dict(
-    nz=657, dz=0.001, oz=0.0, lz='z',uz='km',
-    nx=341, dx=0.001, ox=0.0, lx='x',ux='km',
-    ny=243, dy=0.001, oy=0.0, ly='y',uy='km',
-    nt=8001, dt=1e-9, ot=0.0, kt=100,
-    freq=20e6,  # Peak frequency in Hz
+    nz=657, dz=0.002, oz=0.0, lz='z',uz='km',
+    nx=341, dx=0.002, ox=0.0, lx='x',ux='km',
+    ny=243, dy=0.002, oy=0.0, ly='y',uy='km',
+    nt=4001, dt=2e-9, ot=0.0, kt=100,
+    freq=10e6,  # Peak frequency in Hz
     er = 2.0 # Relative permitivitty
     )
+def cfl(dx,dy,dz,dt,v):
+    cc = (v*dt)/dx+(v*dt)/dy + (v*dt)/dz
+    if cc < math.sqrt(2):
+        return True
+    else:
+        return False
+
+print 'Pass CFL?', cfl(par.dx,par.dy,par.dz,par.dt,3.0e5)
+
 
 fdmodpars = par.copy()
 fdmod.param(fdmodpars)
 
-fdpars = fd.defaults(jsnap=100,**par)
+fdpars = fd.defaults(jsnap=200,nb=50,**par)
 
 # Sources
 sx, sy = par.nx/2*par.dx, par.ny/2*par.dy
@@ -59,7 +68,16 @@ Flow('wfld-byte','wfld',
     byte gainpanel=a pclip=95
     ''')
 
-Flow('mask','../mask.hh','dd type=float')
+Flow('wfld-scale','wfld',
+    '''
+    scale axis=1234
+    ''')
+
+Flow('mask','../mask.hh','dd type=float | sfscale axis=123')
+
+[Flow('wfld-vtk-%03d.vtk' % i, 'wfld','window n4=1 f4=%d | sfdd form=xdr | sfrsf2vtk' % i) for i in range(20)]
+proj = Project()
+proj.Alias('vtk',['wfld-vtk-%03d.vtk' % i for i in range(20)])
 
 for i in range(20):
     Plot('wfld-%03d' % i, 'wfld-byte',
@@ -73,13 +91,21 @@ for i in range(20):
         ''' % (i,par.nz/2,par.nx/2,par.ny/2))
 
 
-    Flow('wfld-vel-%03d' % i,['wfld','mask'],
+#    Flow('wfld-vel-%03d' % i,['mask','wfld-byte'],
+#        '''
+#        dd type=float | 
+#        window n4=1 f4=%d | 
+#        add scale=%g | 
+#        add scale=30 |
+#        add mode=a ${SOURCES[1]}
+#        ''' % (i,1.0/2.74832e-10))
+    Flow('wfld-vel-%03d' % i, ['mask','byte'],
         '''
-        window n4=1 f4=%d | 
-        add scale=%g | 
-        add scale=30 |
-        add mode=a ${SOURCES[1]}
-        ''' % (i,1.0/2.74832e-10))
+        dd type=int | 
+        add add=-128 
+        ''')
+
+
 
         #math w=${SOURCES[1]} output="10*input+w" 
 

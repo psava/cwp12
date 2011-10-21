@@ -1,0 +1,172 @@
+# 
+from rsf.proj import *
+import fdmod,adcig,encode,wemig
+
+par = {
+    'nt':2501, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
+    'nz':500,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':100,
+    'nb':100
+    }
+fdmod.param(par)
+
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+
+# ------------------------------------------------------------
+# source
+fdmod.point('ss',par['xsou'],par['zsou'],par)
+fdmod.horizontal('ttall',par['oz'],par)
+Flow('ssall','ttall','window j2=%(jcx)d'%par)
+Plot('ss',   fdmod.ssplot('',par))
+Plot('ssall',fdmod.ssplot('',par))
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',0,par)
+Plot('rr',fdmod.rrplot('',par))
+
+# ------------------------------------------------------------
+# CIGs at uniformly-sampled locations
+fdmod.boxarray('gt',
+               par['nz'],par['oz'],par['dz'],
+               par['nx'],par['ox'],par['dx'],
+               par)
+Flow('gg','gt',
+     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+fdmod.vertical('ggone',par['xsou'],par)
+Plot('ggone',fdmod.qqplot('',par))
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',15,par)
+Flow(  'wav', 'wav_','transp')
+Result('wav','window n2=500 |'+fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=100
+par['xl']=par['nx']-100
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=100
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
+
+# ------------------------------------------------------------
+# reflector
+Flow('den0',None,  
+     '''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=401 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     ''' % par)
+Flow('den1',None,  
+     '''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=371 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     ''' % par)
+
+Flow('zer','den0','math output="1.0"')
+
+Flow('vel0','den0','math output="2.5+0.5*sin(8*x1)"')
+Flow('vel1','den0','math output="0.95*(2.5-0.5*sin(3*x1+1))"')
+
+for k in (['0','1']):
+     Plot('den'+k,fdmod.cgrey('pclip=100 bias=1',par))
+     Plot('vel'+k,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
+
+     for j in (['vel','den']):
+          Result(j+k,[j+k,'rr','ggone','ssall'],'Overlay')
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# FD modeling
+fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','',par)
+fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','',par)
+Flow('dat',['dd','do','dmask'],
+     '''
+     add scale=+1,-1 ${SOURCES[1]} |
+     add mode=p      ${SOURCES[2]}
+     ''')
+Flow('wfl',['wd','wo'],
+     'add scale=+1,-1 ${SOURCES[1]}')
+
+Result('dd','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+Result('do','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+Result('dat','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+Result('wfl',             fdmod.wgrey('pclip=99.9',par))
+
+Flow('dts','wav','window squeeze=n')
+Flow('dtr','dat','window squeeze=n')
+
+
+for k in (['0','1']):
+
+    # migration (RTM)
+    wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4',par)
+    wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4',par)
+    wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
+    wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
+
+    Flow('cit'+k,
+         'cig'+k,
+         '''
+         put n4=%d n5=%d label4=z label5=c |
+         window |
+         stack axis=3 | transp
+         '''%(par['nz'],par['nx']/par['jcx'])
+         )
+    
+
+Flow('imgbyt','img0 img1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
+Flow('citbyt','cit0 cit1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
+
+for j in range(2):
+     k='%d'%j
+     
+     # image
+     Plot(  'img'+k,
+          'imgbyt',
+          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
+     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
+
+     # CIG
+     Result('cit'+k,
+            'citbyt',
+            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+     
+# ------------------------------------------------------------
+End()
+        

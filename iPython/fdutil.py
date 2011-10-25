@@ -22,6 +22,14 @@ def defaults(nz,oz,dz,nx,ox,dx,ny=1,oy=0,dy=1,**kw):
             pars[key] = val
     return pars
 
+def vofz2d(name,dvdz,v0,nz,oz,dz,nx,ox,dx,**kw):
+    Flow(name,None,
+        '''
+        spike n1=%d o1=%f d1=%f
+        n2=%d o2=%f d2=%f | 
+        math output="x2*%f+%f"
+        ''' % (nz,oz,dz,nx,ox,dx,dvdz,v0))
+
 def constant3d(name,val,nz,oz,dz,nx,ox,dx,ny,oy,dy,**kw):
     Flow(name,None,
         '''

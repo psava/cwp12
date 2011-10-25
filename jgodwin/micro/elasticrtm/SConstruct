@@ -34,7 +34,8 @@ plot.tensorwavelet('wave')
 fd.run('data','cc','ro-win','wave','sou','rr','wfld', ani=0,**fdpar)
 
 fdpar['srctype'] = 1
-groups = [('A',None,50),('B',50,None)]
+#groups = [('A',None,50),('B',50,None)]
+groups = [('A',None,25),('B',25,50),('C',50,None)]
 wflds = []
 for ig in range(len(groups)):
     name,start,end = groups[ig]
@@ -44,22 +45,35 @@ for ig in range(len(groups)):
             '''
             window n1=%d
             ''' % end)
+        Flow('rk'+tag,'rr',
+            '''
+            window n2=%d
+            ''' % end)
     elif not end:
         Flow('data'+tag,'data',
             '''
             window f1=%d
             ''' % (start))
+        Flow('rk'+tag,'rr',
+            '''
+            window f2=%d
+            ''' % start)
     else:
         Flow('data'+tag,'data',
             '''
             window f1=%d n1=%d
             ''' % (start,end-start))
+        Flow('rk'+tag,'rr',
+            '''
+            window f2=%d n2=%d
+            ''' % (start,end-start))
+
     Flow('data'+tag+'-rev','data'+tag,
         '''
         reverse which=4 opt=i 
         ''')
     fd.run('junk-data'+tag,'cc','ro-win','data'+tag+'-rev',
-        'rr-'+tag,'rr','wfld'+tag, ani=0,**fdpar)
+        'rk'+tag,'rr','wfld'+tag, ani=0,**fdpar)
     Flow('wfld'+tag+'-scale','wfld'+tag,
         '''
         scale axis=1234

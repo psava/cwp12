@@ -1,0 +1,16 @@
+from rsf.proj import *
+import fdutil
+import acousticfd as fd
+
+par = dict(
+    nx=601,ox=0.0,dx=10.0,
+    nz=401,oz=0.0,dz=10.0,
+    nt=1501,ot=0.0,dt=0.002,kt=100,freq=25
+)
+
+fdpar = fdutil.defaults(nb=50,**par)
+
+fdutil.constant2d('vel',2000,**par)
+Flow('den',
+    '''
+    

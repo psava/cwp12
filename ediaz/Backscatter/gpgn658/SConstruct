@@ -8,7 +8,8 @@ par = {
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
     'nz':500,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':100,
-    'nb':100
+    'nb':100,
+    'jsnap_gr':25
     }
 fdmod.param(par)
 
@@ -91,17 +92,28 @@ Flow('den0',None,
 Flow('den1',None,  
      '''
      spike nsp=1 mag=1.0
-     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=371 l1=%(nz)d |
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=377 l1=%(nz)d |
      spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
      add add=1
      ''' % par)
+
+Flow('den2',None,  
+     '''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=432 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     ''' % par)
+
 
 Flow('zer','den0','math output="1.0"')
 
 Flow('vel0','den0','math output="2.5+0.5*sin(8*x1)"')
 Flow('vel1','den0','math output="0.95*(2.5-0.5*sin(3*x1+1))"')
+Flow('vel2','den0','math output="1.12*(2.5-0.5*sin(3*x1+1))"')
 
-for k in (['0','1']):
+
+for k in (['0','1','2']):
      Plot('den'+k,fdmod.cgrey('pclip=100 bias=1',par))
      Plot('vel'+k,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
 
@@ -113,8 +125,8 @@ for k in (['0','1']):
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 # FD modeling
-fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','',par)
-fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','',par)
+fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','ompnth=2',par)
+fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','ompnth=2',par)
 Flow('dat',['dd','do','dmask'],
      '''
      add scale=+1,-1 ${SOURCES[1]} |
@@ -132,28 +144,58 @@ Flow('dts','wav','window squeeze=n')
 Flow('dtr','dat','window squeeze=n')
 
 
-for k in (['0','1']):
+for k in (['0','1','2']):
 
-    # migration (RTM)
-    wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4',par)
-    wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4',par)
-    wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
-    wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
+	# migration (RTM)
+	wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4 ompnth=2',par)
+	wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4 ompnth=2',par)
+	wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
+	wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
+	Flow('cross_corr'+k,['wts'+k,'wtr'+k],'math r=${SOURCES[1]} output="r*input" ')
 
-    Flow('cit'+k,
-         'cig'+k,
-         '''
-         put n4=%d n5=%d label4=z label5=c |
-         window |
-         stack axis=3 | transp
-         '''%(par['nz'],par['nx']/par['jcx'])
-         )
-    
+	Flow('cit'+k,
+	 'cig'+k,
+	 '''
+	 put n4=%d n5=%d label4=z label5=c |
+	 window |
+	 stack axis=3 | transp
+	 '''%(par['nz'],par['nx']/par['jcx'])
+	 )
 
-Flow('imgbyt','img0 img1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
-Flow('citbyt','cit0 cit1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
+	Result( 'vel_den'+k,
+	    ['vel'+k,'den'+k],'SideBySideAniso')
 
-for j in range(2):
+	## ------------------------------------------------------------ 
+	## plot wavefield frames
+	for i in range(0, 625 , par['jsnap_gr'] ):
+		tag = '-%03d'%i
+		#Source wavefield frame
+		fdmod.wframe('wts'+k+tag,
+		     'wts'+k,i,'pclip=99',par)
+		Result( 'wts'+k+tag,
+		    ['wts'+k+tag,'den'+k],'Overlay')
+		#Receiver wavefield frame
+		fdmod.wframe('wtr'+k+tag,
+		     'wtr'+k,i,'pclip=99',par)
+		Result( 'wtr'+k+tag,
+		    ['wtr'+k+tag,'den'+k],'Overlay')
+		#Cross-corr wavefield frame
+		fdmod.wframe('cross_corr'+k+tag,
+		     'cross_corr'+k,i,'pclip=99',par)
+		Result( 'cross_corr'+k+tag,
+		    ['cross_corr'+k+tag,'den'+k],'Overlay')
+		#Composite movie:
+		Result( 'WSI'+k+tag,
+		    ['cross_corr'+k+tag,'wtr'+k+tag,'wts'+k+tag],'SideBySideAniso')
+
+
+
+
+
+Flow('imgbyt','img0 img1 img2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9')
+Flow('citbyt','cit0 cit1 cit2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9')
+
+for j in range(3):
      k='%d'%j
      
      # image
@@ -168,8 +210,5 @@ for j in range(2):
             'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
      
 # ------------------------------------------------------------
-
-
-
 End()
         

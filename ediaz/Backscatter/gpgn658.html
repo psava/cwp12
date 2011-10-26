@@ -1,0 +1,285 @@
+
+     <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+     <html>
+     <head>
+     <title>gpgn658/SConstruct</title>
+     <style type="text/css">
+     div.progs {
+     background-color: #DCE3C4;
+     border: thin solid black;
+     padding: 1em;
+     margin-left: 2em;
+     margin-right: 2em; }
+     div.dsets {
+     background-color: #E3C4DC;
+     border: thin solid black;
+     padding: 1em;
+     margin-left: 2em;
+     margin-right: 2em; }
+     div.scons {
+     background-color: #FFF8ED;
+     border: thin solid black;
+     padding: 1em;
+     margin-left: 2em;
+     margin-right: 2em; }
+     .name { color: #000000; }
+.number { color: #0080C0; }
+.string { color: #004080; }
+.keyword { color: #C00000; }
+.flow { color: #0000C0; }
+.text { color: #000000; }
+.fetch { color: #0000C0; }
+.op { color: #0000C0; }
+.error { color: #FF8080; }
+.comment { color: #008000; }
+.plot { color: #0000C0; }
+.result { color: #C00000; }
+</style>
+     </head>
+     <body>
+     <div>
+     <a href="paper_html/paper.html"><img width="32" height="32"
+     align="bottom" border="0" alt="up" src="paper_html/icons/up.png"></a>
+     <a href="paper.pdf"><img src="paper_html/icons/pdf.png" alt="[pdf]"
+     width="32" height="32" border="0"></a>
+     </div>
+     <div class="scons">
+     <table><tr><td>
+     <pre><font face="Lucida,Courier New"><span class="comment"># </span>
+<span class="keyword">from</span> <span class="name">rsf</span><span class="op">.</span><span class="name">proj</span> <span class="keyword">import</span> <span class="op">*</span>
+<span class="keyword">import</span> <span class="name">fdmod</span><span class="op">,</span><span class="name">adcig</span><span class="op">,</span><span class="name">encode</span><span class="op">,</span><span class="name">wemig</span>
+
+<span class="name">par</span> <span class="op">=</span> <span class="op">{</span>
+    <span class="string">'nt'</span><span class="op">:</span><span class="number">2501</span><span class="op">,</span> <span class="string">'dt'</span><span class="op">:</span><span class="number">0.001</span><span class="op">,</span> <span class="string">'ot'</span><span class="op">:</span><span class="number">0</span><span class="op">,</span> <span class="string">'lt'</span><span class="op">:</span><span class="string">'t'</span><span class="op">,</span> <span class="string">'ut'</span><span class="op">:</span><span class="string">'s'</span><span class="op">,</span>
+    <span class="string">'nx'</span><span class="op">:</span><span class="number">1000</span><span class="op">,</span> <span class="string">'dx'</span><span class="op">:</span><span class="number">0.01</span><span class="op">,</span>  <span class="string">'ox'</span><span class="op">:</span><span class="number">0</span><span class="op">,</span> <span class="string">'lx'</span><span class="op">:</span><span class="string">'x'</span><span class="op">,</span> <span class="string">'ux'</span><span class="op">:</span><span class="string">'km'</span><span class="op">,</span>
+    <span class="string">'ny'</span><span class="op">:</span><span class="number">1</span><span class="op">,</span>    <span class="string">'dy'</span><span class="op">:</span><span class="number">0.01</span><span class="op">,</span>  <span class="string">'oy'</span><span class="op">:</span><span class="number">0</span><span class="op">,</span> <span class="string">'ly'</span><span class="op">:</span><span class="string">'y'</span><span class="op">,</span> <span class="string">'uy'</span><span class="op">:</span><span class="string">'km'</span><span class="op">,</span>
+    <span class="string">'nz'</span><span class="op">:</span><span class="number">500</span><span class="op">,</span>  <span class="string">'dz'</span><span class="op">:</span><span class="number">0.005</span><span class="op">,</span> <span class="string">'oz'</span><span class="op">:</span><span class="number">0</span><span class="op">,</span> <span class="string">'lz'</span><span class="op">:</span><span class="string">'z'</span><span class="op">,</span> <span class="string">'uz'</span><span class="op">:</span><span class="string">'km'</span><span class="op">,</span>
+    <span class="string">'kt'</span><span class="op">:</span><span class="number">100</span><span class="op">,</span>
+    <span class="string">'nb'</span><span class="op">:</span><span class="number">100</span><span class="op">,</span>
+    <span class="string">'jsnap_gr'</span><span class="op">:</span><span class="number">25</span>
+    <span class="op">}</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">param</span><span class="op">(</span><span class="name">par</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># source</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'xsou'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'ox'</span><span class="op">]</span><span class="op">+</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">/</span><span class="number">2</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'dx'</span><span class="op">]</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'zsou'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'oz'</span><span class="op">]</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'ixsou'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">/</span><span class="number">2</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'izsou'</span><span class="op">]</span><span class="op">=</span><span class="number">1</span>
+
+<span class="name">par</span><span class="op">[</span><span class="string">'jcx'</span><span class="op">]</span><span class="op">=</span><span class="number">5</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'ncx'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">/</span><span class="name">par</span><span class="op">[</span><span class="string">'jcx'</span><span class="op">]</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># source</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">point</span><span class="op">(</span><span class="string">'ss'</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'xsou'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'zsou'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">horizontal</span><span class="op">(</span><span class="string">'ttall'</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'oz'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'ssall'</span><span class="op">,</span><span class="string">'ttall'</span><span class="op">,</span><span class="string">'window j2=%(jcx)d'</span><span class="op">%</span><span class="name">par</span><span class="op">)</span>
+<span class="plot">Plot</span><span class="op">(</span><span class="string">'ss'</span><span class="op">,</span>   <span class="name">fdmod</span><span class="op">.</span><span class="name">ssplot</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+<span class="plot">Plot</span><span class="op">(</span><span class="string">'ssall'</span><span class="op">,</span><span class="name">fdmod</span><span class="op">.</span><span class="name">ssplot</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># receivers</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">horizontal</span><span class="op">(</span><span class="string">'rr'</span><span class="op">,</span><span class="number">0</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="plot">Plot</span><span class="op">(</span><span class="string">'rr'</span><span class="op">,</span><span class="name">fdmod</span><span class="op">.</span><span class="name">rrplot</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># CIGs at uniformly-sampled locations</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">boxarray</span><span class="op">(</span><span class="string">'gt'</span><span class="op">,</span>
+               <span class="name">par</span><span class="op">[</span><span class="string">'nz'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'oz'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'dz'</span><span class="op">]</span><span class="op">,</span>
+               <span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'ox'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'dx'</span><span class="op">]</span><span class="op">,</span>
+               <span class="name">par</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'gg'</span><span class="op">,</span><span class="string">'gt'</span><span class="op">,</span>
+     <span class="string">'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'</span><span class="op">%</span><span class="name">par</span> <span class="op">+</span>
+     <span class="string">'put n2=%d n3=1'</span><span class="op">%</span> <span class="op">(</span><span class="name">par</span><span class="op">[</span><span class="string">'nz'</span><span class="op">]</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">/</span><span class="name">par</span><span class="op">[</span><span class="string">'jcx'</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">vertical</span><span class="op">(</span><span class="string">'ggone'</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'xsou'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="plot">Plot</span><span class="op">(</span><span class="string">'ggone'</span><span class="op">,</span><span class="name">fdmod</span><span class="op">.</span><span class="name">qqplot</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+<span class="comment"># ------------------------------------------------------------</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># EIC computational domain</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'nhz'</span><span class="op">]</span><span class="op">=</span><span class="number">0</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'nhx'</span><span class="op">]</span><span class="op">=</span><span class="number">100</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'nht'</span><span class="op">]</span><span class="op">=</span><span class="number">100</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'dht'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'dt'</span><span class="op">]</span><span class="op">*</span><span class="number">10</span>
+
+<span class="name">adcig</span><span class="op">.</span><span class="name">tparam</span><span class="op">(</span><span class="op">(</span><span class="name">par</span><span class="op">[</span><span class="string">'nhx'</span><span class="op">]</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'dx'</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="name">par</span><span class="op">[</span><span class="string">'nht'</span><span class="op">]</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'dt'</span><span class="op">]</span><span class="op">)</span><span class="op">,</span>
+             <span class="number">2</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'nht'</span><span class="op">]</span><span class="op">+</span><span class="number">1</span><span class="op">,</span><span class="op">-</span><span class="name">par</span><span class="op">[</span><span class="string">'nht'</span><span class="op">]</span><span class="op">*</span><span class="name">par</span><span class="op">[</span><span class="string">'dt'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'dt'</span><span class="op">]</span><span class="op">,</span>
+               <span class="name">par</span><span class="op">[</span><span class="string">'nz'</span><span class="op">]</span>   <span class="op">,</span>            <span class="name">par</span><span class="op">[</span><span class="string">'oz'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'dz'</span><span class="op">]</span><span class="op">,</span>
+             <span class="name">par</span><span class="op">)</span>
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># wavelet</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">wavelet</span><span class="op">(</span><span class="string">'wav_'</span><span class="op">,</span><span class="number">15</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span>  <span class="string">'wav'</span><span class="op">,</span> <span class="string">'wav_'</span><span class="op">,</span><span class="string">'transp'</span><span class="op">)</span>
+<span class="result">Result</span><span class="op">(</span><span class="string">'wav'</span><span class="op">,</span><span class="string">'window n2=500 |'</span><span class="op">+</span><span class="name">fdmod</span><span class="op">.</span><span class="name">waveplot</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># data mask</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'xk'</span><span class="op">]</span><span class="op">=</span><span class="number">100</span>
+<span class="name">par</span><span class="op">[</span><span class="string">'xl'</span><span class="op">]</span><span class="op">=</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">-</span><span class="number">100</span>
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'dmask'</span><span class="op">,</span><span class="name">None</span><span class="op">,</span>
+     <span class="string">'''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=100
+     '''</span> <span class="op">%</span> <span class="name">par</span><span class="op">)</span>
+<span class="result">Result</span><span class="op">(</span><span class="string">'dmask'</span><span class="op">,</span><span class="string">'transp |'</span><span class="op">+</span><span class="name">fdmod</span><span class="op">.</span><span class="name">dgrey</span><span class="op">(</span><span class="string">'pclip=99 screenratio=1.5'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># reflector</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'den0'</span><span class="op">,</span><span class="name">None</span><span class="op">,</span>
+     <span class="string">'''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=401 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     '''</span> <span class="op">%</span> <span class="name">par</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'den1'</span><span class="op">,</span><span class="name">None</span><span class="op">,</span>
+     <span class="string">'''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=377 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     '''</span> <span class="op">%</span> <span class="name">par</span><span class="op">)</span>
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'den2'</span><span class="op">,</span><span class="name">None</span><span class="op">,</span>
+     <span class="string">'''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=432 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     '''</span> <span class="op">%</span> <span class="name">par</span><span class="op">)</span>
+
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'zer'</span><span class="op">,</span><span class="string">'den0'</span><span class="op">,</span><span class="string">'math output="1.0"'</span><span class="op">)</span>
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'vel0'</span><span class="op">,</span><span class="string">'den0'</span><span class="op">,</span><span class="string">'math output="2.5+0.5*sin(8*x1)"'</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'vel1'</span><span class="op">,</span><span class="string">'den0'</span><span class="op">,</span><span class="string">'math output="0.95*(2.5-0.5*sin(3*x1+1))"'</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'vel2'</span><span class="op">,</span><span class="string">'den0'</span><span class="op">,</span><span class="string">'math output="1.12*(2.5-0.5*sin(3*x1+1))"'</span><span class="op">)</span>
+
+
+<span class="keyword">for</span> <span class="name">k</span> <span class="keyword">in</span> <span class="op">(</span><span class="op">[</span><span class="string">'0'</span><span class="op">,</span><span class="string">'1'</span><span class="op">,</span><span class="string">'2'</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>
+     <span class="plot">Plot</span><span class="op">(</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="name">fdmod</span><span class="op">.</span><span class="name">cgrey</span><span class="op">(</span><span class="string">'pclip=100 bias=1'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+     <span class="plot">Plot</span><span class="op">(</span><span class="string">'vel'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="name">fdmod</span><span class="op">.</span><span class="name">cgrey</span><span class="op">(</span><span class="string">'allpos=y pclip=100 bias=1.8 color=j'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+     <span class="keyword">for</span> <span class="name">j</span> <span class="keyword">in</span> <span class="op">(</span><span class="op">[</span><span class="string">'vel'</span><span class="op">,</span><span class="string">'den'</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>
+          <span class="result">Result</span><span class="op">(</span><span class="name">j</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="op">[</span><span class="name">j</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'rr'</span><span class="op">,</span><span class="string">'ggone'</span><span class="op">,</span><span class="string">'ssall'</span><span class="op">]</span><span class="op">,</span><span class="string">'Overlay'</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="comment"># FD modeling</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">awefd2d</span><span class="op">(</span><span class="string">'dd'</span><span class="op">,</span><span class="string">'wd'</span><span class="op">,</span><span class="string">'wav'</span><span class="op">,</span><span class="string">'vel0'</span><span class="op">,</span><span class="string">'den0'</span><span class="op">,</span><span class="string">'ss'</span><span class="op">,</span><span class="string">'rr'</span><span class="op">,</span><span class="string">'ompnth=2'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="name">fdmod</span><span class="op">.</span><span class="name">awefd2d</span><span class="op">(</span><span class="string">'do'</span><span class="op">,</span><span class="string">'wo'</span><span class="op">,</span><span class="string">'wav'</span><span class="op">,</span><span class="string">'vel0'</span><span class="op">,</span><span class="string">'zer'</span><span class="op">,</span> <span class="string">'ss'</span><span class="op">,</span><span class="string">'rr'</span><span class="op">,</span><span class="string">'ompnth=2'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'dat'</span><span class="op">,</span><span class="op">[</span><span class="string">'dd'</span><span class="op">,</span><span class="string">'do'</span><span class="op">,</span><span class="string">'dmask'</span><span class="op">]</span><span class="op">,</span>
+     <span class="string">'''
+     add scale=+1,-1 ${SOURCES[1]} |
+     add mode=p      ${SOURCES[2]}
+     '''</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'wfl'</span><span class="op">,</span><span class="op">[</span><span class="string">'wd'</span><span class="op">,</span><span class="string">'wo'</span><span class="op">]</span><span class="op">,</span>
+     <span class="string">'add scale=+1,-1 ${SOURCES[1]}'</span><span class="op">)</span>
+
+<span class="result">Result</span><span class="op">(</span><span class="string">'dd'</span><span class="op">,</span><span class="string">'transp |'</span> <span class="op">+</span> <span class="name">fdmod</span><span class="op">.</span><span class="name">dgrey</span><span class="op">(</span><span class="string">'pclip=99.9 screenratio=1.5'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+<span class="result">Result</span><span class="op">(</span><span class="string">'do'</span><span class="op">,</span><span class="string">'transp |'</span> <span class="op">+</span> <span class="name">fdmod</span><span class="op">.</span><span class="name">dgrey</span><span class="op">(</span><span class="string">'pclip=99.9 screenratio=1.5'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+<span class="result">Result</span><span class="op">(</span><span class="string">'dat'</span><span class="op">,</span><span class="string">'transp |'</span> <span class="op">+</span> <span class="name">fdmod</span><span class="op">.</span><span class="name">dgrey</span><span class="op">(</span><span class="string">'pclip=99.9 screenratio=1.5'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+<span class="result">Result</span><span class="op">(</span><span class="string">'wfl'</span><span class="op">,</span>             <span class="name">fdmod</span><span class="op">.</span><span class="name">wgrey</span><span class="op">(</span><span class="string">'pclip=99.9'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'dts'</span><span class="op">,</span><span class="string">'wav'</span><span class="op">,</span><span class="string">'window squeeze=n'</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'dtr'</span><span class="op">,</span><span class="string">'dat'</span><span class="op">,</span><span class="string">'window squeeze=n'</span><span class="op">)</span>
+
+
+<span class="keyword">for</span> <span class="name">k</span> <span class="keyword">in</span> <span class="op">(</span><span class="op">[</span><span class="string">'0'</span><span class="op">,</span><span class="string">'1'</span><span class="op">,</span><span class="string">'2'</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>
+
+        <span class="comment"># migration (RTM)</span>
+        <span class="name">wemig</span><span class="op">.</span><span class="name">fWRawe</span><span class="op">(</span><span class="string">'dts'</span><span class="op">,</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'vel'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'ss'</span><span class="op">,</span><span class="string">'jdata=4 jsnap=4 ompnth=2'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+        <span class="name">wemig</span><span class="op">.</span><span class="name">bWRawe</span><span class="op">(</span><span class="string">'dtr'</span><span class="op">,</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'vel'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'rr'</span><span class="op">,</span><span class="string">'jdata=4 jsnap=4 ompnth=2'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+        <span class="name">wemig</span><span class="op">.</span><span class="name">cic</span><span class="op">(</span><span class="string">'img'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'nbuf=100'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+        <span class="name">wemig</span><span class="op">.</span><span class="name">eic</span><span class="op">(</span><span class="string">'cig'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'gg'</span><span class="op">,</span><span class="string">'nhx=0'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+        <span class="flow">Flow</span><span class="op">(</span><span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="op">[</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">]</span><span class="op">,</span><span class="string">'math r=${SOURCES[1]} output="r*input" '</span><span class="op">)</span>
+
+        <span class="flow">Flow</span><span class="op">(</span><span class="string">'cit'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span>
+         <span class="string">'cig'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span>
+         <span class="string">'''
+         put n4=%d n5=%d label4=z label5=c |
+         window |
+         stack axis=3 | transp
+         '''</span><span class="op">%</span><span class="op">(</span><span class="name">par</span><span class="op">[</span><span class="string">'nz'</span><span class="op">]</span><span class="op">,</span><span class="name">par</span><span class="op">[</span><span class="string">'nx'</span><span class="op">]</span><span class="op">/</span><span class="name">par</span><span class="op">[</span><span class="string">'jcx'</span><span class="op">]</span><span class="op">)</span>
+         <span class="op">)</span>
+
+        <span class="result">Result</span><span class="op">(</span> <span class="string">'vel_den'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span>
+            <span class="op">[</span><span class="string">'vel'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">]</span><span class="op">,</span><span class="string">'SideBySideAniso'</span><span class="op">)</span>
+
+        <span class="comment">## ------------------------------------------------------------ </span>
+        <span class="comment">## plot wavefield frames</span>
+        <span class="keyword">for</span> <span class="name">i</span> <span class="keyword">in</span> <span class="name">range</span><span class="op">(</span><span class="number">0</span><span class="op">,</span> <span class="number">625</span> <span class="op">,</span> <span class="name">par</span><span class="op">[</span><span class="string">'jsnap_gr'</span><span class="op">]</span> <span class="op">)</span><span class="op">:</span>
+                <span class="name">tag</span> <span class="op">=</span> <span class="string">'-%03d'</span><span class="op">%</span><span class="name">i</span>
+                <span class="comment">#Source wavefield frame</span>
+                <span class="name">fdmod</span><span class="op">.</span><span class="name">wframe</span><span class="op">(</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                     <span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="name">i</span><span class="op">,</span><span class="string">'pclip=99'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+                <span class="result">Result</span><span class="op">(</span> <span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                    <span class="op">[</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">]</span><span class="op">,</span><span class="string">'Overlay'</span><span class="op">)</span>
+                <span class="comment">#Receiver wavefield frame</span>
+                <span class="name">fdmod</span><span class="op">.</span><span class="name">wframe</span><span class="op">(</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                     <span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="name">i</span><span class="op">,</span><span class="string">'pclip=99'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+                <span class="result">Result</span><span class="op">(</span> <span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                    <span class="op">[</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">]</span><span class="op">,</span><span class="string">'Overlay'</span><span class="op">)</span>
+                <span class="comment">#Cross-corr wavefield frame</span>
+                <span class="name">fdmod</span><span class="op">.</span><span class="name">wframe</span><span class="op">(</span><span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                     <span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="name">i</span><span class="op">,</span><span class="string">'pclip=99'</span><span class="op">,</span><span class="name">par</span><span class="op">)</span>
+                <span class="result">Result</span><span class="op">(</span> <span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                    <span class="op">[</span><span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span><span class="string">'den'</span><span class="op">+</span><span class="name">k</span><span class="op">]</span><span class="op">,</span><span class="string">'Overlay'</span><span class="op">)</span>
+                <span class="comment">#Composite movie:</span>
+                <span class="result">Result</span><span class="op">(</span> <span class="string">'WSI'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span>
+                    <span class="op">[</span><span class="string">'cross_corr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span><span class="string">'wtr'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">,</span><span class="string">'wts'</span><span class="op">+</span><span class="name">k</span><span class="op">+</span><span class="name">tag</span><span class="op">]</span><span class="op">,</span><span class="string">'SideBySideAniso'</span><span class="op">)</span>
+
+
+
+
+
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'imgbyt'</span><span class="op">,</span><span class="string">'img0 img1 img2'</span><span class="op">,</span><span class="string">'cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9'</span><span class="op">)</span>
+<span class="flow">Flow</span><span class="op">(</span><span class="string">'citbyt'</span><span class="op">,</span><span class="string">'cit0 cit1 cit2'</span><span class="op">,</span><span class="string">'cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9'</span><span class="op">)</span>
+
+<span class="keyword">for</span> <span class="name">j</span> <span class="keyword">in</span> <span class="name">range</span><span class="op">(</span><span class="number">3</span><span class="op">)</span><span class="op">:</span>
+     <span class="name">k</span><span class="op">=</span><span class="string">'%d'</span><span class="op">%</span><span class="name">j</span>
+
+     <span class="comment"># image</span>
+     <span class="plot">Plot</span><span class="op">(</span>  <span class="string">'img'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span>
+          <span class="string">'imgbyt'</span><span class="op">,</span>
+          <span class="string">'window n3=1 f3=%d |'</span><span class="op">%</span><span class="name">j</span> <span class="op">+</span> <span class="name">fdmod</span><span class="op">.</span><span class="name">cgrey</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+     <span class="result">Result</span><span class="op">(</span><span class="string">'img'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="op">[</span><span class="string">'img'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span><span class="string">'rr'</span><span class="op">,</span><span class="string">'ssall'</span><span class="op">,</span><span class="string">'ggone'</span><span class="op">]</span><span class="op">,</span><span class="string">'Overlay'</span><span class="op">)</span>
+
+     <span class="comment"># CIG</span>
+     <span class="result">Result</span><span class="op">(</span><span class="string">'cit'</span><span class="op">+</span><span class="name">k</span><span class="op">,</span>
+            <span class="string">'citbyt'</span><span class="op">,</span>
+            <span class="string">'window n3=1 f3=%d |'</span><span class="op">%</span><span class="name">j</span> <span class="op">+</span> <span class="name">adcig</span><span class="op">.</span><span class="name">tgrey</span><span class="op">(</span><span class="string">''</span><span class="op">,</span><span class="name">par</span><span class="op">)</span><span class="op">)</span>
+
+<span class="comment"># ------------------------------------------------------------</span>
+<span class="name">End</span><span class="op">(</span><span class="op">)</span><span class="text"></span></font></pre></table></div><p><div class="progs"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="http://www.ahay.org/RSF/sfspike.html">sfspike</a><br>
+<a href="http://www.ahay.org/RSF/sfmath.html">sfmath</a><br>
+<a href="http://www.ahay.org/RSF/sfcat.html">sfcat</a><br>
+<a href="http://www.ahay.org/RSF/sftransp.html">sftransp</a><br>
+<a href="http://www.ahay.org/RSF/sfput.html">sfput</a><br>
+<a href="http://www.ahay.org/RSF/sfwindow.html">sfwindow</a><br>
+</td><td width="25%" valign=top><a href="http://www.ahay.org/RSF/sfdd.html">sfdd</a><br>
+<a href="http://www.ahay.org/RSF/sfgraph.html">sfgraph</a><br>
+<a href="http://www.ahay.org/RSF/sfpad.html">sfpad</a><br>
+<a href="http://www.ahay.org/RSF/sfricker1.html">sfricker1</a><br>
+<a href="http://www.ahay.org/RSF/sfscale.html">sfscale</a><br>
+<a href="http://www.ahay.org/RSF/sfsmooth.html">sfsmooth</a><br>
+</td><td width="25%" valign=top><a href="http://www.ahay.org/RSF/sfgrey.html">sfgrey</a><br>
+<a href="http://www.ahay.org/RSF/sfspray.html">sfspray</a><br>
+<a href="http://www.ahay.org/RSF/sfadd.html">sfadd</a><br>
+<a href="http://www.ahay.org/RSF/sfawefd2d.html">sfawefd2d</a><br>
+<a href="http://www.ahay.org/RSF/sfreverse.html">sfreverse</a><br>
+<a href="http://www.ahay.org/RSF/sfxcor2d.html">sfxcor2d</a><br>
+</td><td width="25%" valign=top><a href="http://www.ahay.org/RSF/sflaps2d.html">sflaps2d</a><br>
+<a href="http://www.ahay.org/RSF/sfstack.html">sfstack</a><br>
+<a href="http://www.ahay.org/RSF/sfgrey.html">sfbyte</a><br>
+</td></tr></table>
+     </div>
+     </body>
+     </html>
+     

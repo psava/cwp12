@@ -184,10 +184,17 @@ for k in (['0','1','2']):
 		     'cross_corr'+k,i,'pclip=99',par)
 		Result( 'cross_corr'+k+tag,
 		    ['cross_corr'+k+tag,'den'+k],'Overlay')
+		#Image so far:
+		Flow('Image'+k+tag,'cross_corr'+k,
+		     'window n3=%d|stack axis=3'%(i+1))
+		Plot( 'Image'+k+tag,'Image'+k+tag,fdmod.cgrey('',par))
+		Result( 'Image'+k+tag,
+		    ['Image'+k+tag,'den'+k],'Overlay')
+		
 			
 		#Composite movie:
 		Result( 'WSI'+k+tag,
-		    ['cross_corr'+k+tag,'wtr'+k+tag,'wts'+k+tag],'SideBySideAniso')
+		    ['Image'+k+tag,'cross_corr'+k+tag,'wtr'+k+tag,'wts'+k+tag],'OverUnderIso')
 
 
 

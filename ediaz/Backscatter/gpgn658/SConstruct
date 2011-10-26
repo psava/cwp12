@@ -53,7 +53,7 @@ Plot('ggone',fdmod.qqplot('',par))
 # EIC computational domain
 par['nhz']=0
 par['nhx']=100
-par['nht']=100
+par['nht']=200
 par['dht']=par['dt']*10
 
 adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
@@ -92,7 +92,7 @@ Flow('den0',None,
 Flow('den1',None,  
      '''
      spike nsp=1 mag=1.0
-     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=377 l1=%(nz)d |
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=350 l1=%(nz)d |
      spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
      add add=1
      ''' % par)
@@ -109,7 +109,7 @@ Flow('den2',None,
 Flow('zer','den0','math output="1.0"')
 
 Flow('vel0','den0','math output="2.5+0.5*sin(8*x1)"')
-Flow('vel1','den0','math output="0.95*(2.5-0.5*sin(3*x1+1))"')
+Flow('vel1','den0','math output="0.88*(2.5-0.5*sin(3*x1+1))"')
 Flow('vel2','den0','math output="1.12*(2.5-0.5*sin(3*x1+1))"')
 
 
@@ -125,8 +125,8 @@ for k in (['0','1','2']):
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 # FD modeling
-fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','ompnth=2',par)
-fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','ompnth=2',par)
+fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','',par)
+fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','',par)
 Flow('dat',['dd','do','dmask'],
      '''
      add scale=+1,-1 ${SOURCES[1]} |
@@ -147,8 +147,8 @@ Flow('dtr','dat','window squeeze=n')
 for k in (['0','1','2']):
 
 	# migration (RTM)
-	wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4 ompnth=2',par)
-	wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4 ompnth=2',par)
+	wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4 ',par)
+	wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4 ',par)
 	wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
 	wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
 	Flow('cross_corr'+k,['wts'+k,'wtr'+k],'math r=${SOURCES[1]} output="r*input" ')
@@ -184,6 +184,7 @@ for k in (['0','1','2']):
 		     'cross_corr'+k,i,'pclip=99',par)
 		Result( 'cross_corr'+k+tag,
 		    ['cross_corr'+k+tag,'den'+k],'Overlay')
+			
 		#Composite movie:
 		Result( 'WSI'+k+tag,
 		    ['cross_corr'+k+tag,'wtr'+k+tag,'wts'+k+tag],'SideBySideAniso')

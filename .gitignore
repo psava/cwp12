@@ -1,3 +1,7 @@
+*.nav
+*.snm
+*.exe
+*.eps
 *.vpl
 *.pdf
 *.rsf

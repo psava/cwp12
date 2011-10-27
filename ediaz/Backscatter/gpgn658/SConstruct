@@ -6,8 +6,8 @@ par = {
     'nt':2501, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
-    'nz':500,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
-    'kt':100,
+    'nz':700,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':200,
     'nb':100,
     'jsnap_gr':25
     }
@@ -52,7 +52,7 @@ Plot('ggone',fdmod.qqplot('',par))
 # ------------------------------------------------------------
 # EIC computational domain
 par['nhz']=0
-par['nhx']=100
+par['nhx']=200
 par['nht']=200
 par['dht']=par['dt']*10
 
@@ -147,20 +147,62 @@ Flow('dtr','dat','window squeeze=n')
 for k in (['0','1','2']):
 
 	# migration (RTM)
-	wemig.fWRawe('dts','wts'+k,'vel'+k,'den'+k,'ss','jdata=4 jsnap=4 ',par)
-	wemig.bWRawe('dtr','wtr'+k,'vel'+k,'den'+k,'rr','jdata=4 jsnap=4 ',par)
-	wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
-	wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
-	Flow('cross_corr'+k,['wts'+k,'wtr'+k],'math r=${SOURCES[1]} output="r*input" ')
 
-	Flow('cit'+k,
-	 'cig'+k,
-	 '''
-	 put n4=%d n5=%d label4=z label5=c |
-	 window |
-	 stack axis=3 | transp
-	 '''%(par['nz'],par['nx']/par['jcx'])
-	 )
+
+    # Here I am creating 4 types of wavefields: with bacscatter and no backscatter
+    # for the source and receiver wavefield respectevly.
+	# s: source, r: receiver
+	for w in ['s','r']:
+
+		#b: backscattered (normal), n: no backscattered i.e. constant density
+		for l in ['b','n']:
+			den='zer'
+			if l== 'b':
+				den='den'+k
+			if w== 's':
+				wemig.fWRawe('dt'+w,'wt'+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
+			else :
+				wemig.bWRawe('dt'+w,'wt'+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
+	# Now I am going to make all the posible combinations of the wavefields
+	# for the images and the time lag gathers.	
+	
+	for w in ['s','r']:
+		if w=='s':
+			w2='r'
+		else:
+			w2='s'		
+		
+		for l in ['b','n']:
+			if l=='b':
+				l2='n'
+			else:
+				l2='b'
+			wemig.cic('img'+w+l+'-'+w2+l2+k,'wt'+w+'-'+l+k,'wt'+w2+'-'+l2+k,'nbuf=100',par)
+			wemig.eic('cig'+w+l+'-'+w2+l2+k,'wt'+w+'-'+l+k,'wt'+w2+'-'+l2+k,'gg','nhx=0',par)
+
+			#By stacking cig at all position I fake one centered position received by many
+			# shots in the surface
+			Flow('cit'+w+l+'-'+w2+l2+k,
+			'cig'+w+l+'-'+w2+l2+k,
+			'''
+			put n4=%d n5=%d label4=z label5=c |
+			window |
+			stack axis=3 | transp
+			'''%(par['nz'],par['nx']/par['jcx'])
+			)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	#Crosscorr between normal wavefields (both with variable density)
+	Flow('cross_corr'+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input" ')
+	 
 
 	Result( 'vel_den'+k,
 	    ['vel'+k,'den'+k],'SideBySideAniso')
@@ -170,15 +212,15 @@ for k in (['0','1','2']):
 	for i in range(0, 625 , par['jsnap_gr'] ):
 		tag = '-%03d'%i
 		#Source wavefield frame
-		fdmod.wframe('wts'+k+tag,
-		     'wts'+k,i,'pclip=99',par)
-		Result( 'wts'+k+tag,
-		    ['wts'+k+tag,'den'+k],'Overlay')
+		fdmod.wframe('wts-b'+k+tag,
+		     'wts-b'+k,i,'pclip=99',par)
+		Result( 'wts-b'+k+tag,
+		    ['wts-b'+k+tag,'den'+k],'Overlay')
 		#Receiver wavefield frame
-		fdmod.wframe('wtr'+k+tag,
-		     'wtr'+k,i,'pclip=99',par)
-		Result( 'wtr'+k+tag,
-		    ['wtr'+k+tag,'den'+k],'Overlay')
+		fdmod.wframe('wtr-b'+k+tag,
+		     'wtr-b'+k,i,'pclip=99',par)
+		Result( 'wtr-b'+k+tag,
+		    ['wtr-b'+k+tag,'den'+k],'Overlay')
 		#Cross-corr wavefield frame
 		fdmod.wframe('cross_corr'+k+tag,
 		     'cross_corr'+k,i,'pclip=99',par)
@@ -190,33 +232,56 @@ for k in (['0','1','2']):
 		Plot( 'Image'+k+tag,'Image'+k+tag,fdmod.cgrey('',par))
 		Result( 'Image'+k+tag,
 		    ['Image'+k+tag,'den'+k],'Overlay')
+
+
+
+	
+	Flow('imgbyt'+k,['imgrb-sn'+k, 'imgrn-sb'+k, 'imgsb-rn'+k ,'imgsn-rb'+k],
+	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+
+	Flow('citbyt'+k,['citrb-sn'+k, 'citrn-sb'+k, 'citsb-rn'+k ,'citsn-rb'+k],
+	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+
+
+
+	im=0
+	for cases in ['rb-sn','rn-sb','sb-rn','sb-rb']:
+		#Image plots
+		Plot(  'img'+cases+k,
+          'imgbyt'+k,
+          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
 		
-			
-		#Composite movie:
-		Result( 'WSI'+k+tag,
-		    ['Image'+k+tag,'cross_corr'+k+tag,'wtr'+k+tag,'wts'+k+tag],'OverUnderIso')
+		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
 
-
-
-
-
-Flow('imgbyt','img0 img1 img2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9')
-Flow('citbyt','cit0 cit1 cit2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9')
-
-for j in range(3):
-     k='%d'%j
+		# CIG plots
+		Result('cit'+cases+k,
+	           'citbyt'+k,
+			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
      
-     # image
-     Plot(  'img'+k,
-          'imgbyt',
-          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
-     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
+		im=im+1
 
-     # CIG
-     Result('cit'+k,
-            'citbyt',
-            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+
+
+
+
+
+
+
+
+#for j in range(3):
+#     k='%d'%j
      
-# ------------------------------------------------------------
+#     # image
+#     Plot(  'img'+k,
+#          'imgbyt',
+#          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
+#     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
+
+#     # CIG
+#     Result('cit'+k,
+#            'citbyt',
+#            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+#     
+## ------------------------------------------------------------
 End()
         

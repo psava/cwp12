@@ -166,24 +166,16 @@ for k in (['0','1','2']):
 	# Now I am going to make all the posible combinations of the wavefields
 	# for the images and the time lag gathers.	
 	
-	for w in ['s','r']:
-		if w=='s':
-			w2='r'
-		else:
-			w2='s'		
-		
-		for l in ['b','n']:
-			if l=='b':
-				l2='n'
-			else:
-				l2='b'
-			wemig.cic('img'+w+l+'-'+w2+l2+k,'wt'+w+'-'+l+k,'wt'+w2+'-'+l2+k,'nbuf=100',par)
-			wemig.eic('cig'+w+l+'-'+w2+l2+k,'wt'+w+'-'+l+k,'wt'+w2+'-'+l2+k,'gg','nhx=0',par)
+	for w in ['s-b','s-n']:
+
+		for l in ['r-b','r-n']:
+			wemig.cic('img'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'nbuf=100',par)
+			wemig.eic('cig'+w+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
 
 			#By stacking cig at all position I fake one centered position received by many
 			# shots in the surface
-			Flow('cit'+w+l+'-'+w2+l2+k,
-			'cig'+w+l+'-'+w2+l2+k,
+			Flow('cit'+w+'_'+l+k,
+			'cig'+w+'_'+l+k,
 			'''
 			put n4=%d n5=%d label4=z label5=c |
 			window |
@@ -236,29 +228,29 @@ for k in (['0','1','2']):
 
 
 	
-	Flow('imgbyt'+k,['imgrb-sn'+k, 'imgrn-sb'+k, 'imgsb-rn'+k ,'imgsn-rb'+k],
-	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+#	Flow('imgbyt'+k,['imgrb-sn'+k, 'imgrn-sb'+k, 'imgsb-rn'+k ,'imgsn-rb'+k],
+#	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
-	Flow('citbyt'+k,['citrb-sn'+k, 'citrn-sb'+k, 'citsb-rn'+k ,'citsn-rb'+k],
-	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+#	Flow('citbyt'+k,['citrb-sn'+k, 'citrn-sb'+k, 'citsb-rn'+k ,'citsn-rb'+k],
+#	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
 
 
-	im=0
-	for cases in ['rb-sn','rn-sb','sb-rn','sb-rb']:
-		#Image plots
-		Plot(  'img'+cases+k,
-          'imgbyt'+k,
-          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
-		
-		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
+#	im=0
+#	for cases in ['rb-sn','rn-sb','sb-rn','sb-rb']:
+#		#Image plots
+#		Plot(  'img'+cases+k,
+#		'imgbyt'+k,
+#          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
+#		
+#		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
 
-		# CIG plots
-		Result('cit'+cases+k,
-	           'citbyt'+k,
-			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
-     
-		im=im+1
+#		# CIG plots
+#		Result('cit'+cases+k,
+#	           'citbyt'+k,
+#			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
+#    
+#		im=im+1
 
 
 

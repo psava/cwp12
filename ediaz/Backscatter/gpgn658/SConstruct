@@ -170,7 +170,7 @@ for k in (['0','1','2']):
 
 		for l in ['r-b','r-n']:
 			wemig.cic('img'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'nbuf=100',par)
-			wemig.eic('cig'+w+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
+			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
 
 			#By stacking cig at all position I fake one centered position received by many
 			# shots in the surface
@@ -221,36 +221,42 @@ for k in (['0','1','2']):
 		#Image so far:
 		Flow('Image'+k+tag,'cross_corr'+k,
 		     'window n3=%d|stack axis=3'%(i+1))
-		Plot( 'Image'+k+tag,'Image'+k+tag,fdmod.cgrey('',par))
+		Plot( 'Image'+k+tag,'Image'+k+tag,fdmod.cgrey('pclip=99',par))
 		Result( 'Image'+k+tag,
 		    ['Image'+k+tag,'den'+k],'Overlay')
+			
+		Result('top_plot'+k+tag,
+		['Image'+k+tag,'cross_corr'+k+tag],'SideBySideIso')
+		Result('bot_plot'+k+tag,
+		['wts-b'+k+tag,'wtr-b'+k+tag],'SideBySideIso')
+			
 
 
 
 	
-#	Flow('imgbyt'+k,['imgrb-sn'+k, 'imgrn-sb'+k, 'imgsb-rn'+k ,'imgsn-rb'+k],
-#	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+	Flow('imgbyt'+k,['imgs-b_r-n'+k,'imgs-b_r-b'+k,'imgs-n_r-n'+k,'imgs-n_r-b'+k],
+	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
-#	Flow('citbyt'+k,['citrb-sn'+k, 'citrn-sb'+k, 'citsb-rn'+k ,'citsn-rb'+k],
-#	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+	Flow('citbyt'+k,['cits-b_r-n'+k,'cits-b_r-b'+k,'cits-n_r-n'+k,'cits-n_r-b'+k],
+	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
 
 
-#	im=0
-#	for cases in ['rb-sn','rn-sb','sb-rn','sb-rb']:
-#		#Image plots
-#		Plot(  'img'+cases+k,
-#		'imgbyt'+k,
-#          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
-#		
-#		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
+	im=0
+	for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
+		#Image plots
+		Plot(  'img'+cases+k,
+		'imgbyt'+k,
+          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
+		
+		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
 
-#		# CIG plots
-#		Result('cit'+cases+k,
-#	           'citbyt'+k,
-#			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
-#    
-#		im=im+1
+		# CIG plots
+		Result('cit'+cases+k,
+	           'citbyt'+k,
+			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
+    
+		im=im+1
 
 
 

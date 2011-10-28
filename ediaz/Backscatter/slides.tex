@@ -1,6 +1,6 @@
 
 
-\title[]{Including RTM backscattered in VMB flow}
+\title[]{Including RTM backscattered energy in VMB flow}
 \subtitle{GPGN658 project }
 \author[]{Esteban  D\'{i}az}
 \institute{
@@ -37,7 +37,7 @@ The idea behind it, and some intuitive thoughts:
 \begin{frame} \frametitle{Test experiments}
 
 \begin{itemize}
-   \item 3 velocity models: correct, 95\% correct, 112\% correct
+   \item 3 velocity models: correct, 88\% correct, 112\% correct
    \item The hard interface is in the density model. 
 \end{itemize}
 
@@ -45,126 +45,138 @@ The idea behind it, and some intuitive thoughts:
 \cwpnote{}
 
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Correct model} \plot{vel_den0}{width=\textwidth}{} \end{frame}
 \begin{frame} \frametitle{Slow    model} \plot{vel_den1}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Correct model} \plot{vel_den0}{width=\textwidth}{} \end{frame}
 \begin{frame} \frametitle{Fast    model} \plot{vel_den2}{width=\textwidth}{} \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Correct model image} \plot{img0}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Slow model image   } \plot{img1}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Fast model image   } \plot{img2}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Slow model image    } \plot{imgs-b_r-b1}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Correct model image} \plot{imgs-b_r-b0}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Fast model image     } \plot{imgs-b_r-b2}{width=\textwidth}{} \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Correct time-lag   } \plot{cit0}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Slow model time-lag} \plot{cit1}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Fast model time-lag} \plot{cit2}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Slow model time-lag} \plot{cits-b_r-b1}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Correct time-lag      } \plot{cits-b_r-b0}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Fast model time-lag } \plot{cits-b_r-b2}{height=0.8\textheight}{} \end{frame}
 
 
+\begin{frame} \frametitle{ Splitting the events in the image or time lag gathers:}
 
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Image construction for correct model} \end{frame}
-\begin{frame} \plot{WSI0-000}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-025}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-050}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-075}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-100}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-125}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-150}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-175}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-200}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-225}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-250}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-275}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-300}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-325}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-350}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-375}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-400}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-425}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-450}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-475}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-500}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-525}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-550}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-575}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI0-600}{width=\textwidth}{} \end{frame}
+Here is the idea, the backscattering comes from the hard boundary in the density model, so we 
+can use a constant density model and the wavefield won't see the interface.
 
-
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Image construction for slow model} \end{frame}
-\begin{frame} \plot{WSI1-000}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-025}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-050}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-075}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-100}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-125}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-150}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-175}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-200}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-225}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-250}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-275}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-300}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-325}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-350}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-375}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-400}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-425}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-450}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-475}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-500}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-525}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-550}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-575}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI1-600}{width=\textwidth}{} \end{frame}
-
-
-
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Image construction for fast model} \end{frame}
-\begin{frame} \plot{WSI2-000}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-025}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-050}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-075}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-100}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-125}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-150}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-175}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-200}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-225}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-250}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-275}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-300}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-325}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-350}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-375}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-400}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-425}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-450}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-475}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-500}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-525}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-550}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-575}{width=\textwidth}{} \end{frame}
-\begin{frame} \plot{WSI2-600}{width=\textwidth}{} \end{frame}
-
-
-
-
-
-
-%-----------------------------------------------------------
-
-\begin{frame}
-
-Next step: separate backscattered energy from the primary event 
-in the time-lag gathers.
-
-I am thinking in two stratagies:
+There are four cases we can consider: 
 \begin{itemize}
-\item F-K dip filter (Kaelin and Carvajal, 2011)
-\item Calculate time-lag gathers with constant density and 
-substract to the gathers from the variable density.
+	\item Normal case: $W_{s}ˆ{b} * W_{r}ˆ{b}$ (backscattering in both source and receiver wavefield)
+	\item Case 2 : $W_{s}ˆ{nb} * W_{r}ˆ{b}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
+	\item Case 3 : $W_{s}ˆ{b} * W_{r}ˆ{nb}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
+	\item Case 4 : $W_{s}ˆ{nb} * W_{r}ˆ{nb}$ (no backscattering in both source and receiver wavefield)
 \end{itemize}
 \end{frame}
+%------------------------------------------------------------------
 
+%\begin{frame}     \plot{top_plot0-000}{width=\textwidth}{}        \plot{bot_plot0-000}{width=\textwidth}{}  \end{frame}
+\begin{frame}   
+  \plot{top_plot0-000}{width=\textwidth}{}   
+ \plot{bot_plot0-000}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-025}{width=\textwidth}{}   
+ \plot{bot_plot0-025}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-050}{width=\textwidth}{}   
+ \plot{bot_plot0-050}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-075}{width=\textwidth}{}   
+ \plot{bot_plot0-075}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-100}{width=\textwidth}{}   
+ \plot{bot_plot0-100}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-125}{width=\textwidth}{}   
+ \plot{bot_plot0-125}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-150}{width=\textwidth}{}   
+ \plot{bot_plot0-150}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-175}{width=\textwidth}{}   
+ \plot{bot_plot0-175}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-200}{width=\textwidth}{}   
+ \plot{bot_plot0-200}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-225}{width=\textwidth}{}   
+ \plot{bot_plot0-225}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-250}{width=\textwidth}{}   
+  \plot{bot_plot0-250}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-275}{width=\textwidth}{}   
+ \plot{bot_plot0-275}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-300}{width=\textwidth}{}   
+ \plot{bot_plot0-300}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-325}{width=\textwidth}{}   
+ \plot{bot_plot0-325}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-350}{width=\textwidth}{}   
+ \plot{bot_plot0-350}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-375}{width=\textwidth}{}   
+ \plot{bot_plot0-375}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-400}{width=\textwidth}{}   
+ \plot{bot_plot0-400}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-425}{width=\textwidth}{}   
+ \plot{bot_plot0-425}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-450}{width=\textwidth}{}   
+ \plot{bot_plot0-450}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-475}{width=\textwidth}{}   
+ \plot{bot_plot0-475}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-500}{width=\textwidth}{}   
+ \plot{bot_plot0-500}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-525}{width=\textwidth}{}   
+ \plot{bot_plot0-525}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-550}{width=\textwidth}{}   
+ \plot{bot_plot0-550}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-575}{width=\textwidth}{}   
+ \plot{bot_plot0-575}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}   
+  \plot{top_plot0-600}{width=\textwidth}{}   
+ \plot{bot_plot0-600}{width=\textwidth}{} 
+\end{frame}
+
+
+
+%------------------------------------------------------------------

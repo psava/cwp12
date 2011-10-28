@@ -1254,6 +1254,7 @@ if (is2d){
 
     if (srctype == TENSOR){
 	    lint2d_bell(tzx,ww[it][2],cs);
+        sf_warning("injecting tensor");
     }
 	
     if(debug) sf_warning("source");

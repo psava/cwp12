@@ -19,6 +19,27 @@ def ricker3d(name,freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
         ''' % (locals())
     )
 
+def rickerdc2(name,freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
+    ricker(name+'_',freq,ot,dt,nt,kt)
+    Flow(name+'_mask',None,
+        '''
+        spike n1=%(nt)d d1=%(dt)f n2=2 k2=1,2 l2=1,2 nsp=2 mag=1.0,-1.0 | 
+        transp plane=12 | transp plane=23 | transp plane=12
+        ''' % locals())
+    Flow(name,[name+'_',name+'_mask'],
+        '''
+        add mode=p ${SOURCES[1]}
+        ''')
+
+def rickershear(name,mu=1.0,D=0.1,S=0.01,freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
+    Flow(name,None,
+        '''
+        spike n1=%(nt)d o1=%(ot)f d1=%(dt)g nsp=1 k1=%(kt)d l1=%(kt)d | 
+        ricker1 frequency=%(freq)f | transp plane=12 | spray axis=2 n=3 | 
+        cut n2=2 
+        ''' % locals())
+
+
 def rickerdc(name,theta=0.0,mu=1.0,D=0.1,S=.01,
     freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
     # A Double couple ricker wavelet, use with tensor source
@@ -34,7 +55,7 @@ def rickerdc(name,theta=0.0,mu=1.0,D=0.1,S=.01,
     rads = math.radians(theta)
 
     xxscale = 2*math.sin(rads)*math.cos(rads)
-    zxscale   = math.sin(rads)**2+math.cos(rads)**2
+    zxscale = math.sin(rads)**2+math.cos(rads)**2
 
     Flow(name+'_xx',name+'_',
         '''

@@ -203,25 +203,27 @@ for k in (['0','1','2']):
 	## plot wavefield frames
 	for i in range(0, 625 , par['jsnap_gr'] ):
 		tag = '-%03d'%i
+		t= i*par['dt']
 		#Source wavefield frame
 		fdmod.wframe('wts-b'+k+tag,
-		     'wts-b'+k,i,'pclip=99',par)
+		     'wts-b'+k,i,'pclip=99 wheretitle=t title="Ws(%-5g)"'%t,par)
 		Result( 'wts-b'+k+tag,
 		    ['wts-b'+k+tag,'den'+k],'Overlay')
 		#Receiver wavefield frame
 		fdmod.wframe('wtr-b'+k+tag,
-		     'wtr-b'+k,i,'pclip=99',par)
+		     'wtr-b'+k,i,'pclip=99 wheretitle=t  title="Wr(%-5g)"'%t,par)
 		Result( 'wtr-b'+k+tag,
 		    ['wtr-b'+k+tag,'den'+k],'Overlay')
 		#Cross-corr wavefield frame
 		fdmod.wframe('cross_corr'+k+tag,
-		     'cross_corr'+k,i,'pclip=99',par)
+		     'cross_corr'+k,i,'pclip=99 wheretitle=t title="Ws*Wr(%-5g)"'%t,par)
 		Result( 'cross_corr'+k+tag,
 		    ['cross_corr'+k+tag,'den'+k],'Overlay')
 		#Image so far:
 		Flow('Image'+k+tag,'cross_corr'+k,
 		     'window n3=%d|stack axis=3'%(i+1))
-		Plot( 'Image'+k+tag,'Image'+k+tag,fdmod.cgrey('pclip=99',par))
+		Plot( 'Image'+k+tag,'Image'+k+tag,
+		fdmod.cgrey('pclip=99 wheretitle=t  title="Ws*Wr(0->%-5g)"'%t,par))
 		Result( 'Image'+k+tag,
 		    ['Image'+k+tag,'den'+k],'Overlay')
 			

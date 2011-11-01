@@ -2,3 +2,18 @@ from rsf.proj import *
 
 Program('sfderiv3','Mderiv3.c')
 
+
+
+
+Flow('test1',None,'spike n1=101 d1=1 n2=1 n3=1 d2=1 d3=1|math output="cos(x1*acos(-1))" ')
+Flow('test2',None,'spike n1=101 d1=1 n2=1 n3=1 d2=1 d3=1|math output="1" ')
+
+
+for t in [1,2]:
+	for op in [1,2,3]:
+		Flow('test_%d_a1_op%d'%(t,op),'test1 sfderiv3.exe ',' ./${SOURCES[1]} axis=1 operator=%d'%op )
+		Flow('test_%d_a2_op%d'%(t,op),'test1 sfderiv3.exe ','transp plane=12| ./${SOURCES[1]} axis=2 operator=%d |transp plane=12'%op )
+		Flow('test_%d_a3_op%d'%(t,op),'test1 sfderiv3.exe ','transp plane=13| ./${SOURCES[1]} axis=3 operator=%d |transp plane=13'%op )
+	
+	
+	

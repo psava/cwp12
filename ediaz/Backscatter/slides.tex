@@ -67,12 +67,68 @@ can use a constant density model and the wavefield won't see the interface.
 
 There are four cases we can consider: 
 \begin{itemize}
-	\item Normal case: $W_{s}ˆ{b} * W_{r}ˆ{b}$ (backscattering in both source and receiver wavefield)
-	\item Case 2 : $W_{s}ˆ{nb} * W_{r}ˆ{b}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
-	\item Case 3 : $W_{s}ˆ{b} * W_{r}ˆ{nb}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
-	\item Case 4 : $W_{s}ˆ{nb} * W_{r}ˆ{nb}$ (no backscattering in both source and receiver wavefield)
+	\item Case 0: (normal case) $W_{s}ˆ{b} * W_{r}ˆ{b}$ (backscattering in both source and receiver wavefield)
+	\item Case 2: $W_{s}ˆ{nb} * W_{r}ˆ{b}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
+	\item Case 3: $W_{s}ˆ{b} * W_{r}ˆ{nb}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
+	\item Case 4: $W_{s}ˆ{nb} * W_{r}ˆ{nb}$ (no backscattering in both source and receiver wavefield)
 \end{itemize}
 \end{frame}
+
+
+
+\begin{frame}
+\begin{center}
+ \frametitle{ Splitting the events in the image:} 
+\end{center}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\plot{imgs-b_r-b0}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\plot{imgs-n_r-b0}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\plot{imgs-b_r-n0}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{nb} $}
+\plot{imgs-n_r-n0}{width=\textwidth}{}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame} \frametitle{Splitting the events in $\tau$ gather} \end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆb * W_{r}ˆb $}
+\plot{cits-b_r-b0}{height=0.8\textheight}{}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{b} $}
+\plot{cits-n_r-b0}{height=0.8\textheight}{}
+\end{frame}
+
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\plot{cits-b_r-n0}{height=0.8\textheight}{}
+\end{frame}
+
+\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{nb} $}
+\plot{cits-n_r-n0}{height=0.8\textheight}{}
+\end{frame}
+
+
+
+
+
+
+
 %------------------------------------------------------------------
 
 %\begin{frame}     \plot{top_plot0-000}{width=\textwidth}{}        \plot{bot_plot0-000}{width=\textwidth}{}  \end{frame}

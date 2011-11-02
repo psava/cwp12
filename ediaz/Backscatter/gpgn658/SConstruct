@@ -36,17 +36,29 @@ Plot('ssall',fdmod.ssplot('',par))
 fdmod.horizontal('rr',0,par)
 Plot('rr',fdmod.rrplot('',par))
 
+
 # ------------------------------------------------------------
 # CIGs at uniformly-sampled locations
+
+
+par['nx_box']= par['nx']/20
+par['dx_box']= par['dx']*20
+
+
 fdmod.boxarray('gt',
                par['nz'],par['oz'],par['dz'],
-               par['nx'],par['ox'],par['dx'],
+               par['nx_box'],par['ox'],par['dx_box'],
                par)
 Flow('gg','gt',
-     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
-     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+     'put n2=%(nz)d n3=%(nx_box)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx_box']/par['jcx']) )
+
+
 fdmod.vertical('ggone',par['xsou'],par)
 Plot('ggone',fdmod.qqplot('',par))
+
+Plot('gg',fdmod.qqplot('',par))
+
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -60,6 +72,25 @@ adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
              2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
                par['nz']   ,            par['oz'],par['dz'],
              par)
+			 
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+			 
+
+
+			 
+			 
+
+
+			 
 # ------------------------------------------------------------
 # wavelet
 fdmod.wavelet('wav_',15,par)
@@ -170,7 +201,7 @@ for k in (['0','1','2']):
 
 		for l in ['r-b','r-n']:
 			wemig.cic('img'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'nbuf=100',par)
-			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
+			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','',par)
 
 			#By stacking cig at all position I fake one centered position received by many
 			# shots in the surface
@@ -180,7 +211,7 @@ for k in (['0','1','2']):
 			put n4=%d n5=%d label4=z label5=c |
 			window |
 			stack axis=3 | transp
-			'''%(par['nz'],par['nx']/par['jcx'])
+			'''%(par['nz'],par['nx_box']/par['jcx'])
 			)
 	
 	

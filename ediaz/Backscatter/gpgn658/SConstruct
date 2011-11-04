@@ -36,13 +36,16 @@ Plot('ssall',fdmod.ssplot('',par))
 fdmod.horizontal('rr',0,par)
 Plot('rr',fdmod.rrplot('',par))
 
+fdmod.horizontal('rr2',3.495,par)
+Plot('rr2',fdmod.rrplot('',par))
+
 
 # ------------------------------------------------------------
 # CIGs at uniformly-sampled locations
 
 
-par['nx_box']= par['nx']/20
-par['dx_box']= par['dx']*20
+par['nx_box']= par['nx'] 
+par['dx_box']= par['dx'] 
 
 
 fdmod.boxarray('gt',
@@ -201,7 +204,8 @@ for k in (['0','1','2']):
 
 		for l in ['r-b','r-n']:
 			wemig.cic('img'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'nbuf=100',par)
-			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','',par)
+			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
+			wemig.eic('cigx'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nht=0',par)			
 
 			#By stacking cig at all position I fake one centered position received by many
 			# shots in the surface
@@ -213,7 +217,16 @@ for k in (['0','1','2']):
 			stack axis=3 | transp
 			'''%(par['nz'],par['nx_box']/par['jcx'])
 			)
-	
+			
+			Flow('citx'+w+'_'+l+k,
+			'cigx'+w+'_'+l+k,
+			'''
+			put n4=%d n5=%d label4=z label5=c |
+			window |
+			stack axis=3 | transp
+			'''%(par['nz'],par['nx_box']/par['jcx'])
+			)
+		
 	
 	
 	
@@ -273,7 +286,8 @@ for k in (['0','1','2']):
 	Flow('citbyt'+k,['cits-b_r-n'+k,'cits-b_r-b'+k,'cits-n_r-n'+k,'cits-n_r-b'+k],
 	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
-
+	Flow('citbytx'+k,['citxs-b_r-n'+k,'citxs-b_r-b'+k,'citxs-n_r-n'+k,'citxs-n_r-b'+k],
+	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
 	im=0
 	for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
@@ -288,6 +302,12 @@ for k in (['0','1','2']):
 		Result('cit'+cases+k,
 	           'citbyt'+k,
 			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
+
+		# CIGX plots
+		Result('citx'+cases+k,
+	           'citbytx'+k,
+			   'window n3=1 f3=%d |'%im + adcig.xgrey('',par))
+
     
 		im=im+1
 

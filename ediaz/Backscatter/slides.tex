@@ -55,22 +55,25 @@ The idea behind it, and some intuitive thoughts:
 \begin{frame} \frametitle{Fast model image     } \plot{imgs-b_r-b2}{width=\textwidth}{} \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Slow model time-lag} \plot{cits-b_r-b1}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Correct time-lag      } \plot{cits-b_r-b0}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Fast model time-lag } \plot{cits-b_r-b2}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Slow model time-lag gather} \plot{cits-b_r-b1}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Correct time-lag  gather} \plot{cits-b_r-b0}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Fast model time-lag  gather} \plot{cits-b_r-b2}{height=0.8\textheight}{} \end{frame}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Slow model $\lambda_x$-lag gather} \plot{citxs-b_r-b1}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Correct model $\lambda_x$-lag gather} \plot{citxs-b_r-b0}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Fast model $\lambda_x$-lag gather} \plot{citxs-b_r-b2}{height=0.8\textheight}{} \end{frame}
 
 
 \begin{frame} \frametitle{ Splitting the events in the image or time lag gathers:}
 
-Here is the idea, the backscattering comes from the hard boundary in the density model, so we 
-can use a constant density model and the wavefield won't see the interface.
+We can create the wavefield with and without hard interface, then there are four cases we can consider for the cross-correlation: 
 
-There are four cases we can consider: 
 \begin{itemize}
-	\item Case 0: (normal case) $W_{s}ˆ{b} * W_{r}ˆ{b}$ (backscattering in both source and receiver wavefield)
-	\item Case 2: $W_{s}ˆ{nb} * W_{r}ˆ{b}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
-	\item Case 3: $W_{s}ˆ{b} * W_{r}ˆ{nb}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
-	\item Case 4: $W_{s}ˆ{nb} * W_{r}ˆ{nb}$ (no backscattering in both source and receiver wavefield)
+	\item Case 1: (normal case) $W_{s}* W_{r}$ (backscattering in both source and receiver wavefield)
+	\item Case 2: $W_{s}^{n} * W_{r}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
+	\item Case 3: $W_{s} * W_{r}^{n}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
+	\item Case 4: $W_{s}^{n} * W_{r}^{n}$ (no backscattering in both source and receiver wavefield)
 \end{itemize}
 \end{frame}
 
@@ -82,19 +85,19 @@ There are four cases we can consider:
 \end{center}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{b}ˆ{nb} $}
+\begin{frame} \frametitle{Correct model: $W_{s}  *W_{r} $}
 \plot{imgs-b_r-b0}{width=\textwidth}{}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{b} $}
+\begin{frame} \frametitle{Correct model: $W_{s}^{n} *W_{r} $}
 \plot{imgs-n_r-b0}{width=\textwidth}{}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\begin{frame} \frametitle{Correct model: $W_{s} * W_{r}^{n} $}
 \plot{imgs-b_r-n0}{width=\textwidth}{}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{nb} $}
+\begin{frame} \frametitle{Correct model: $W_{s}^{n} *W_{r}^{n} $}
 \plot{imgs-n_r-n0}{width=\textwidth}{}
 \end{frame}
 
@@ -106,20 +109,19 @@ There are four cases we can consider:
 
 \begin{frame} \frametitle{Splitting the events in $\tau$ gather} \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆb * W_{r}ˆb $}
+\begin{frame} \frametitle{Correct model: $W_{s} * W_{r} $}
 \plot{cits-b_r-b0}{height=0.8\textheight}{}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{b} $}
+\begin{frame} \frametitle{Correct model: $W_{s}^{n} * W_{r} $}
 \plot{cits-n_r-b0}{height=0.8\textheight}{}
 \end{frame}
 
-
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{b} * W_{r}ˆ{nb} $}
+\begin{frame} \frametitle{Correct model: $W_{s} * W_{r}^{n} $}
 \plot{cits-b_r-n0}{height=0.8\textheight}{}
 \end{frame}
 
-\begin{frame} \frametitle{Correct model: $W_{s}ˆ{nb} * W_{r}ˆ{nb} $}
+\begin{frame} \frametitle{Correct model: $W_{s}^{n} * W_{r}^{n} $}
 \plot{cits-n_r-n0}{height=0.8\textheight}{}
 \end{frame}
 

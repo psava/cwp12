@@ -40,3 +40,7 @@
 *.swp
 sf*
 jgodwin/nasa/mask.asc
+
+*.avi
+
+jgodwin/nasa/code/fftw/fftw-3.3/*

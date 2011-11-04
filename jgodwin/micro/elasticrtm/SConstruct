@@ -7,9 +7,11 @@ par = dict(
     nx = 601, dx=0.01, ox=0,
     nz = 401, dz=0.01, oz=0,
     nt = 3601, dt = 0.001, ot = 0.0,kt=100,freq=15,
-    nb = 30,srctype=2,jsnap=5
+    nb = 30,
+    srctype=3,
+    jsnap=5
 )
-fdpar = fdutil.defaults(**par)
+fdpar = fdutil.defaults(nqx=201,oqx=2.0,oqz=1.5,nqz=101,**par)
 
 fdutil.constant2d('vp',3.0,**par)
 fdutil.constant2d('vs',1.5,**par)
@@ -29,8 +31,9 @@ Flow('rr','rr-A rr-B','cat axis=2 ${SOURCES[1]}')
 
 fdutil.point2d('sou',2.0,3.0,**par)
 
-fd.rickerdc2('wave',**par)
-#plot.tensorwavelet('wave')
+#fd.rickerdc2('wave',**par)
+fd.rickerTensor2d('wave',tzz=0.0,txx=-1.0,tzx=0.0,**par)
+plot.tensorwavelet('wave')
 
 fd.run('data','cc','ro-win','wave','sou','rr','wfld', ani=0,**fdpar)
 
@@ -40,7 +43,23 @@ fdpar['srctype'] = 1
 #groups = [('A',None,25),('B',25,50),('C',50,None)]
 #groups = [
 #    ('A',None,12),('B',12,24),('C',24,36),('D',36,50),('E',50,60),('F',60,None)]
-groups = [ ('A',None,12),('B',12,24),('C',24,36),('D',36,50)]
+#groups = [ ('A',None,12),('B',12,24),('C',24,36),('D',36,50)]
+groups = []
+
+d1 = 5
+for i in range(0,50,d1):
+    end = i+d1
+    if end > 50:
+        end = 50
+    groups.append(('A%02d'%i,i,end))
+
+d2 = 2
+for j in range(50,70,d2):
+    end = j+d2
+    if end > 70:
+        end = 70
+    groups.append(('B%02d'%j,j,end))
+
 wflds = []
 for ig in range(len(groups)):
     name,start,end = groups[ig]
@@ -81,6 +100,7 @@ for ig in range(len(groups)):
         'rk'+tag,'rr','wfld'+tag, ani=0,**fdpar)
     Flow('wfld'+tag+'-scale','wfld'+tag,
         '''
+        window f4=600 | 
         scale axis=1234
         ''')
     wflds.append('wfld'+tag+'-scale')
@@ -90,7 +110,12 @@ Flow('wfld-all',wflds,
     ''')
 Flow('sic',wflds,
     '''
-    semblance3d thr=0.5 ${SOURCES[1:-1]}
+    sfsemblance3d thr=0.5 ${SOURCES[1:-1]}
     ''')
+
+Flow('cctest',wflds,
+    '''
+    ./Mccmatrix.py ${SOURCES[:-1]}
+    ''',stdin=0)
 
 End()

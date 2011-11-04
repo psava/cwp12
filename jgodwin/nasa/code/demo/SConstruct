@@ -4,14 +4,14 @@ import fdutil
 
 
 par = dict(
-nz=101,dx=10.0,ox=0.0,
-nx=101,dz=10.0,oz=0.0,
-ny=101,dy=10.0,oy=0.0,
+nz=256,dx=10.0,ox=0.0,
+nx=256,dz=10.0,oz=0.0,
+ny=256,dy=10.0,oy=0.0,
 nb=30,
 nt=1001,dt=0.002,ot=0.0
 )
 
-fdpar = fdutil.defaults(cfl=1,fmax=30,snap=1,jsnap=1,**par)
+fdpar = fdutil.defaults(cfl=1,fmax=30,snap=0,jsnap=1,**par)
 
 
 fdutil.constant3d('vel',2000,**par)

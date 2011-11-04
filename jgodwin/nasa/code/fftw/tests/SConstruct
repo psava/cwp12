@@ -1,0 +1,11 @@
+from rsf.proj import *
+import os
+
+Program('demo.c',
+    CC='/usr/local/bin/gcc',
+    LIBS=['rsf','fftw3f_omp','fftw3f','gomp','m'],
+    CPATH='fftw3',
+    LIBPATH=['/usr/local/lib',os.path.join(os.environ.get('RSFROOT'),'lib')],
+    CFLAGS='-std=c99 -O3 -fopenmp -framework Accelerate')
+
+End()

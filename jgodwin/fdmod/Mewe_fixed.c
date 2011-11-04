@@ -713,6 +713,14 @@ int main(int argc, char* argv[])
     /*------------------------------------------------------------*/
     /* Temp values for strain */
     float    szz,   sxx,   syy,   sxy,   syz,   szx;
+
+    /* Temp values for cijs */
+    float tc11, tc12, tc13, tc14, tc15, tc16;
+    float       tc22, tc23, tc24, tc25, tc26;
+    float             tc33, tc34, tc35, tc36;
+    float                   tc44, tc45, tc46;
+    float                         tc55, tc56;
+    float                               tc66;
     /*------------------------------------------------------------*/
     /* execution flags */
     if(! sf_getbool("verb",&verb)) verb=false; /* verbosity flag */
@@ -820,6 +828,9 @@ int main(int argc, char* argv[])
 
         if(!sf_getfloat("oqz",&oqz)) oqz=sf_o(az);
         if(!sf_getfloat("oqx",&oqx)) oqx=sf_o(ax);
+
+        if(!sf_getfloat("dqz",&dqz)) dqz=sf_d(az);
+        if(!sf_getfloat("dqx",&dqx)) dqx=sf_d(ax);
 
         if(!is2d){
             if(!sf_getint  ("nqy",&nqy)) nqy=sf_n(ay);
@@ -929,8 +940,6 @@ if (is2d){
     sf_oaxa(Fdat,at,3);
     /* setup output wavefield header */
     if(snap) {
-        dqz=sf_d(az);
-        dqx=sf_d(ax);
 
         acz = sf_maxa(nqz,oqz,dqz); sf_raxa(acz);
         acx = sf_maxa(nqx,oqx,dqx); sf_raxa(acx);
@@ -1174,24 +1183,38 @@ if (is2d){
         case ORTHORHOMBIC:
 #pragma omp parallel for	    \
     schedule(dynamic)		\
-    private(iz,ix,szz,szx,sxx)			\
-    shared(sfdm,tzz,tzx,txx,c11,c33,c55,c13)
+    private(iz,ix,szz,sxx,tc11,tc13,tc33)			\
+    shared(sfdm,tzz,txx,c11,c33,c13)
             for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
                 for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) {
+                    tc11 = c11[ix][iz];
+                    tc13 = c13[ix][iz];
+                    tc33 = c33[ix][iz];
+                    
+                    sxx = txx[ix][iz];
+                    szz = tzz[ix][iz];
 
-                    sxx = c11[ix][iz] * txx[ix][iz]
+/*                    sxx = c11[ix][iz] * txx[ix][iz]
                         + c13[ix][iz] * tzz[ix][iz];
                             
                     szz = c13[ix][iz] * txx[ix][iz]
                         + c33[ix][iz] * tzz[ix][iz]; 
-                    
+*/                    
+                    txx[ix][iz] = tc11*sxx+tc13*szz;
+                    tzz[ix][iz] = tc13*sxx+tc33*szz;
+                }
+            }
+#pragma omp parallel for	    \
+    schedule(dynamic)		\
+    private(iz,ix,szx)			\
+    shared(sfdm,tzx,c55)
+            for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+                for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) {
                     szx = c55[ix][iz] * tzx[ix][iz];
-
-                    txx[ix][iz] = sxx;
-                    tzz[ix][iz] = szz;
                     tzx[ix][iz] = szx;
                 }
-            }    
+            }
+
         break;
         case TRICLINIC:
 #pragma omp parallel for	    \
@@ -1254,7 +1277,6 @@ if (is2d){
 
     if (srctype == TENSOR){
 	    lint2d_bell(tzx,ww[it][2],cs);
-        sf_warning("injecting tensor");
     }
 	
     if(debug) sf_warning("source");
@@ -1366,12 +1388,12 @@ if (is2d){
        /* sponge ABC */
     if(dabc){
         //sf_warning("I AM SPONGING EVERYWHERE");
-        sponge2d_apply(umz,spo,fdm);
-        sponge2d_apply(uoz,spo,fdm);
+        //sponge2d_apply(umz,spo,fdm);
+        //sponge2d_apply(uoz,spo,fdm);
         sponge2d_apply(upz,spo,fdm);
         
-        sponge2d_apply(umx,spo,fdm);
-        sponge2d_apply(uox,spo,fdm);
+        //sponge2d_apply(umx,spo,fdm);
+        //sponge2d_apply(uox,spo,fdm);
         sponge2d_apply(upx,spo,fdm);
     }
 
@@ -1841,16 +1863,65 @@ if (is2d){
 	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
     		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
 		    txx[iy][ix][iz] = Dx3_1(uox,ix,iy,iz,dx,dy,dz,dr);
-		    tyy[iy][ix][iz] = Dy3_1(uoy,ix,iy,iz,dx,dy,dz,dr);
-		    tzz[iy][ix][iz] = Dz3_1(uoz,ix,iy,iz,dx,dy,dz,dr);
-		    
-		    txy[iy][ix][iz] = Dy3_1(uox,ix,iy,iz,dx,dy,dz,dr) + Dx3_1(uoy,ix,iy,iz,dx,dy,dz,dr);
-		    tyz[iy][ix][iz] = Dz3_1(uoy,ix,iy,iz,dx,dy,dz,dr) + Dy3_1(uoz,ix,iy,iz,dx,dy,dz,dr);
-		    tzx[iy][ix][iz] = Dx3_1(uoz,ix,iy,iz,dx,dy,dz,dr) + Dz3_1(uox,ix,iy,iz,dx,dy,dz,dr);
-		}
+            }
 	    }
 	}
-	
+#pragma omp parallel for					\
+    schedule(dynamic)				\
+    private(ix,iy,iz)						\
+    shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
+	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
+	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+    		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
+		    tyy[iy][ix][iz] = Dy3_1(uoy,ix,iy,iz,dx,dy,dz,dr);
+            }
+	    }
+	}
+#pragma omp parallel for					\
+    schedule(dynamic)				\
+    private(ix,iy,iz)						\
+    shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
+	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
+	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+    		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
+		    tzz[iy][ix][iz] = Dz3_1(uoz,ix,iy,iz,dx,dy,dz,dr);
+            }
+	    }
+	}
+#pragma omp parallel for					\
+    schedule(dynamic)				\
+    private(ix,iy,iz)						\
+    shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
+	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
+	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+    		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
+		    txy[iy][ix][iz] = Dy3_1(uox,ix,iy,iz,dx,dy,dz,dr) + Dx3_1(uoy,ix,iy,iz,dx,dy,dz,dr);
+            }
+	    }
+	}
+#pragma omp parallel for					\
+    schedule(dynamic)				\
+    private(ix,iy,iz)						\
+    shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
+	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
+	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+    		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
+		    tyz[iy][ix][iz] = Dz3_1(uoy,ix,iy,iz,dx,dy,dz,dr) + Dy3_1(uoz,ix,iy,iz,dx,dy,dz,dr);
+            }
+	    }
+	}
+#pragma omp parallel for					\
+    schedule(dynamic)				\
+    private(ix,iy,iz)						\
+    shared(sfdm,txx,tyy,tzz,txy,tyz,tzx,uox,uoy,uoz,dx,dy,dz,dr)
+	for        (iy=NOP-1; iy<sfdm->nypad-NOP+1; iy++) {
+	    for    (ix=NOP-1; ix<sfdm->nxpad-NOP+1; ix++) {
+    		for(iz=NOP-1; iz<sfdm->nzpad-NOP+1; iz++) { 
+		    tzx[iy][ix][iz] = Dx3_1(uoz,ix,iy,iz,dx,dy,dz,dr) + Dz3_1(uox,ix,iy,iz,dx,dy,dz,dr);
+            }
+	    }
+	}
+
 	/*------------------------------------------------------------*/
 	/* from strain to stress                                      */
 	/*------------------------------------------------------------*/

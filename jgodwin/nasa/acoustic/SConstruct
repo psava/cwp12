@@ -75,7 +75,13 @@ Flow('wfld-scale','wfld',
 
 Flow('mask','../mask.hh','dd type=float | sfscale axis=123')
 
-[Flow('wfld-vtk-%03d.vtk' % i, 'wfld','window n4=1 f4=%d | sfdd form=xdr | sfrsf2vtk' % i) for i in range(20)]
+Flow('mask.vtk','mask',
+    '''
+    put o1=%f o2=%f o3=%f
+    d1=%f d2=%f d3=%f | window j1=2 j2=2 j3=2 | dd form=xdr | rsf2vtk
+    ''' % (0,0,0,0.002,0.002,0.002))
+
+[Flow('wfld-vtk-%03d.vtk' % i, 'wfld','window j1=2 j2=2 j3=2 n4=1 f4=%d | sfdd form=xdr | sfrsf2vtk' % i) for i in range(20)]
 proj = Project()
 proj.Alias('vtk',['wfld-vtk-%03d.vtk' % i for i in range(20)])
 

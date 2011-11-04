@@ -10,6 +10,32 @@ def ricker(name,freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
         ''' % (locals())
         )
 
+def rickerTensor2d(name,freq=20,ot=0,dt=0.001,nt=1001,kt=100,
+    tzz=1.0,txx=1.0,tzx=0.0,**kw):
+    Flow('_'+name,None,
+        '''
+        spike n1=%(nt)d o1=%(ot)f d1=%(dt)g nsp=1 k1=%(kt)d l1=%(kt)d | 
+        ricker1 frequency=%(freq)f  |  transp plane=12 | transp plane=23 | 
+        scale axis=123
+        ''' % locals())
+    Flow('_'+name+'-zz','_'+name,
+        '''
+        add scale=%f
+        ''' % (tzz))
+    Flow('_'+name+'-xx','_'+name,
+        '''
+        add scale=%f
+        ''' % (txx))
+    Flow('_'+name+'-zx','_'+name,
+        '''
+        add scale=%f
+        ''' % (tzx))
+    Flow(name,['_'+name+'-'+tag for tag in ['zz','xx','zx']],
+        '''
+        cat axis=2 ${SOURCES[1:-1]}
+        ''')
+
+
 def ricker3d(name,freq=20,ot=0,dt=0.001,nt=1001,kt=100,**kw):
     # An explosive source in 3D
     Flow(name,None,

@@ -126,9 +126,9 @@ Flow('vels_tmp',None,
          ''' %(par))
 
 
-Flow(  'vp','velp_tmp','math output=input*0.3048')
-Flow(  'vs','vels_tmp','math output=input*0.3048')
-Flow(  'dens','vp','math output=2')
+Flow(  'vp','velp_tmp','math output=input*0.3048/1000')
+Flow(  'vs','vels_tmp','math output=input*0.3048/1000')
+Flow(  'dens','vp','math output=1')
 
 for i in ('vp','vs','dens'):
     Plot(i,fdmod.cgrey('allpos=y bias=2.0 pclip=100 color=j',par))
@@ -136,16 +136,16 @@ for i in ('vp','vs','dens'):
 
 # ------------------------------------------------------------ 
 # finite-differences modeling 
-fdmod.awefd('dat_','ww','wav','vp','dens','ss','rr','free=n'+iwindow,par) 
+fdmod.awefd('dat','ww','wav','vp','dens','ss','rr','free=n'+iwindow,par) 
 Result('ww','window j3=%(jsnap)d |'%par + fdmod.wgrey('pclip=99',par)) 
-Result('dat_','transp |' + fdmod.dgrey('pclip=99',par))
+Result('dat','transp |' + fdmod.dgrey('pclip=99',par))
 
 
 # ------------------------------------------------------------ 
 #Reverse Receiver Data 
 # ------------------------------------------------------------ 
 # reverse receiver data 
-Flow(  'r_data','dat_','sfreverse which=2 opt=i') 
+Flow(  'r_data','dat','sfreverse which=2 opt=i') 
 Result('r_data','transp |' + fdmod.dgrey('pclip=99',par)) 
  
 # ------------------------------------------------------------ 

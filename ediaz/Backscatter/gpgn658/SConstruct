@@ -33,11 +33,17 @@ Plot('ssall',fdmod.ssplot('',par))
 
 # ------------------------------------------------------------
 # receivers
-fdmod.horizontal('rr',0,par)
-Plot('rr',fdmod.rrplot('',par))
+#Array @ the surface
+fdmod.horizontal('rr0',0,par)
+Plot('rr0',fdmod.rrplot('plotfat=8',par))
 
-fdmod.horizontal('rr2',3.495,par)
-Plot('rr2',fdmod.rrplot('',par))
+#Array @ the bottom of the model
+fdmod.horizontal('rr1',par['oz']+par['nz']*par['dz'],par)
+Plot('rr1',fdmod.rrplot('plotfat=8',par))
+
+#Composite array:
+Flow('rr2','rr0 rr1','cat axis=2 space=n ${SOURCES[1]}')
+Plot('rr2',fdmod.rrplot('plotfat=8',par))
 
 
 # ------------------------------------------------------------
@@ -146,86 +152,119 @@ Flow('vel0','den0','math output="2.5+0.5*sin(8*x1)"')
 Flow('vel1','den0','math output="0.88*(2.5-0.5*sin(3*x1+1))"')
 Flow('vel2','den0','math output="1.12*(2.5-0.5*sin(3*x1+1))"')
 
+for ra in ['0','1','2']:
 
-for k in (['0','1','2']):
-     Plot('den'+k,fdmod.cgrey('pclip=100 bias=1',par))
-     Plot('vel'+k,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
+	for k in (['0','1','2']):
+		Plot('den'+k,fdmod.cgrey('pclip=100 bias=1',par))
+		Plot('vel'+k,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
 
-     for j in (['vel','den']):
-          Result(j+k,[j+k,'rr','ggone','ssall'],'Overlay')
+		for j in (['vel','den']):
+			Result(j+ra+k,[j+k,'rr'+ra,'ggone','ssall'],'Overlay')
+
+# 1D plot of the velocity model:
+
+Result('vel1d',['vel0','vel1','vel2'],
+    '''
+	cat ${SOURCES[1]} ${SOURCES[2]} axis=3 |
+    stack axis=2 |
+	graph transp=y yreverse=y unit1="km" uni2="km/s" title="" label1=z label2=vel 
+	screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+	''')
+
+
+
+
+
+
+
+
 
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 # ------------------------------------------------------------
 # FD modeling
-fdmod.awefd2d('dd','wd','wav','vel0','den0','ss','rr','',par)
-fdmod.awefd2d('do','wo','wav','vel0','zer', 'ss','rr','',par)
-Flow('dat',['dd','do','dmask'],
-     '''
-     add scale=+1,-1 ${SOURCES[1]} |
-     add mode=p      ${SOURCES[2]}
-     ''')
-Flow('wfl',['wd','wo'],
-     'add scale=+1,-1 ${SOURCES[1]}')
-
-Result('dd','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
-Result('do','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
-Result('dat','transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
-Result('wfl',             fdmod.wgrey('pclip=99.9',par))
-
-Flow('dts','wav','window squeeze=n')
-Flow('dtr','dat','window squeeze=n')
 
 
-for k in (['0','1','2']):
+for ra in ['0','1','2']:
+	fdmod.awefd2d('dd'+ra,'wd'+ra,'wav','vel0','den0','ss','rr'+ra,'',par)
+	fdmod.awefd2d('do'+ra,'wo'+ra,'wav','vel0','zer', 'ss','rr'+ra,'',par)
 
-	# migration (RTM)
+	if (ra=='0' or ra=='1'):
+		Flow('dat'+ra,['dd'+ra,'do'+ra,'dmask'],
+			'''
+			add scale=+1,-1 ${SOURCES[1]} |
+			add mode=p      ${SOURCES[2]}
+			''')
+	else:
+		Flow('dmask2','dmask','cat ${SOURCES[0]} axis=1')
+		Flow('dat'+ra,['dd'+ra,'do'+ra,'dmask2'],
+			'''
+			add scale=+1,-1 ${SOURCES[1]} |
+			add mode=p      ${SOURCES[2]}
+			''')		
 
+	Flow('wfl'+ra,['wd'+ra,'wo'+ra],
+		'add scale=+1,-1 ${SOURCES[1]}')
 
-    # Here I am creating 4 types of wavefields: with bacscatter and no backscatter
-    # for the source and receiver wavefield respectevly.
-	# s: source, r: receiver
-	for w in ['s','r']:
+	Result('dd'+ra ,'transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+	Result('do'+ra ,'transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+	Result('dat'+ra,'transp |' + fdmod.dgrey('pclip=99.9 screenratio=1.5',par))
+	Result('wfl'+ra,             fdmod.wgrey('pclip=99.9',par))
 
-		#b: backscattered (normal), n: no backscattered i.e. constant density
-		for l in ['b','n']:
-			den='zer'
-			if l== 'b':
-				den='den'+k
-			if w== 's':
-				wemig.fWRawe('dt'+w,'wt'+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
-			else :
-				wemig.bWRawe('dt'+w,'wt'+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
-	# Now I am going to make all the posible combinations of the wavefields
-	# for the images and the time lag gathers.	
+	Flow('dts'+ra,'wav','window squeeze=n')
+	Flow('dtr'+ra,'dat'+ra,'window squeeze=n')
 	
-	for w in ['s-b','s-n']:
+	
+	for k in (['0','1','2']):
 
-		for l in ['r-b','r-n']:
-			wemig.cic('img'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'nbuf=100',par)
-			wemig.eic('cig'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nhx=0',par)
-			wemig.eic('cigx'+w+'_'+l+k,'wt'+w+k,'wt'+l+k,'gg','nht=0',par)			
+		# migration (RTM)
+	
 
-			#By stacking cig at all position I fake one centered position received by many
-			# shots in the surface
-			Flow('cit'+w+'_'+l+k,
-			'cig'+w+'_'+l+k,
-			'''
-			put n4=%d n5=%d label4=z label5=c |
-			window |
-			stack axis=3 | transp
-			'''%(par['nz'],par['nx_box']/par['jcx'])
-			)
+		# Here I am creating 4 types of wavefields: with bacscatter and no backscatter
+		# for the source and receiver wavefield respectevly.
+		# s: source, r: receiver
+		for w in ['s','r']:
+	
+			#b: backscattered (normal), n: no backscattered i.e. constant density
+			for l in ['b','n']:
+				den='zer'
+				if l== 'b':
+					den='den'+k
+				if w== 's':
+					wemig.fWRawe('dt'+w+ra,'wt'+ra+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
+				else :
+					wemig.bWRawe('dt'+w+ra,'wt'+ra+w+'-'+l+k,'vel'+k,den,w+w+ra,'jdata=4 jsnap=4 ',par)
+		# Now I am going to make all the posible combinations of the wavefields
+		# for the images and the time lag gathers.	
+	
+		for w in ['s-b','s-n']:
+
+			for l in ['r-b','r-n']:
+				wemig.cic('img'+ra+w+'_'+l+k,'wt'+ra+w+k,'wt'+ra+l+k,'nbuf=100',par)
+				wemig.eic('cig'+ra+w+'_'+l+k,'wt'+ra+w+k,'wt'+ra+l+k,'gg','nhx=0',par)
+				wemig.eic('cigx'+ra+w+'_'+l+k,'wt'+ra+w+k,'wt'+ra+l+k,'gg','nht=0',par)			
+	
+				#By stacking cig at all position I fake one centered position received by many
+				# shots in the surface
+				Flow('cit'+ra+w+'_'+l+k,
+				'cig'+ra+w+'_'+l+k,
+				'''
+				put n4=%d n5=%d label4=z label5=c |
+				window |
+				stack axis=3 | transp
+				'''%(par['nz'],par['nx_box']/par['jcx'])
+				)
+				
+				Flow('citx'+ra+w+'_'+l+k,
+				'cigx'+ra+w+'_'+l+k,
+				'''
+				put n4=%d n5=%d label4=z label5=c |
+				window |
+				stack axis=3 | transp
+				'''%(par['nz'],par['nx_box']/par['jcx'])
+				)
 			
-			Flow('citx'+w+'_'+l+k,
-			'cigx'+w+'_'+l+k,
-			'''
-			put n4=%d n5=%d label4=z label5=c |
-			window |
-			stack axis=3 | transp
-			'''%(par['nz'],par['nx_box']/par['jcx'])
-			)
 		
 	
 	
@@ -235,83 +274,78 @@ for k in (['0','1','2']):
 	
 	
 	
-	
-	#Crosscorr between normal wavefields (both with variable density)
-	Flow('cross_corr'+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input" ')
-	 
-
-	Result( 'vel_den'+k,
-	    ['vel'+k,'den'+k],'SideBySideAniso')
-
-	## ------------------------------------------------------------ 
-	## plot wavefield frames
-	for i in range(0, 625 , par['jsnap_gr'] ):
-		tag = '-%03d'%i
-		t= i*par['dt']
-		#Source wavefield frame
-		fdmod.wframe('wts-b'+k+tag,
-		     'wts-b'+k,i,'pclip=99 wheretitle=t title="Ws(%4.3f)"'%t,par)
-		Result( 'wts-b'+k+tag,
-		    ['wts-b'+k+tag,'den'+k],'Overlay')
-		#Receiver wavefield frame
-		fdmod.wframe('wtr-b'+k+tag,
-		     'wtr-b'+k,i,'pclip=99 wheretitle=t  title="Wr(%4.3f)"'%t,par)
-		Result( 'wtr-b'+k+tag,
-		    ['wtr-b'+k+tag,'den'+k],'Overlay')
-		#Cross-corr wavefield frame
-		fdmod.wframe('cross_corr'+k+tag,
-		     'cross_corr'+k,i,'pclip=99 wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
-		Result( 'cross_corr'+k+tag,
-		    ['cross_corr'+k+tag,'den'+k],'Overlay')
-		#Image so far:
-		Flow('Image'+k+tag,'cross_corr'+k,
-		     'window n3=%d|stack axis=3'%(i+1))
-		Plot( 'Image'+k+tag,'Image'+k+tag,
-		fdmod.cgrey('pclip=99 wheretitle=t  title="Ws*Wr(0->%4.3f)"'%t,par))
-		Result( 'Image'+k+tag,
-		    ['Image'+k+tag,'den'+k],'Overlay')
-			
-		Result('top_plot'+k+tag,
-		['Image'+k+tag,'cross_corr'+k+tag],'SideBySideIso')
-		Result('bot_plot'+k+tag,
-		['wts-b'+k+tag,'wtr-b'+k+tag],'SideBySideIso')
-			
-
-
-
-	
-	Flow('imgbyt'+k,['imgs-b_r-n'+k,'imgs-b_r-b'+k,'imgs-n_r-n'+k,'imgs-n_r-b'+k],
-	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
-
-	Flow('citbyt'+k,['cits-b_r-n'+k,'cits-b_r-b'+k,'cits-n_r-n'+k,'cits-n_r-b'+k],
-	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
-
-	Flow('citbytx'+k,['citxs-b_r-n'+k,'citxs-b_r-b'+k,'citxs-n_r-n'+k,'citxs-n_r-b'+k],
-	'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
-
-	im=0
-	for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
-		#Image plots
-		Plot(  'img'+cases+k,
-		'imgbyt'+k,
-          'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
+		#Crosscorr between normal wavefields (both with variable density)
+		Flow('cross_corr'+ra+k,['wt'+ra+'s-b'+k,'wt'+ra+'r-b'+k],'math r=${SOURCES[1]} output="r*input" ')
 		
-		Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
+	
+		Result( 'vel_den'+ra+k,
+			['vel'+k,'den'+k],'SideBySideAniso')
+	
+		## ------------------------------------------------------------ 
+		## plot wavefield frames
+		for i in range(0, 625 , par['jsnap_gr'] ):
+			tag = '-%03d'%i
+			t= i*par['dt']
+			#Source wavefield frame
+			fdmod.wframe('wt'+ra+'s-b'+k+tag,
+				'wt'+ra+'s-b'+k,i,'pclip=99 wheretitle=t title="Ws(%4.3f)"'%t,par)
+			Result( 'wt'+ra+'s-b'+k+tag,
+				['wt'+ra+'s-b'+k+tag,'rr'+ra],'Overlay')
+			#Receiver wavefield frame
+			fdmod.wframe('wt'+ra+'r-b'+k+tag,
+				'wt'+ra+'r-b'+k,i,'pclip=99 wheretitle=t  title="Wr(%4.3f)"'%t,par)
+			Result( 'wt'+ra+'r-b'+k+tag,
+				['wt'+ra+'r-b'+k+tag,'rr'+ra],'Overlay')
+			#Cross-corr wavefield frame
+			fdmod.wframe('cross_corr'+ra+k+tag,
+				'cross_corr'+ra+k,i,'pclip=99 wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
+			Result( 'cross_corr'+ra+k+tag,
+				['cross_corr'+ra+k+tag,'rr'+ra],'Overlay')
+			#Image so far:
+			Flow('Image'+ra+k+tag,'cross_corr'+ra+k,
+				'window n3=%d|stack axis=3'%(i+1))
+			Plot( 'Image'+ra+k+tag,'Image'+ra+k+tag,
+			fdmod.cgrey('pclip=99 wheretitle=t  title="Ws*Wr(0->%4.3f)"'%t,par))
+			Result( 'Image'+ra+k+tag,
+				['Image'+ra+k+tag,'rr'+ra],'Overlay')
+				
+			Result('top_plot'+ra+k+tag,
+			['Image'+ra+k+tag,'cross_corr'+ra+k+tag],'SideBySideIso')
+			Result('bot_plot'+ra+k+tag,
+			['wt'+ra+'s-b'+k+tag,'wt'+ra+'r-b'+k+tag],'SideBySideIso')
+				
 
-		# CIG plots
-		Result('cit'+cases+k,
-	           'citbyt'+k,
-			   'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
-
-		# CIGX plots
-		Result('citx'+cases+k,
-	           'citbytx'+k,
-			   'window n3=1 f3=%d |'%im + adcig.xgrey('',par))
-
-    
-		im=im+1
 
 
+	
+		Flow('imgbyt'+ra+k,['img'+ra+'s-b_r-n'+k,'img'+ra+'s-b_r-b'+k,'img'+ra+'s-n_r-n'+k,'img'+ra+'s-n_r-b'+k],
+		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
+
+		Flow('citbyt'+ra+k,['cit'+ra+'s-b_r-n'+k,'cit'+ra+'s-b_r-b'+k,'cit'+ra+'s-n_r-n'+k,'cit'+ra+'s-n_r-b'+k],
+		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=100')
+	
+		Flow('citbytx'+ra+k,['citx'+ra+'s-b_r-n'+k,'citx'+ra+'s-b_r-b'+k,'citx'+ra+'s-n_r-n'+k,'citx'+ra+'s-n_r-b'+k],
+		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=100')
+
+		im=0
+		for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
+			#Image plots
+			Plot(  'img'+ra+cases+k,
+			'imgbyt'+ra+k,
+			'window n3=1 f3=%d |'%im + fdmod.cgrey('',par))
+		
+			Result('img'+ra+cases+k,['img'+ra+cases+k,'rr'+ra,'ssall','ggone'],'Overlay')
+	
+			# CIG plots
+			Result('cit'+ra+cases+k,
+				'citbyt'+ra+k,
+				'window n3=1 f3=%d |'%im + adcig.tgrey('',par))
+
+			# CIGX plots
+			Result('citx'+ra+cases+k,
+				'citbytx'+ra+k,
+				'window n3=1 f3=%d |'%im + adcig.xgrey('',par))
+			im=im+1
 
 
 
@@ -319,20 +353,7 @@ for k in (['0','1','2']):
 
 
 
-#for j in range(3):
-#     k='%d'%j
-     
-#     # image
-#     Plot(  'img'+k,
-#          'imgbyt',
-#          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
-#     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
 
-#     # CIG
-#     Result('cit'+k,
-#            'citbyt',
-#            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
-#     
-## ------------------------------------------------------------
+
 End()
         

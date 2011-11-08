@@ -1,0 +1,167 @@
+## 
+ # microseis reverse-time migration 
+ # Ashley Fish  
+ ## 
+
+from rsf.proj import * 
+import fdmod  
+
+ 
+# ------------------------------------------------------------ 
+# define parameters 
+# ------------------------------------------------------------ 
+f2m=0.3048 
+par = dict( 
+    nx=501,   ox=0*f2m,    dx=5*f2m,  lx='x', ux='km', 
+    nz=400,   oz=7495*f2m, dz=5*f2m,  lz='z', uz='km', 
+    nt=5000,  ot=0,        dt=0.002,  lt='t', ut='s', 
+    jsnap=50, 
+    jwfld=10, 
+    kt=100, 
+    nb=100, 
+    frq=35, 
+    xrec=100*f2m, zrec=7950*f2m, jrec=50*f2m, nrec=12, 
+    xsou=969*f2m, zsou=8750*f2m, jsou=1,      nsou=1
+    ) 
+fdmod.param(par) 
+
+# wavefield save window 
+par['nqx']=par['nx'] 
+par['nqz']=par['nz'] 
+par['oqx']=par['ox'] 
+par['oqz']=par['oz']
+par['xk']=50
+par['xl']=par['nx']-50
+
+# wavefield frames 
+par['nframe']=int((par['nt']-1)/par['jsnap']) 
+ 
+# standard deviation (in physical units) 
+par['dstd']=2  # amplitude units 
+par['mstd']=5  # km/s 
+
+
+# ------------------------------------------------------------ 
+# define function 
+# ------------------------------------------------------------ 
+def flatten(vals): 
+    return reduce(lambda x,y: str(x)+','+str(y),vals) 
+
+iwindow = ' ' + \
+    '''
+        nq1=%(nqz)d oq1=%(oqz)g
+        nq2=%(nqx)d oq2=%(oqx)g
+        jsnap=%(jdata)d jdata=%(jdata)d
+        ''' % par + ' '
+
+
+# ------------------------------------------------------------
+# wavelet
+# ------------------------------------------------------------
+fdmod.wavelet('wav_',35,par)
+Flow(  'wav', 'wav_','transp')
+Result('wav','window n2=500 |' + fdmod.waveplot('',par))
+
+# ------------------------------------------------------------ 
+# sources 
+# ------------------------------------------------------------ 
+fdmod.point('ss',par['xsou'],par['zsou'],par) 
+Plot('ss',fdmod.ssplot('',par)) 
+ 
+# ------------------------------------------------------------ 
+# receiver coordinates 
+# ------------------------------------------------------------ 
+fdmod.vertical('tr',par['xrec'],par) 
+Flow('rr','tr', 
+     'window j2=%(jrec)d min2=%(zrec)g n2=%(nrec)d'%par) 
+Plot('rr',fdmod.rrplot('',par)) 
+ 
+# ------------------------------------------------------------ 
+# velocity 
+# ------------------------------------------------------------ 
+raw_depth=[7500,7612,7798,7898,7936,8099,8361,8420,8538,8719,8869] 
+raw_pvelo=[17759,18684,17978,18949,15462,17126,17442,17089,17230,19000,15470,19000] 
+raw_svelo=[10466,12456,11985,12633,10308,11417,11628,11392,11486,12666,10313,10313] 
+ 
+# Convert depth to index 
+id = [int((float(x)*.3048 - par['oz'])/par['dz']) for x in raw_depth] 
+id.insert(0,1) # Starting index is 1 
+# Fix the indices, so that they start from 1 and go to nz for the end indices 
+fid = [] 
+for i in range(len(id)-1): 
+    fid.append(id[i+1]-1) 
+fid.append(par['nz']) 
+ 
+print'len(raw_pvelo)...',len(raw_pvelo) 
+print'len(raw_svelo)...',len(raw_svelo) 
+print'len(id)...',len(id) 
+print'len(fid)...',len(fid) 
+print'flatten(raw_pvelo)...',flatten(raw_pvelo) 
+ 
+assert len(raw_pvelo) == len(raw_svelo) == len(id) == len(fid) 
+ 
+# ------------------------------------------------------------ 
+# velocity and density models 
+# ------------------------------------------------------------ 
+Flow('velp_tmp',None,
+     '''
+         spike n1=%(nz)d o1=%(oz)f d1=%(dz)f n2=%(nx)d d2=%(dx)f o2=%(ox)f
+         ''' % (par) +
+     '''
+         k1=%s l1=%s nsp=%d mag=%s |
+         ''' % (flatten(id),flatten(fid),len(raw_pvelo),flatten(raw_pvelo)) +
+     '''
+         put title="Vp"
+         ''' %(par))
+
+Flow('vels_tmp',None,
+     '''
+         spike n1=%(nz)d o1=%(oz)f d1=%(dz)f n2=%(nx)d d2=%(dx)f o2=%(ox)f
+         ''' % (par) +
+     '''
+         k1=%s l1=%s nsp=%d mag=%s |
+         ''' % (flatten(id),flatten(fid),len(raw_svelo),flatten(raw_svelo)) +
+     '''
+         put title="Vs"
+         ''' %(par))
+
+
+Flow(  'vp','velp_tmp','math output=input*0.3048')
+Flow(  'vs','vels_tmp','math output=input*0.3048')
+Flow(  'dens','vp','math output=2')
+
+for i in ('vp','vs','dens'):
+    Plot(i,fdmod.cgrey('allpos=y bias=2.0 pclip=100 color=j',par))
+    Result(i,[i,'ss','rr'],'Overlay')
+
+# ------------------------------------------------------------ 
+# finite-differences modeling 
+fdmod.awefd('dat_','ww','wav','vp','dens','ss','rr','free=n'+iwindow,par) 
+Result('ww','window j3=%(jsnap)d |'%par + fdmod.wgrey('pclip=99',par)) 
+Result('dat_','transp |' + fdmod.dgrey('pclip=99',par))
+
+
+# ------------------------------------------------------------ 
+#Reverse Receiver Data 
+# ------------------------------------------------------------ 
+# reverse receiver data 
+Flow(  'r_data','dat_','sfreverse which=2 opt=i') 
+Result('r_data','transp |' + fdmod.dgrey('pclip=99',par)) 
+ 
+# ------------------------------------------------------------ 
+#Build Receiver Wavefields 
+# ------------------------------------------------------------ 
+# finite-differences modeling 
+fdmod.awefd('rec_dat','rev_wfld','r_data','vp','dens','rr','ss','free=n'+iwindow,par) 
+Result('rev_wfld','window j3=%(jsnap)d |'%par + fdmod.wgrey('pclip=99',par)) 
+ 
+# ------------------------------------------------------------ 
+#Reverse Receiver Wavefields 
+# ------------------------------------------------------------ 
+# reverse wavefield 
+Flow(  'r_rec_wfld','rev_wfld','sfreverse which=4 opt=i') 
+Result('r_rec_wfld','window j3=100 |' + fdmod.wgrey('pclip=99',par)) 
+ 
+ 
+End() 
+

@@ -13,7 +13,7 @@ import fdmod
 f2m=0.3048 
 par = dict( 
     nx=501,   ox=0*f2m,    dx=5*f2m,  lx='x', ux='km', 
-    nz=400,   oz=7495*f2m, dz=5*f2m,  lz='z', uz='km', 
+    nz=400,   oz=7490*f2m, dz=5*f2m,  lz='z', uz='km', 
     nt=5000,  ot=0,        dt=0.002,  lt='t', ut='s', 
     jsnap=50, 
     jwfld=10, 

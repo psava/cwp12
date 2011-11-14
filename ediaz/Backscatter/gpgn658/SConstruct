@@ -39,11 +39,11 @@ Plot('rr0',fdmod.rrplot('plotfat=8',par))
 
 #Array @ the bottom of the model
 fdmod.horizontal('rr1',par['oz']+par['nz']*par['dz'],par)
-Plot('rr1',fdmod.rrplot('plotfat=8',par))
+Plot('rr1',fdmod.rrplot('plotfat=12',par))
 
 #Composite array:
 Flow('rr2','rr0 rr1','cat axis=2 space=n ${SOURCES[1]}')
-Plot('rr2',fdmod.rrplot('plotfat=8',par))
+Plot('rr2',fdmod.rrplot('plotfat=12',par))
 
 
 # ------------------------------------------------------------
@@ -146,6 +146,8 @@ Flow('den2',None,
      ''' % par)
 
 
+
+
 Flow('zer','den0','math output="1.0"')
 
 Flow('vel0','den0','math output="2.5+0.5*sin(8*x1)"')
@@ -162,17 +164,36 @@ for ra in ['0','1','2']:
 			Result(j+ra+k,[j+k,'rr'+ra,'ggone','ssall'],'Overlay')
 
 # 1D plot of the velocity model:
-
 Result('vel1d',['vel0','vel1','vel2'],
     '''
 	cat ${SOURCES[1]} ${SOURCES[2]} axis=3 |
     stack axis=2 |
-	graph transp=y yreverse=y unit1="km" uni2="km/s" title="" label1=z label2=vel 
+	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
 	screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+	min2=1.5 max2=3.5 
+	''')
+	
+Result('vel1d-dash',['vel0','vel1','vel2'],
+    '''
+	cat ${SOURCES[1]} ${SOURCES[2]} axis=3 |
+    stack axis=2 |
+	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
+	screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+	min2=1.5 max2=3.5 dash=3
 	''')
 
 
 
+for vel in ['vel0','vel1','vel2']:
+	Plot(vel+'-fat',[vel,vel],
+		'''
+		cat ${SOURCES[1]} axis=2 |
+		stack axis=2 |
+		graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel
+		screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+		plotfat=12 min2=1.5 max2=3.5 d2tic=0.5 wantaxis=n
+		''')
+	Result(vel+'-fat',[vel+'-fat','Fig/vel1d-dash'],'Overlay')
 
 
 
@@ -221,7 +242,7 @@ for ra in ['0','1','2']:
 		# migration (RTM)
 	
 
-		# Here I am creating 4 types of wavefields: with bacscatter and no backscatter
+		# Here I am creating 4 types of wavefields: with backscatter and no backscatter
 		# for the source and receiver wavefield respectevly.
 		# s: source, r: receiver
 		for w in ['s','r']:
@@ -235,6 +256,24 @@ for ra in ['0','1','2']:
 					wemig.fWRawe('dt'+w+ra,'wt'+ra+w+'-'+l+k,'vel'+k,den,w+w,'jdata=4 jsnap=4 ',par)
 				else :
 					wemig.bWRawe('dt'+w+ra,'wt'+ra+w+'-'+l+k,'vel'+k,den,w+w+ra,'jdata=4 jsnap=4 ',par)
+
+
+			
+
+
+
+		#Now I am gonna build the illumination maps for source and receiver fields (sillu and rillu)
+		for s in ['s-b','s-n']:
+			wemig.cic('sillu'+ra+s+k,'wt'+ra+s+k,'wt'+ra+s+k,'nbuf=100',par)
+
+		for s in ['r-b','r-n']:
+			wemig.cic('rillu'+ra+s+k,'wt'+ra+s+k,'wt'+ra+s+k,'nbuf=100',par)
+
+
+
+
+
+
 		# Now I am going to make all the posible combinations of the wavefields
 		# for the images and the time lag gathers.	
 	
@@ -264,15 +303,27 @@ for ra in ['0','1','2']:
 				stack axis=3 | transp
 				'''%(par['nz'],par['nx_box']/par['jcx'])
 				)
+
+				# Combined illumination map:
+				Flow('illu'+ra+w+'_'+l+k,['sillu'+ra+w+k,'rillu'+ra+l+k],
+				'''
+				add scale=+1,+1 ${SOURCES[1]}
+				'''
+				)
 			
-		
-	
-	
-	
-	
-	
-	
-	
+
+
+		Flow('cit-diff'+ra+k,['cit'+ra+'s-b_r-b'+k,'cit'+ra+'s-n_r-n'+k],
+			'math x=${SOURCES[1]} output="input-x"')
+
+
+		Flow('citx-diff'+ra+k,['citx'+ra+'s-b_r-b'+k,'citx'+ra+'s-n_r-n'+k],
+			'math x=${SOURCES[1]} output="input-x"')
+			
+
+		Flow('img-diff'+ra+k,['img'+ra+'s-b_r-b'+k,'img'+ra+'s-n_r-n'+k],
+			'math x=${SOURCES[1]} output="input-x"')
+
 	
 		#Crosscorr between normal wavefields (both with variable density)
 		Flow('cross_corr'+ra+k,['wt'+ra+'s-b'+k,'wt'+ra+'r-b'+k],'math r=${SOURCES[1]} output="r*input" ')
@@ -286,49 +337,67 @@ for ra in ['0','1','2']:
 		for i in range(0, 625 , par['jsnap_gr'] ):
 			tag = '-%03d'%i
 			t= i*par['dt']
+			rarray='rr'+ra
+			if(ra==2):
+				rarray='rr1,rr2'
+
 			#Source wavefield frame
 			fdmod.wframe('wt'+ra+'s-b'+k+tag,
 				'wt'+ra+'s-b'+k,i,'pclip=99 wheretitle=t title="Ws(%4.3f)"'%t,par)
 			Result( 'wt'+ra+'s-b'+k+tag,
-				['wt'+ra+'s-b'+k+tag,'rr'+ra],'Overlay')
+				['wt'+ra+'s-b'+k+tag,rarray],'Overlay')
+
 			#Receiver wavefield frame
 			fdmod.wframe('wt'+ra+'r-b'+k+tag,
 				'wt'+ra+'r-b'+k,i,'pclip=99 wheretitle=t  title="Wr(%4.3f)"'%t,par)
 			Result( 'wt'+ra+'r-b'+k+tag,
-				['wt'+ra+'r-b'+k+tag,'rr'+ra],'Overlay')
+				['wt'+ra+'r-b'+k+tag,rarray],'Overlay')
+
 			#Cross-corr wavefield frame
 			fdmod.wframe('cross_corr'+ra+k+tag,
 				'cross_corr'+ra+k,i,'pclip=99 wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
 			Result( 'cross_corr'+ra+k+tag,
-				['cross_corr'+ra+k+tag,'rr'+ra],'Overlay')
+				['cross_corr'+ra+k+tag,rarray],'Overlay')
+
 			#Image so far:
 			Flow('Image'+ra+k+tag,'cross_corr'+ra+k,
 				'window n3=%d|stack axis=3'%(i+1))
+
 			Plot( 'Image'+ra+k+tag,'Image'+ra+k+tag,
 			fdmod.cgrey('pclip=99 wheretitle=t  title="Ws*Wr(0->%4.3f)"'%t,par))
+
 			Result( 'Image'+ra+k+tag,
-				['Image'+ra+k+tag,'rr'+ra],'Overlay')
-				
-			Result('top_plot'+ra+k+tag,
-			['Image'+ra+k+tag,'cross_corr'+ra+k+tag],'SideBySideIso')
-			Result('bot_plot'+ra+k+tag,
-			['wt'+ra+'s-b'+k+tag,'wt'+ra+'r-b'+k+tag],'SideBySideIso')
-				
+				['Image'+ra+k+tag,rarray],'Overlay')
+			
 
 
+	    
 
 	
-		Flow('imgbyt'+ra+k,['img'+ra+'s-b_r-n'+k,'img'+ra+'s-b_r-b'+k,'img'+ra+'s-n_r-n'+k,'img'+ra+'s-n_r-b'+k],
+		Flow('imgbyt'+ra+k,
+		['img'+ra+'s-b_r-n'+k,'img'+ra+'s-b_r-b'+k,'img'+ra+'s-n_r-n'+k,'img'+ra+'s-n_r-b'+k,'img-diff'+ra+k],
+		'cat axis=3 space=n ${SOURCES[1:5]}  | byte gainpanel=a pclip=99')
+
+
+		Flow('illubyt'+ra+k,
+		['illu'+ra+'s-b_r-n'+k,'illu'+ra+'s-b_r-b'+k,'illu'+ra+'s-n_r-n'+k,'illu'+ra+'s-n_r-b'+k],
 		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=99')
 
-		Flow('citbyt'+ra+k,['cit'+ra+'s-b_r-n'+k,'cit'+ra+'s-b_r-b'+k,'cit'+ra+'s-n_r-n'+k,'cit'+ra+'s-n_r-b'+k],
-		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=100')
+
+		Flow('citbyt'+ra+k,
+		['cit'+ra+'s-b_r-n'+k,'cit'+ra+'s-b_r-b'+k,'cit'+ra+'s-n_r-n'+k,'cit'+ra+'s-n_r-b'+k,'cit-diff'+ra+k],
+		'cat axis=3 space=n ${SOURCES[1:5]}  | byte gainpanel=a pclip=100')
 	
-		Flow('citbytx'+ra+k,['citx'+ra+'s-b_r-n'+k,'citx'+ra+'s-b_r-b'+k,'citx'+ra+'s-n_r-n'+k,'citx'+ra+'s-n_r-b'+k],
-		'cat axis=3 space=n ${SOURCES[1:4]}  | byte gainpanel=a pclip=100')
+		Flow('citbytx'+ra+k,
+		['citx'+ra+'s-b_r-n'+k,'citx'+ra+'s-b_r-b'+k,'citx'+ra+'s-n_r-n'+k,'citx'+ra+'s-n_r-b'+k,'citx-diff'+ra+k],
+		'cat axis=3 space=n ${SOURCES[1:5]}  | byte gainpanel=a pclip=100')
+
+
+
+
 
 		im=0
-		for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
+		for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b','-diff-']:
 			#Image plots
 			Plot(  'img'+ra+cases+k,
 			'imgbyt'+ra+k,
@@ -345,13 +414,9 @@ for ra in ['0','1','2']:
 			Result('citx'+ra+cases+k,
 				'citbytx'+ra+k,
 				'window n3=1 f3=%d |'%im + adcig.xgrey('',par))
+
+
 			im=im+1
-
-
-
-
-
-
 
 
 

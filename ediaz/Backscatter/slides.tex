@@ -1,6 +1,6 @@
 
 
-\title[]{Including RTM backscattered energy in VMB flow}
+\title[]{Including RTM backscattered energy in MVA flow}
 \subtitle{}
 \author[]{Esteban  D\'{i}az}
 \institute{
@@ -20,212 +20,158 @@ ediazpan@mines.edu
 % ------------------------------------------------------------
 \inputdir{gpgn658}
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Backscattered artifacts}
-The idea behind it, and some intuitive thoughts:
-
-\begin{itemize}
-   \item The position of the ``artifacts'' should tell 
-   something about the synchronization between wavefields.
-   \item The energy of it should indicate a maximum synchronization 
-   between wavefields.
-\end{itemize}
-
-\end{frame}
-\cwpnote{}
-
-% ------------------------------------------------------------
 \begin{frame} \frametitle{Test experiments}
-
 \begin{itemize}
-   \item 3 velocity models: correct, 88\% correct, 112\% correct
-   \item The hard interface is in the density model. 
+   \item 3 velocity models: correct, 88\% correct, 112\% correct.
+   \item Went back to one receiver array (at $z=0m$).
 \end{itemize}
-
 \end{frame}
 \cwpnote{}
 
 % ------------------------------------------------------------
-\begin{frame} \frametitle{Slow    model} \plot{vel_den1}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Correct model} \plot{vel_den0}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Fast    model} \plot{vel_den2}{width=\textwidth}{} \end{frame}
-
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Slow model image    } \plot{imgs-b_r-b1}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Correct model image} \plot{imgs-b_r-b0}{width=\textwidth}{} \end{frame}
-\begin{frame} \frametitle{Fast model image     } \plot{imgs-b_r-b2}{width=\textwidth}{} \end{frame}
-
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Slow model time-lag gather} \plot{cits-b_r-b1}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Correct time-lag  gather} \plot{cits-b_r-b0}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Fast model time-lag  gather} \plot{cits-b_r-b2}{height=0.8\textheight}{} \end{frame}
-
-% ------------------------------------------------------------
-\begin{frame} \frametitle{Slow model $\lambda_x$-lag gather} \plot{citxs-b_r-b1}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Correct model $\lambda_x$-lag gather} \plot{citxs-b_r-b0}{height=0.8\textheight}{} \end{frame}
-\begin{frame} \frametitle{Fast model $\lambda_x$-lag gather} \plot{citxs-b_r-b2}{height=0.8\textheight}{} \end{frame}
+\begin{frame} \frametitle{Slow model} \plot{vel_den01}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Correct model} \plot{vel_den00}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{Fast model} \plot{vel_den02}{width=\textwidth}{} \end{frame}
+\begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
 
 
-\begin{frame} \frametitle{ Splitting the events in the image or time lag gathers:}
+\begin{frame} 
+     \plot{img0s-b_r-b1}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-b_r-b1}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-b_r-b1}{width=0.8\textwidth}{}
+     \column{0.1\textwidth} 
+	    \plot{vel1-fat}{height=0.3\textheight}{}
+ \end{columns} 
+\end{frame} 
 
-We can create the wavefield with and without hard interface, then there are four cases we can consider for the cross-correlation: 
+\begin{frame} 
+     \plot{img0s-b_r-b0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-b_r-b0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-b_r-b0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth} 
+	    \plot{vel0-fat}{height=0.3\textheight}{}
+ \end{columns} 
+\end{frame} 
 
+\begin{frame} 
+     \plot{img0s-b_r-b2}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-b_r-b2}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-b_r-b2}{width=0.8\textwidth}{}
+     \column{0.1\textwidth} 
+	    \plot{vel2-fat}{height=0.3\textheight}{}
+ \end{columns} 
+\end{frame} 
+
+\begin{frame} 
+Four cross-correlation cases that we can consider:
 \begin{itemize}
-	\item Case 1: (normal case) $W_{s}* W_{r}$ (backscattering in both source and receiver wavefield)
-	\item Case 2: $W_{s}^{n} * W_{r}$ (no backscattering in source wavefield, backscattering in receiver wavefield)
-	\item Case 3: $W_{s} * W_{r}^{n}$ (backscattering in source wavefield, no backscattering in receiver wavefield)
-	\item Case 4: $W_{s}^{n} * W_{r}^{n}$ (no backscattering in both source and receiver wavefield)
+	\item Case 1: $W_{s}* W_{r}$ 
+	\item Case 2: $W_{s}^{n} * W_{r}$
+	\item Case 3: $W_{s} * W_{r}^{n}$
+	\item Case 4: $W_{s}^{n} * W_{r}^{n}$
 \end{itemize}
 \end{frame}
+
+
+
+
+
+\begin{frame} 
+     \inputdir{gpgn658}  \plot{img0s-b_r-b0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-b_r-b0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-b_r-b0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth}
+	  \inputdir{XFig}  \plot{s-b_r-b}{width=0.8\textwidth}{}
+ \end{columns} 
+\end{frame} 
+
+
+\begin{frame} 
+     \inputdir{gpgn658}  \plot{img0s-n_r-b0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-n_r-b0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-n_r-b0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth}
+	  \inputdir{XFig}  \plot{s-n_r-b}{width=0.8\textwidth}{}
+ \end{columns} 
+\end{frame} 
+
+
+
+\begin{frame} 
+     \inputdir{gpgn658}  \plot{img0s-b_r-n0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-b_r-n0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-b_r-n0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth}
+	  \inputdir{XFig}  \plot{s-b_r-n}{width=0.8\textwidth}{}
+ \end{columns} 
+\end{frame} 
+
+
+
+\begin{frame} 
+     \inputdir{gpgn658}  \plot{img0s-n_r-n0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0s-n_r-n0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0s-n_r-n0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth}
+	  \inputdir{XFig}  \plot{s-n_r-n}{width=0.8\textwidth}{}
+ \end{columns} 
+\end{frame} 
+
+\begin{frame} \end{frame}
+\begin{frame} 
+     \inputdir{gpgn658}  \plot{img0-diff-0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.45\textwidth}
+	  \plot{citx0-diff-0}{width=0.8\textwidth}{}
+     \column{0.45\textwidth}
+	  \plot{cit0-diff-0}{width=0.8\textwidth}{}
+     \column{0.1\textwidth}
+	  \inputdir{XFig}  \plot{s-n_r-n}{width=0.8\textwidth}{}
+ \end{columns} 
+\end{frame} 
+
 
 
 
 \begin{frame}
-\begin{center}
- \frametitle{ Splitting the events in the image:} 
-\end{center}
+Some understanding of the backscattering has been built, now:
+\begin{itemize}
+	\item What can we do with it?
+	\item What is the appropiate error functional?
+	\item How do I measure it?
+\end{itemize}
+Stay tunned...
 \end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s}  *W_{r} $}
-\plot{imgs-b_r-b0}{width=\textwidth}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s}^{n} *W_{r} $}
-\plot{imgs-n_r-b0}{width=\textwidth}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s} * W_{r}^{n} $}
-\plot{imgs-b_r-n0}{width=\textwidth}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s}^{n} *W_{r}^{n} $}
-\plot{imgs-n_r-n0}{width=\textwidth}{}
-\end{frame}
-
-
-
-
-
-
-
-\begin{frame} \frametitle{Splitting the events in $\tau$ gather} \end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s} * W_{r} $}
-\plot{cits-b_r-b0}{height=0.8\textheight}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s}^{n} * W_{r} $}
-\plot{cits-n_r-b0}{height=0.8\textheight}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s} * W_{r}^{n} $}
-\plot{cits-b_r-n0}{height=0.8\textheight}{}
-\end{frame}
-
-\begin{frame} \frametitle{Correct model: $W_{s}^{n} * W_{r}^{n} $}
-\plot{cits-n_r-n0}{height=0.8\textheight}{}
-\end{frame}
-
-
-
 
 
 
 
 %------------------------------------------------------------------
-
-\begin{frame}   
-  \plot{top_plot0-050}{width=\textwidth}{}   
- \plot{bot_plot0-050}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-075}{width=\textwidth}{}   
- \plot{bot_plot0-075}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-100}{width=\textwidth}{}   
- \plot{bot_plot0-100}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-125}{width=\textwidth}{}   
- \plot{bot_plot0-125}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-150}{width=\textwidth}{}   
- \plot{bot_plot0-150}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-175}{width=\textwidth}{}   
- \plot{bot_plot0-175}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-200}{width=\textwidth}{}   
- \plot{bot_plot0-200}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-225}{width=\textwidth}{}   
- \plot{bot_plot0-225}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-250}{width=\textwidth}{}   
-  \plot{bot_plot0-250}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-275}{width=\textwidth}{}   
- \plot{bot_plot0-275}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-300}{width=\textwidth}{}   
- \plot{bot_plot0-300}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-325}{width=\textwidth}{}   
- \plot{bot_plot0-325}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-350}{width=\textwidth}{}   
- \plot{bot_plot0-350}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-375}{width=\textwidth}{}   
- \plot{bot_plot0-375}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-400}{width=\textwidth}{}   
- \plot{bot_plot0-400}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-425}{width=\textwidth}{}   
- \plot{bot_plot0-425}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-450}{width=\textwidth}{}   
- \plot{bot_plot0-450}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-475}{width=\textwidth}{}   
- \plot{bot_plot0-475}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-500}{width=\textwidth}{}   
- \plot{bot_plot0-500}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-525}{width=\textwidth}{}   
- \plot{bot_plot0-525}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-550}{width=\textwidth}{}   
- \plot{bot_plot0-550}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-575}{width=\textwidth}{}   
- \plot{bot_plot0-575}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}   
-  \plot{top_plot0-600}{width=\textwidth}{}   
- \plot{bot_plot0-600}{width=\textwidth}{} 
-\end{frame}
-
-
+% awk command for frames:
+%
+%
+% jot 25|  \
+ %   awk '{printf("%03d\n",$1*25-25)}' | awk '{print "\\begin{frame} \n \\begin{columns} \n    \\column{0.5\\textwidth}\n      \\plot{Image00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0s-b2-"$1"}{width=\\textwidth}{}\n    \\\column{0.5\\textwidth}\n      \\plot{cross_corr00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0r-b2-"$1"}{width=\\textwidth}{} \n \\end{columns}\n\\end{frame}"}'
 
 %------------------------------------------------------------------

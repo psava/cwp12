@@ -140,12 +140,12 @@ Four cross-correlation cases that we can consider:
 
 \begin{frame} \end{frame}
 \begin{frame} 
-     \inputdir{gpgn658}  \plot{img0-diff-0}{width=\textwidth}{}  
+     \inputdir{gpgn658}  \plot{img0-diff-0}{height=0.5\textheight}{}  
  \begin{columns} 
      \column{0.45\textwidth}
 	  \plot{citx0-diff-0}{width=0.8\textwidth}{}
      \column{0.45\textwidth}
-	  \plot{cit0-diff-0}{width=0.8\textwidth}{}
+	   \plot{cit0-diff-0}{width=0.8\textwidth}{}
      \column{0.1\textwidth}
 	  \inputdir{XFig}  \plot{s-n_r-n}{width=0.8\textwidth}{}
  \end{columns} 
@@ -155,15 +155,55 @@ Four cross-correlation cases that we can consider:
 
 
 \begin{frame}
-Some understanding of the backscattering has been built, now:
+Some understanding of the backscattering ``artifacts" has been built, now:
 \begin{itemize}
 	\item What can we do with it?
-	\item What is the appropiate error functional?
-	\item How do I measure it?
+	\item What it is the appropiate error functional?
+	\item How can be measured?
 \end{itemize}
-Stay tunned...
+ 
 \end{frame}
 
+
+
+\begin{frame}
+	\big{What happens if the interface is in the velocity model ?}
+\end{frame}
+
+
+ \inputdir{flat}
+
+\begin{frame} \frametitle{Correct model}
+\begin{columns} 
+ \column{0.45\textwidth}
+	 \plot{vel0}{width=\textwidth}{} 
+ \column{0.45\textwidth}
+        \plot{zer}{width=\textwidth}{} 
+\end{columns}
+\end{frame}
+
+\begin{frame} \frametitle{Slow model}
+\begin{columns} 
+ \column{0.45\textwidth}
+	 \plot{vel1}{width=\textwidth}{} 
+ \column{0.45\textwidth}
+        \plot{zer}{width=\textwidth}{} 
+\end{columns}
+\end{frame}
+
+\begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
+
+
+
+\begin{frame}  
+    \plot{img0}{height=0.4\textheight}{} 
+    \plot{cit0}{height=0.4\textheight}{} 
+\end{frame}
+
+\begin{frame}  
+    \plot{img1}{height=0.4\textheight}{} 
+    \plot{cit1}{height=0.4\textheight}{} 
+\end{frame}
 
 
 

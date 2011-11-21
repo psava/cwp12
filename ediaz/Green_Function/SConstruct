@@ -2,4 +2,19 @@ from rsf.proj import *
 
 Program('gfunction','Mgfunction.c')
 
+#Create a 25Hz sin wavelet
+
+Flow('sin25Hz',None,
+	'spike n1=41 d1=0.001 o1=0|math output="sin(2*acos(-1)*25*x1)"|pad n1=359')
+
+Result('sin25Hz','graph max1=0.05 min1=0')
+
+
+
+for i in range(11):
+    for i2 in range(2):
+        r= 80 + 20*i2;
+        tag='theta%03d-r%03d'%(i*10,r)
+        Flow('GF'+tag,['sin25Hz','gfunction.exe'],' ./${SOURCES[1]}  theta=%g r=%g'%(i*10,r))
+
 

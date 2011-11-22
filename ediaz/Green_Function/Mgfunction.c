@@ -119,54 +119,45 @@ int main (int argc, char* argv[])
    lo=r/alpha;
    hi=r/beta;
     
-   fprintf(stderr,"lo: %5.4f hi:%5.4f\n",lo,hi);
    gamma[0]= cos(theta*pi/180);
    gamma[1]= sin(theta*pi/180);
    
          
    for (i1=0; i1<nt; i1++) {
-      
+      nf=0;ffp=0;ffs=0;
       t=ot+dt*i1;
       //Near field:
       nf=0;
-      tau=lo-dt;
-      while (tau<hi+dt ) {
-		 if(tau>t ){
-			 break;
-		 }else {
-			 inttau= floorf((t-tau)/dt);
-			 x=source[inttau];         		 
-		 }
-         
+      tau=lo;
+      while (tau<hi+0.001 ) {
+         if(tau>t ) break; 
+         inttau= floorf((t-tau)/dt);
+         x=0;
+         x=source[inttau];         
          nf += tau*x*dt ;
          tau +=dt;
-
       }
       nf*=snf;
-      // Far field P
-	  ffp=0.0;
+      
       inttau=floorf((t -lo -ot)/dt);
       if(t > lo)  ffp=source[inttau];
       ffp*=spff;
       
-	  // Far field S
-	   ffs=0.0;
       inttau=floorf((t -hi -ot)/dt);
       if(t > hi)  ffs=source[inttau];
       ffs*=ssff;
 
       //trace[i1]=nf+ffp+ffs;
       for (i2=1; i2<3; i2++){
-	      trace[i2-1][i1]=nf*(3*gamma[i2-1]*gamma[force-1] - delta(i2-1,force-1))
-	                      +(gamma[i2-1]*gamma[force-1])*ffp
-                          +(delta(i2-1,force-1)-gamma[i2-1]*gamma[force-1])*ffs;
+	      trace[i2-1][i1]=nf*(3*gamma[i2-1]*gamma[force-1] - delta(i2-1,force-1) )
+	 +(gamma[i2-1]*gamma[force-1])*ffp
+         +(gamma[i2-1]*gamma[force-1] - delta(i2-1,force-1))*ffs;
       }
    }
    
-   sf_putint  (out,"n2",2);   
-   sf_putfloat(out,"o2",1);   
-   sf_putfloat(out,"d2",1);   
-	
+   sf_putint (out,"n2",2);   
+   sf_putfloat (out,"o2",1);   
+   sf_putfloat (out,"d2",1);   
    sf_floatwrite(trace[0],nt*2,out);
 
    exit(0);

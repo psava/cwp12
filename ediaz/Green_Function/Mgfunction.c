@@ -132,18 +132,18 @@ int main (int argc, char* argv[])
       while (tau<hi+0.001 ) {
          if(tau>t ) break; 
          inttau= floorf((t-tau)/dt);
-         x=0;
-         x=source[inttau];         
-         nf += tau*x*dt ;
+         // trapezoidal integration:
+         x=0.5f*dt*(tau*source[inttau]+(tau+dt)*source[inttau+1]);         
+         nf += x;
          tau +=dt;
       }
       nf*=snf;
       
-      inttau=floorf((t -lo -ot)/dt);
+      inttau=floorf((t -lo )/dt);
       if(t > lo)  ffp=source[inttau];
       ffp*=spff;
       
-      inttau=floorf((t -hi -ot)/dt);
+      inttau=floorf((t -hi )/dt);
       if(t > hi)  ffs=source[inttau];
       ffs*=ssff;
 
@@ -151,7 +151,7 @@ int main (int argc, char* argv[])
       for (i2=1; i2<3; i2++){
 	      trace[i2-1][i1]=nf*(3*gamma[i2-1]*gamma[force-1] - delta(i2-1,force-1) )
 	 +(gamma[i2-1]*gamma[force-1])*ffp
-         +(gamma[i2-1]*gamma[force-1] - delta(i2-1,force-1))*ffs;
+         -(gamma[i2-1]*gamma[force-1]- delta(i2-1,force-1))*ffs;
       }
    }
    

@@ -1,0 +1,63 @@
+1. make sure that svn is installed
+
+	which svn
+
+If not, install svn.
+
+2. get the deveopment version of Madagascar
+
+	cd ~
+	svn co https://rsf.svn.sourceforge.net/svnroot/rsf/trunk rsf
+
+This checks-out the latest version of Madagascar in the directory rsf.
+
+3. make sure that scons is installed
+
+	which scons
+
+If not, install scons from the rsf directory.
+
+4. set-up environment variables for Madagascar
+
+export SVN_EDITOR=vi
+
+export RSFROOT=/usr/local/rsfroot
+export PATH=$PATH:$RSFROOT/bin
+if [ -n "$PYTHONPATH" ]; then
+export PYTHONPATH=${PYTHONPATH}:$RSFROOT/lib
+else
+export PYTHONPATH=$RSFROOT/lib
+fi
+export DATAPATH=/scratch/
+export TMPDATAPATH=/tmp/
+export VPLOTFONTDIR=$RSFROOT/include/
+
+	mkdir /usr/local/rsfroot
+	chown to your own user name and group
+
+	mkdir /scratch
+	chown to your own user name and group
+
+5. configure and install madagascar
+
+	cd ~/rsf
+	scons config
+	scons
+	scons install
+
+6. get the CWP repository
+
+	cd ~
+	svn co http://boole.mines.edu/cwp cwp
+
+7. get the texmf repository
+	
+	cd ~
+	svn co https://svn.sourceforge.net/svnroot/segtex/trunk texmf
+
+8. make sure that acroread is installed
+
+	which acroread
+
+If not, install acroread from Adobe.
+

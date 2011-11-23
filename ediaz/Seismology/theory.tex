@@ -1,0 +1,72 @@
+\section{Theory}
+
+\def\hh{{\boldsymbol{\lambda}} }
+
+In class we derived the exact expression for the Green's function 
+(for a source pulse $X_o(t)$):
+\begin{equation}
+  u_{i}(\rightarrow{x},t) = \frac{1}{4\pi\rho}(3\gamma_i \gamma_j-\delta_ij)
+     \int_{R/\alpha}ˆ{R/\beta} \tau X_{o}(t-\tau)d\tau 
+     + \frac{1}{4\pi\rho\alpha^2} \gamma_i \gamma_j \frac{1}{R} X_o (t-R/\alpha)
+     + \frac{1}{4\pi\rho\beta^2}(\delta_{ij} -\gamma_i \gamma_j)\frac{1}{R} X_o (t - \frac{R}{\beta})
+
+\end{equation}
+
+
+
+
+There is a lot of theory, but the story is actually quite simple.  One
+needs to construct an extended imaging condition function of
+cross-correlation lags $\lambda$. Then, for the case of 2D
+reflections, the scattering angle is given by
+\beq 
+\tan \theta = \frac{k_\lambda}{k_z} \;,
+\eeq
+where $\lambda$ is the horizontal component of the space-lag vector $\hh$.
+The theory can be found in \cite{GEO68-03-10651074}.
+
+Here is an itemized list:
+\begin{itemize}
+\item one item
+\item another item
+\end{itemize}
+
+Here is an enumerate list:
+\begin{enumerate}
+\item one item
+\item another item
+  \begin{enumerate}
+  \item item a
+  \item item b
+  \end{enumerate}
+\item last item
+\end{enumerate}
+
+A two-column table:
+
+\begin{minipage}{0.8\textwidth}
+\centering
+\begin{tabular*}{\textwidth}{ | c | c | c | r | }
+  \hline
+  label 1 & label 2 & label 3 & label 4 \\
+  \hline 
+  item 1  & item 2  & item 3  & item 4  \\
+  \hline
+\end{tabular*}
+\end{minipage}
+
+
+%\def\geosout#1{ \sout{#1} }
+\def\geosout#1{}
+
+%\def\geouline#1{ \uline{#1} }
+\def\geouline#1{#1} 
+
+%This is some text that needs to be fixed by someone \sout{smart} \uline{competent}.
+This is some text that needs to be fixed by someone \geosout{smart} \geouline{competent}.
+
+
+\beq
+a \xrightarrow{c} b
+\eeq
+

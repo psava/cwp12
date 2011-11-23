@@ -1,0 +1,22 @@
+from rsf.tex import *
+import glob, os
+
+    
+
+for report in glob.glob('report*.tex'):
+    name = os.path.splitext(report)[0]
+    Paper(name,lclass='cwpreport',
+          use='times,color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment',
+          include=r'''
+          \setlength{\paperwidth}{8.5in}
+          \setlength{\paperheight}{11.0in}
+          \setlength{\topmargin}{-0.25in}
+          \setlength{\textheight}{8.75in}
+          \setlength{\textwidth}{6.5in}
+          \setlength{\oddsidemargin}{+.015625in}
+          \setlength{\evensidemargin}{+.015625in}
+          ''')
+
+
+# End(use='color')
+End(lclass='cwparticle',options='10pt',use='times,mathptm,natbib,color,amssymb,mathrsfs,amsbsy,lineno,ulem,multicol')

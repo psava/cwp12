@@ -1,0 +1,208 @@
+# WEM demo
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,wei
+
+par=dict(
+    nt=2501, ot=0,   dt=0.001, lt='t', ut='s',  # t axis
+    nx=1000, ox=0,   dx=0.01,  lx='x', ux='km', # x axis
+    ny=1,    oy=0,   dy=0.01,  ly='y', uy='km', # y axis
+    nz=300,  oz=0,   dz=0.01,  lz='z', uz='km', # z axis
+    na=300,  oa=-75, da=0.5, 
+    ns=500,  os=-5.0,ds=0.02,
+    nw=96,   ow=2,            jw=1, nrmax=1,
+    kt=100, # wavelet delay
+    nb=100, # boundary size
+    frq=20
+    )
+fdmod.param(par)
+
+# ------------------------------------------------------------
+# source
+
+par['ixsou']=par['nx']/2
+par['xsou']=par['ox']+par['ixsou']*par['dx']
+par['zsou']=par['oz']
+
+fdmod.point('ss',par['xsou'],par['zsou'],par)
+Plot('ss',   fdmod.ssplot('',par))
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',par['oz'],par)
+Plot('rr',fdmod.rrplot('',par))
+
+# ------------------------------------------------------------
+par['jcx']=50
+par['ncx']=par['nx']/par['jcx']
+par['ocz']=2.0
+par['nhz']=60
+par['nhx']=75
+par['nht']=90
+par['dht']=par['dt']*5
+# ------------------------------------------------------------
+# CIGs
+fdmod.boxarray('gt',
+               par['nz'],par['oz'],par['dz'],
+               par['nx'],par['ox'],par['dx'],
+               par)
+Flow('gg','gt',
+     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+Plot('gg',fdmod.qqplot('plotcol=2',par))
+
+Flow('ggx','gg','window squeeze=n n1=1 f1=0')
+Flow('ggz','gg','window squeeze=n n1=1 f1=1')
+Flow('ggy','ggx','math output=0')
+Flow('gg3d','ggx ggy ggz','cat axis=1 space=n ${SOURCES[1]} ${SOURCES[2]}')
+
+# ------------------------------------------------------------
+# CIPs 
+fdmod.horizontal('ct',par['ocz'],par)
+Flow('cc','ct','window j2=%(jcx)d'%par)
+Plot('cc',   fdmod.qqplot('plotcol=5 plotfat=10',par))
+
+fdmod.horizontal3d('tt3d',par['ocz'],par)
+Flow('cc3d','tt3d','window j2=%(jcx)d'%par)
+
+# ------------------------------------------------------------
+adcig.xparam(2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+adcig.tparam( (par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',par['frq'],par)
+Flow(  'wav', 'wav_','transp')
+Result('wav','window n2=500 |'
+       + fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=100
+par['xl']=par['nx']-100
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=100
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99',par))
+
+# ------------------------------------------------------------
+# density
+Flow('den1',None,  
+     '''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=201 l1=202 |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     ''' % par)
+Flow('den0','den1','math output="1"')
+
+for k in (['0','1']):
+     Plot(  'den'+k,fdmod.cgrey('',par))
+     Result('den'+k,['den'+k,'rr','ss'],'Overlay')
+
+# velocity
+Flow(  'vel','den0','math output=3')
+Plot(  'vel',fdmod.cgrey('',par))
+Result('vel',['vel','rr','ss'],'Overlay')
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# FDMod
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+# modeling w/  reflector
+fdmod.awefd2d('dd','wd','wav','vel','den1','ss','rr','',par)
+
+# modeling w/o reflector
+fdmod.awefd2d('do','wo','wav','vel','den0','ss','rr','',par)
+
+# remove direct arrivals
+Flow('dat',['dd','do','dmask'],
+     '''
+     add scale=+1,-1 ${SOURCES[1]} |
+     add mode=p      ${SOURCES[2]}
+     ''')
+
+for i in (['dd','do','dat']):
+    Result(i,'transp |' + fdmod.dgrey('pclip=99.9',par))
+    
+# ------------------------------------------------------------
+wei.wempar(par)
+wei.slowness('slo','vel',par)
+
+Flow('vpvs','vel','window n2=1 | math output=1' % par)
+Flow('hdip','vel','window n2=1 | math output=0' % par)
+
+# source function
+Flow('dts','wav','window squeeze=n')
+Flow('sou','dts',
+     '''
+     pad beg1=%(ixsou)d n1out=%(nx)d |
+     put o1=%(ox)g d1=%(dx)g |
+     transp
+     ''' %par )
+encode.time2freq('sou','dws',par)
+
+# recorded data
+Flow('dtr','dat','window squeeze=n')
+Flow('rec','dat','transp')    
+encode.time2freq('rec','dwr',par)
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# I.C. (conventional)
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+wei.cicmig('wemcic','dws','dwr','slo','',par)
+Plot(      'wemcic','window | transp |' + fdmod.cgrey('pclip=99.9',par))
+Result(    'wemcic',['wemcic','gg','cc','rr','ss'],'Overlay')
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# I.C. (extended)
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+wei.eicmig('wemimgt','wemextt','dws','dwr','slo','gg3d','nhz=0 nhx=0',par)
+wei.eicmig('wemimgx','wemextx','dws','dwr','slo','gg3d','nhz=0 nht=0',par)
+wei.eicmig('wemimgc','wemextc','dws','dwr','slo','cc3d','',par)
+
+Flow('wemcigt',
+     'wemextt',
+     'put n5=%d n6=%d label5=z label5=c |'%(par['nz'],par['nx']/par['jcx'])+
+     'window | transp | stack axis=3 | scale axis=123')
+Flow('wemcigx',
+     'wemextx',
+     'put n5=%d n6=%d label5=z label6=c |'%(par['nz'],par['nx']/par['jcx'])+
+     'window | transp | stack axis=3 | scale axis=123')
+Flow('wemcip',
+     'wemextc','stack axis=5 | scale axis=123')
+    
+Result('wemcigt', adcig.tgrey('pclip=99.99',par))
+Result('wemcigx', adcig.xgrey('pclip=99.99',par))
+Result('wemcip' ,'window | transp | byte gainpanel=a pclip=99.99 |'
+       + adcig.egrey('',par))
+
+Flow( 'wemangx',
+     ['wemcigx','hdip','vpvs'],
+     adcig.cig2ssk(par['ns'],par['os'],par['ds']) + '|' +
+     adcig.xsk2ang(par['na'],par['oa'],par['da']))
+Result('wemangx',adcig.agrey('pclip=99.99',par))
+    
+End()
+        

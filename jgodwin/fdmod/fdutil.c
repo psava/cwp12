@@ -388,14 +388,19 @@ void cut3d(float*** a,
 {
     int iz,ix,iy;
     int fz,fx,fy;
+    int jz,jx,jy;
 
     fz = (floor)((sf_o(c1)-fdm->ozpad)/fdm->dz);
     fx = (floor)((sf_o(c2)-fdm->oxpad)/fdm->dx);
     fy = (floor)((sf_o(c3)-fdm->oypad)/fdm->dy);
 
-    for         (iy=0;iy<sf_n(c3);iy++) {
-	for     (ix=0;ix<sf_n(c2);ix++) {
-	    for (iz=0;iz<sf_n(c1);iz++) {
+    jz = (floor)(sf_d(c1)/fdm->dz);
+    jx = (floor)(sf_d(c2)/fdm->dx);
+    jy = (floor)(sf_d(c3)/fdm->dy);
+
+    for         (iy=0;iy<sf_n(c3);iy+=jy) {
+	for     (ix=0;ix<sf_n(c2);ix+=jx) {
+	    for (iz=0;iz<sf_n(c1);iz+=jz) {
 		b[iy][ix][iz] = a[fy+iy][fx+ix][fz+iz];
 	    }
 	}

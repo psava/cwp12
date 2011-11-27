@@ -6,8 +6,8 @@ import fdutil, stiffness
 par = dict(
     nx = 601, dx=0.01, ox=0,
     nz = 401, dz=0.01, oz=0,
-    nt = 3601, dt = 0.001, ot = 0.0,kt=100,freq=15,
-    nb = 30,
+    nt = 6001, dt = 0.001, ot = 0.0,kt=100,freq=15,
+    nb = 150,
     srctype=3,
     jsnap=5
 )
@@ -29,10 +29,22 @@ Flow('rr-A','rr-A_','window n2=50 j2=3')
 Flow('rr-B','rr-B_','window n2=20 j2=3 f2=20')
 Flow('rr','rr-A rr-B','cat axis=2 ${SOURCES[1]}')
 
-fdutil.point2d('sou',2.0,3.0,**par)
+fdutil.point2d('sou1',2.2,3.3,**par)
+fdutil.point2d('sou2',1.8,3.1,**par)
+fdutil.point2d('sou3',2.0,3.3,**par)
+fdutil.point2d('sou4',2.0,3.0,**par)
+Flow('sou',['sou'+str(j) for j in range(1,5)],'cat axis=2 ${SOURCES[:-1]}')
+
 
 #fd.rickerdc2('wave',**par)
-fd.rickerTensor2d('wave',tzz=0.0,txx=-1.0,tzx=0.0,**par)
+par.pop('kt')
+fd.rickerTensor2d('wave1',tzz=0.0,txx=-1.0,tzx=0.0,kt=100,**par)
+fd.rickerTensor2d('wave2',tzz=0.0,txx=-1.0,tzx=1.0,kt=500,**par)
+fd.rickerTensor2d('wave3',tzz=1.0,txx=-1.0,tzx=0.0,kt=1000,**par)
+fd.rickerTensor2d('wave4',tzz=1.0,txx=1.0,tzx=0.0,kt=1500,**par)
+
+Flow('wave',['wave'+str(j) for j in range(1,5)],
+    'cat axis=1 ${SOURCES[:-1]}')
 plot.tensorwavelet('wave')
 
 fd.run('data','cc','ro-win','wave','sou','rr','wfld', ani=0,**fdpar)
@@ -47,18 +59,38 @@ fdpar['srctype'] = 1
 groups = []
 
 d1 = 5
-for i in range(0,50,d1):
+groups1 = range(0,50,d1)
+for i in groups1:
     end = i+d1
     if end > 50:
         end = 50
     groups.append(('A%02d'%i,i,end))
 
 d2 = 2
-for j in range(50,70,d2):
+groups2 = range(50,70,d2)
+for j in groups2:
     end = j+d2
     if end > 70:
         end = 70
     groups.append(('B%02d'%j,j,end))
+
+ng = len(groups1)+len(groups2)
+Flow('template1',None,
+    '''
+    spike n1=%d n2=%d nsp=0 | add add=1.0
+    ''' % (ng,ng))
+
+ng1 = len(groups1)
+ng2 = len(groups2)
+Flow('template2',None,
+    '''
+    spike n1=%d n2=%d nsp=4 mag=1.0,1.0,-1.0,-1.0
+    k1=%d,%d,%d,%d l1=%d,%d,%d,%d k2=%d,%d,%d,%d l2=%d,%d,%d,%d
+    ''' % (ng,ng,
+           1,  ng1+1 ,ng1+1, 1,
+           ng1,ng  ,    ng, ng1,
+           1  ,ng1+1 ,   1, ng1+1,
+           ng1,ng  ,   ng1,ng))
 
 wflds = []
 for ig in range(len(groups)):
@@ -113,9 +145,24 @@ Flow('sic',wflds,
     sfsemblance3d thr=0.5 ${SOURCES[1:-1]}
     ''')
 
-Flow('cctest',wflds,
+wflds.append('template1')
+wflds.append('template2')
+wflds.append('./Mccmatrix.py')
+Flow('cic ccmatrix',wflds,
     '''
-    ./Mccmatrix.py ${SOURCES[:-1]}
+    ./Mccmatrix.py ${SOURCES[:-1]} matrix=${TARGETS[1]}
     ''',stdin=0)
 
+for i in ['z','x']:
+    Flow('cic-'+i,'cic','window n3=1')
+    for j in range(2):
+        Flow('cic-'+i+'-%02d' % j,'cic-'+i,'window n3=1 f3=%d ' % j)
+        Flow('cic-'+i+'-%02d-stk' % j,'cic-'+i,'window n3=1 f3=%d | stack axis=3' % j)
+        Plot('cic-'+i+'-%02d' % j,'grey pclip=100 gainpanel=a')
+        Plot('cic-'+i+'-%02d-stk' % j,
+            'grey title="%s" pclip=100 gainpanel=a' % (i+'-'+str(j)))
+
+Result('cic-stk',
+    ['cic-'+i+'-%02d-stk' % j for i in ['z','x'] for j in range(2)],
+    'TwoRows')
 End()

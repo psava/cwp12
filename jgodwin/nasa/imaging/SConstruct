@@ -1,0 +1,134 @@
+from rsf.proj import *
+import acousticfd as fd
+import fdutil
+import fdmod 
+import math 
+
+par = dict(
+    nz=657, dz=0.002, oz=0.0, lz='z',uz='km',
+    nx=341, dx=0.002, ox=0.0, lx='x',ux='km',
+    ny=243, dy=0.002, oy=0.0, ly='y',uy='km',
+    nt=4001, dt=1e-9, ot=0.0, kt=100,
+    freq=5e6,  # Peak frequency in Hz
+    er = 2.0 # Relative permitivitty
+    )
+
+fdmodpars = par.copy()
+fdmod.param(fdmodpars)
+
+nqz = par['nz']/2
+nqx = par['nx']/2
+nqy = par['ny']/2
+dqz = par['dz']*2.0
+dqx = par['dx']*2.0
+dqy = par['dy']*2.0
+jsnap = 10
+fdpars = fdutil.defaults(nb=50,
+    nqz=nqz, nqx=nqx, nqy=nqy,
+    dqz=dqz, dqx=dqx, dqy=dqy,
+    jsnap=jsnap,
+    **par)
+
+# Sources
+sx, sy = par['nx']*par['dx']/2, par['ny']*par['dy']/2
+fdutil.point3d('sou',0,sx,sy)
+
+# Receivers
+fdutil.horizontal3d('rec',0,**par)
+#fdutil.point3d('rec',0,0,0)
+
+# Ricker wavelet
+fd.ricker('wave',**par)
+#fd.waveplot('wave')
+
+# Velocity model
+fdutil.constant3d('den',1.0,**par)
+
+scale = -(1 - math.sqrt(1.0/par['er']))
+Flow('vel','../mask.hh',
+    '''
+    dd type=float | 
+    add scale=%f  | 
+    add add=1.0   | 
+    add scale=3.0e5 | 
+    put n1=%d o1=%f d1=%f
+    n2=%d o2=%f d2=%f
+    n3=%d o3=%f d3=%f
+    '''  % (scale,
+        par['nz'],par['oz'],par['dz'],
+        par['nx'],par['ox'],par['dx'],
+        par['ny'],par['oy'],par['dy']))
+
+fd.run('data','vel','den','wave','sou','rec','wfld',
+    time=True,binary='sfawe_dev',**fdpars)
+
+#Flow('wfld-scale','wfld',   
+#    '''
+#    scale axis=123
+#    ''')
+
+#Flow('wfld-byte','wfld',
+#    '''
+#    window n4=20 | 
+#    byte gainpanel=a pclip=95
+#    ''')
+#
+#Flow('wfld-scale','wfld',
+#    '''
+#    scale axis=1234
+#    ''')
+#
+#Flow('mask','../mask.hh','dd type=float | sfscale axis=123')
+#
+#Flow('mask.vtk','mask',
+#    '''
+#    put o1=%f o2=%f o3=%f
+#    d1=%f d2=%f d3=%f | window j1=2 j2=2 j3=2 | dd form=xdr | rsf2vtk
+#    ''' % (0,0,0,0.002,0.002,0.002))
+#
+#[Flow('wfld-vtk-%03d.vtk' % i, 'wfld','window j1=2 j2=2 j3=2 n4=1 f4=%d | sfdd form=xdr | sfrsf2vtk' % i) for i in range(20)]
+#proj = Project()
+#proj.Alias('vtk',['wfld-vtk-%03d.vtk' % i for i in range(20)])
+#
+#for i in range(20):
+#    Plot('wfld-%03d' % i, 'wfld-byte',
+#        '''
+#        window n4=1 f4=%d | 
+#        grey3 frame1=%d frame2=%d frame3=%d
+#        title="" label1="z" unit1="km"
+#        label2="x" unit2="km"
+#        label3="y" unit3="km"
+#        flat=n bias=128
+#        ''' % (i,par.nz/2,par.nx/2,par.ny/2))
+#
+#
+##    Flow('wfld-vel-%03d' % i,['mask','wfld-byte'],
+##        '''
+##        dd type=float | 
+##        window n4=1 f4=%d | 
+##        add scale=%g | 
+##        add scale=30 |
+##        add mode=a ${SOURCES[1]}
+##        ''' % (i,1.0/2.74832e-10))
+#    Flow('wfld-vel-%03d' % i, ['mask','byte'],
+#        '''
+#        dd type=int | 
+#        add add=-128 
+#        ''')
+#
+#
+#
+#        #math w=${SOURCES[1]} output="10*input+w" 
+#
+##    Result('wfld-vel-%03d' % i,
+##        '''
+##        byte pclip=99 gainpanel=a | 
+##        sfgrey3 frame1=%d frame2=%d frame3=%d
+##        title="" label1="z" label2="x" label3="y"
+##        unit1="km" unit2="km" unit3="km"
+##        ''' % (par.nz/2,par.nx/2,par.ny/2))
+#    Result('wfld-vel-%03d' % i, 'byte pclip=100 minval=6 maxval=6 gainpanel=a | ' + fdmod.cgrey3d('maxval=6.0 minval=6.0',fdmodpars))
+#
+#Result('test','vel wfld-000' ,'Overlay')
+
+End()

@@ -6,7 +6,7 @@ import glob, os
 for report in glob.glob('report*.tex'):
     name = os.path.splitext(report)[0]
     Paper(name,lclass='cwpreport',
-          use='times,color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment',
+          use='times,color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment,textcomp',
           include=r'''
           \setlength{\paperwidth}{8.5in}
           \setlength{\paperheight}{11.0in}

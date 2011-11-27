@@ -1,6 +1,43 @@
 \section{Examples}
 
-\inputdir{example}
-\multiplot{2}{vel,den}{width=0.45\textwidth}{Example of multiplot.}
+\inputdir{green_function}
 
-\rFgs{vel} and \rfn{den} show the example.
+In order to understand and test the equation ~\ref{eq:gf} we set up  the experiments for two different distance $R$, the 
+first one influenced by the near field ($R=80m$) and the second one dominated by the far field ($R=1000m$). For each of this
+radius I change the angle $\theta$ shown in \rFg{setup} in intervals of $10\textdegree$ from $\theta=0\textdegree$ to 
+$\theta=90\textdegree$, this implies that we have 10 cases for each $R$.
+
+The function $X_o(t)$ used in this exercise is shown in ~\rfg{sin25Hz}. The medium has constant elastic properties which
+are parametrized in terms of P and S wave velocity, and density. In this case $\alpha=2000m/s$, $\beta=1000m/s$ 
+and $\rho=2500kg/m^3$.
+
+\plot{sin25Hz}{width=0.4\textwidth}{Time function used as the source $X_o(t)$.}
+
+Figures ~\ref{fig:GFtheta000-r0080} to ~\ref{fig:GFtheta090-r0080} shows the displacement waveforms for $R=80m$.
+Figures ~\ref{fig:GFtheta000-r1000} to ~\ref{fig:GFtheta090-r1000} shows the displacement waveforms for $R=1000m$.
+
+Then I show the hodograms in figures ~\ref{fig:hodo_p-s-GFtheta000-r0080} to ~\ref{fig:hodo_p-s-GFtheta090-r0080} and in figures
+~\ref{fig:hodo_p-s-GFtheta000-r1000} to ~\ref{fig:hodo_p-s-GFtheta090-r1000}  for $R=80m$ and $R=1000m$ respectively. Each hodograms
+is separated in two parts: P-wave arrival (red) and S-wave arrival time (blue). The P-wave arrival is in the interval $t \in [\frac{R}{\alpha},\frac{R}{\alpha}+T]$
+. In the same way, the S-wave arrival is in the interval $t \in [\frac{R}{\beta},\frac{R}{\beta}+T]$, where $T$ is the period of the 
+source function, in our case $T=0.04s$.
+
+
+
+
+
+% Plots of displacement field:
+\multiplot{10}{GFtheta000-r0080,GFtheta010-r0080,GFtheta020-r0080,GFtheta030-r0080,GFtheta040-r0080,GFtheta050-r0080,GFtheta060-r0080,GFtheta070-r0080,GFtheta080-r0080,GFtheta090-r0080}%
+{height=0.2\textheight}{Seismograms for the near field (r=80m) for different angles $\theta$. Blue is $u_1$ component and red is the $u_3$ component of the displacement.}
+\multiplot{10}{GFtheta000-r1000,GFtheta010-r1000,GFtheta020-r1000,GFtheta030-r1000,GFtheta040-r1000,GFtheta050-r1000,GFtheta060-r1000,GFtheta070-r1000,GFtheta080-r1000,GFtheta090-r1000}%
+{height=0.2\textheight}{Seismograms for the far field (r=1000m) for different angles $\theta$. Blue is $u_1$ component and red is the $u_3$ component of the displacement.}
+
+
+%Hodograms
+\multiplot{10}{hodo_p-s-GFtheta000-r0080,hodo_p-s-GFtheta010-r0080,hodo_p-s-GFtheta020-r0080,hodo_p-s-GFtheta030-r0080,hodo_p-s-GFtheta040-r0080,hodo_p-s-GFtheta050-r0080,hodo_p-s-GFtheta060-r0080,hodo_p-s-GFtheta070-r0080,hodo_p-s-GFtheta080-r0080,hodo_p-s-GFtheta090-r0080}%
+{height=0.2\textheight}{Hodograms for the near field (r=80m) for different angles $\theta$. In red is shown the part that correspond with the P-wave arrival travel time, in blue is shown the S-wave travel time.}
+\multiplot{10}{hodo_p-s-GFtheta000-r1000,hodo_p-s-GFtheta010-r1000,hodo_p-s-GFtheta020-r1000,hodo_p-s-GFtheta030-r1000,hodo_p-s-GFtheta040-r1000,hodo_p-s-GFtheta050-r1000,hodo_p-s-GFtheta060-r1000,hodo_p-s-GFtheta070-r1000,hodo_p-s-GFtheta080-r1000,hodo_p-s-GFtheta090-r1000}%
+{height=0.2\textheight}{Hodograms for the far field (r=1000m) for different angles $\theta$.In red is shown the part that correspond with the P-wave arrival travel time, in blue is shown the S-wave travel time.}
+
+
+

@@ -3,10 +3,10 @@ from rsf.proj import *
 import fdmod,adcig,encode,wemig
 
 par = {
-    'nt':4001, 'dt':0.0005, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nt':2001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
-    'nz':700,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'nz':400,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':150,
     'nb':150
     }
@@ -61,7 +61,7 @@ adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
              par)
 # ------------------------------------------------------------
 # wavelet
-fdmod.wavelet('wav_',15,par)
+fdmod.wavelet('wav_',12,par)
 Flow(  'wav', 'wav_','transp')
 
 Result('wav','window n2=500 |'+fdmod.waveplot('',par))
@@ -85,14 +85,14 @@ Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 Flow('den0',None,  
      '''
      spike nsp=1 mag=1.0
-     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=351 l1=%(nz)d |
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=200 l1=%(nz)d |
      spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
      add add=1
      ''' % par)
 Flow('den1',None,  
      '''
      spike nsp=1 mag=1.0
-     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=222 l1=%(nz)d |
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=180 l1=%(nz)d |
      spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
      add add=1
      ''' % par)
@@ -103,8 +103,7 @@ Flow('zer','den0','math output="1.0"')
 
 
 Flow('vel0','den0','math output="2.2*(2-input)  + (input-1)*(3.5) "')
-Flow('vel1',['den1'],'math output="0.90*input"')
-
+Flow('vel1',['den1'],'math output="0.90*(2.2*(2-input)  + (input-1)*(3.5) )"')
 Flow('vc','den0','math output="2.2"')
 
 
@@ -192,4 +191,3 @@ for j in range(2):
      
 # ------------------------------------------------------------
 End()
-        

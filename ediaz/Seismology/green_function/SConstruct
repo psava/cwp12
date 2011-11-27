@@ -1,4 +1,3 @@
-#
 from rsf.proj import *
 import fdmod as f
 import os 

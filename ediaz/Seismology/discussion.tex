@@ -1,12 +1,12 @@
 \section{Discussion}
 
-In figure ~\ref{fig:GFtheta000-r0080} can be seen energy arriving at the $R/\beta$ arrival, eventhough the receiver vector is parallel
+In figure ~\ref{fig:GFtheta000-r0080} can be seen energy arriving at the $R/\beta$ arrival, even though the receiver vector is parallel
 to the force $\vec{f}$. This anomalous arrival is coming from the near field contribution, and is polarized as a P-wave (parallel to the
 direction of propagation). In figure ~\ref{fig:GFtheta090-r0080} can be seen the same anomalous arrival but at $R/\alpha$ arrival time, 
 in this case this anomalous arrival is polarized as a S-wave. In this two cases the near field is also influenced by the far field waveforms.
 
 In the far field we see a low energy arrival at $R/\beta$ travel time as shown in figure ~\ref{fig:GFtheta000-r1000}. This anomalous
-arrival comes from the contribution of the near field, which is attenuated faster than the farfield terms. When the reciver is perpendicular
+arrival comes from the contribution of the near field, which is attenuated faster than the far field terms. When the receiver is perpendicular
 to the force, we also see a even lower energy arrival at $R/\alpha$ travel time, this can be seen in figure ~\ref{fig:GFtheta090-r1000}. 
 The energy of the anomalous P-wave arrival in figure ~\ref{fig:GFtheta090-r1000} is half the energy of the S-wave arrival in figure
 ~\ref{fig:GFtheta000-r1000}. This amplitude difference is proportional to the ratio $\frac{\alpha}{\beta}$ which is $2$ in this case.
@@ -18,4 +18,27 @@ that the displacement becomes highly non-linear when the angle $\theta$ is away 
 
 Since the non-linearity of the particle motion is dominated by the near-field term. This means that this characteristic does not show up in great 
 magnitude because the linear particle motion of the far field P and the far field S influence more the seismogram.
+
+
+%Geometric setup
+\inputdir{XFig}
+ \plottwo{setup}{width=0.4\textwidth}{Geometric setup of the problem.}
+
+\inputdir{green_function}
+%X_o function
+\plottwo{sin25Hz}{width=0.4\textwidth}{Time function used as the source $X_o(t)$.}
+
+
+% Plots of displacement field:
+\multiplot{10}{GFtheta000-r0080,GFtheta010-r0080,GFtheta020-r0080,GFtheta030-r0080,GFtheta040-r0080,GFtheta050-r0080,GFtheta060-r0080,GFtheta070-r0080,GFtheta080-r0080,GFtheta090-r0080}%
+{height=0.2\textheight}{Seismograms for the near field (r=80m) for different angles $\theta$. Blue is $u_1$ component and red is the $u_3$ component of the displacement.}
+\multiplot{10}{GFtheta000-r1000,GFtheta010-r1000,GFtheta020-r1000,GFtheta030-r1000,GFtheta040-r1000,GFtheta050-r1000,GFtheta060-r1000,GFtheta070-r1000,GFtheta080-r1000,GFtheta090-r1000}%
+{height=0.2\textheight}{Seismograms for the far field (r=1000m) for different angles $\theta$. Blue is $u_1$ component and red is the $u_3$ component of the displacement.}
+
+
+%Hodograms
+\multiplot{10}{hodo_p-s-GFtheta000-r0080,hodo_p-s-GFtheta010-r0080,hodo_p-s-GFtheta020-r0080,hodo_p-s-GFtheta030-r0080,hodo_p-s-GFtheta040-r0080,hodo_p-s-GFtheta050-r0080,hodo_p-s-GFtheta060-r0080,hodo_p-s-GFtheta070-r0080,hodo_p-s-GFtheta080-r0080,hodo_p-s-GFtheta090-r0080}%
+{height=0.2\textheight}{Hodograms for the near field (r=80m) for different angles $\theta$. In red is shown the part that correspond with the P-wave arrival travel time, in blue is shown the S-wave travel time.}
+\multiplot{10}{hodo_p-s-GFtheta000-r1000,hodo_p-s-GFtheta010-r1000,hodo_p-s-GFtheta020-r1000,hodo_p-s-GFtheta030-r1000,hodo_p-s-GFtheta040-r1000,hodo_p-s-GFtheta050-r1000,hodo_p-s-GFtheta060-r1000,hodo_p-s-GFtheta070-r1000,hodo_p-s-GFtheta080-r1000,hodo_p-s-GFtheta090-r1000}%
+{height=0.2\textheight}{Hodograms for the far field (r=1000m) for different angles $\theta$.In red is shown the part that correspond with the P-wave arrival travel time, in blue is shown the S-wave travel time.}
 

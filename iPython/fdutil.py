@@ -1,5 +1,4 @@
-from rsf.proj import *
-
+from rsf.cluster import *
 
 def defaults(nz,oz,dz,nx,ox,dx,ny=1,oy=0,dy=1,**kw):
     pars = dict(

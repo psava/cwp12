@@ -1,8 +1,14 @@
-from rsf.proj import *
+from rsf.cluster import *
 import acousticfd as fd
 import fdutil
 import fdmod 
 import math 
+
+NODES = 8
+
+Cluster('eros_demo','jgodwin@mines.edu','mio',1,12,'core12')
+Prepend(['if [ ! -d /scratch/jgodwin ]; then mkdir /scratch/jgodwin; fi'])
+Append(['sfrm /scratch/jgodwin/*.rsf'])
 
 par = dict(
     nz=657, dz=0.002, oz=0.0, lz='z',uz='km',
@@ -16,12 +22,12 @@ par = dict(
 fdmodpars = par.copy()
 fdmod.param(fdmodpars)
 
-nqz = par['nz']/2
-nqx = par['nx']/2
-nqy = par['ny']/2
-dqz = par['dz']*2.0
-dqx = par['dx']*2.0
-dqy = par['dy']*2.0
+nqz = par['nz']/3
+nqx = par['nx']/3
+nqy = par['ny']/3
+dqz = par['dz']*3.0
+dqx = par['dx']*3.0
+dqy = par['dy']*3.0
 jsnap = 10
 fdpars = fdutil.defaults(nb=50,
     nqz=nqz, nqx=nqx, nqy=nqy,
@@ -30,9 +36,69 @@ fdpars = fdutil.defaults(nb=50,
     **par)
 
 # Sources
-sx, sy = par['nx']*par['dx']/2, par['ny']*par['dy']/2
-fdutil.point3d('sou',0,sx,sy)
 
+class SourceContainer:
+    PREFIX = 'sou-%04d'
+    def __init__(self):
+        self.isou = 0
+        self.sources = []
+        self.points  = []
+
+    def add(self,z,x,y):
+        name = SourceContainer.PREFIX % self.isou
+        fdutil.point3d(name,z,x,y)
+        self.sources.append(name)
+        self.points.append((z,x,y))
+        self.isou += 1
+
+    def __str__(self):
+        s = ''
+        for i in range(self.isou):
+            s += self.sources[i] + ': ' + str(self.points[i]) + '\n'
+        return s
+
+sources = SourceContainer()
+fx = 0
+fy = 0
+fz = 0
+jx = 100
+jy = 50
+jz = 200
+nx = par['nx']
+ny = par['ny']
+nz = par['nz']
+
+maxz = par['oz']+(nz-1)*par['dz'] 
+maxx = par['ox']+(nx-1)*par['dx'] 
+maxy = par['oy']+(ny-1)*par['dy'] 
+
+# X-Y plane
+for ix in range(fx, nx, jx):
+    x = ix*par['dx'] + par['ox']
+    for iy in range(fy,ny,jy):
+        y = iy*par['dy'] + par['oy']
+        sources.add(par['oz'],x,y)
+        sources.add(maxz,x,y)
+print sources.isou
+# X-Z plane
+for ix in range(fx, nx, jx):
+    x = ix*par['dx'] + par['ox']
+    for iz in range(fz,nz,jz):
+        z = iz*par['dz'] + par['oz']
+        sources.add(z,x,par['oy'])
+        sources.add(z,x,maxy)
+print sources.isou
+# Y-Z plane
+for iy in range(fy, ny, jy):
+    y = iy*par['dy'] + par['oy']
+    for iz in range(fz,nz,jz):
+        z = iz*par['dz'] + par['oz']
+        sources.add(z,par['ox'],y)
+        sources.add(z,maxx,y)
+print sources.isou
+
+
+print sources
 # Receivers
 fdutil.horizontal3d('rec',0,**par)
 #fdutil.point3d('rec',0,0,0)
@@ -45,13 +111,14 @@ fd.ricker('wave',**par)
 fdutil.constant3d('den',1.0,**par)
 
 scale = -(1 - math.sqrt(1.0/par['er']))
-Flow('vel','../mask.hh',
+Flow('vp','../mask.hh',
     '''
     dd type=float | 
     add scale=%f  | 
     add add=1.0   | 
     add scale=3.0e5 | 
-    put n1=%d o1=%f d1=%f
+    put 
+    n1=%d o1=%f d1=%f
     n2=%d o2=%f d2=%f
     n3=%d o3=%f d3=%f
     '''  % (scale,
@@ -59,76 +126,77 @@ Flow('vel','../mask.hh',
         par['nx'],par['ox'],par['dx'],
         par['ny'],par['oy'],par['dy']))
 
-fd.run('data','vel','den','wave','sou','rec','wfld',
-    time=True,binary='sfawe_dev',**fdpars)
+Flow('cube',None,
+    '''
+    spike 
+    n1=%d o1=%f d1=%f
+    n2=%d o2=%f d2=%f
+    n3=%d o3=%f d3=%f
+    nsp=1 
+    k1=280 l1=360
+    k2=130 l2=210
+    k3=80 l3=160 
+    mag=40000
+    '''  % (
+        par['nz'],par['oz'],par['dz'],
+        par['nx'],par['ox'],par['dx'],
+        par['ny'],par['oy'],par['dy']
+        ))
 
-#Flow('wfld-scale','wfld',   
-#    '''
-#    scale axis=123
-#    ''')
+Flow('vel','vp cube',
+    '''
+    add mode=a ${SOURCES[1]} 
+    ''')
 
-#Flow('wfld-byte','wfld',
-#    '''
-#    window n4=20 | 
-#    byte gainpanel=a pclip=95
-#    ''')
-#
-#Flow('wfld-scale','wfld',
-#    '''
-#    scale axis=1234
-#    ''')
-#
-#Flow('mask','../mask.hh','dd type=float | sfscale axis=123')
-#
-#Flow('mask.vtk','mask',
-#    '''
-#    put o1=%f o2=%f o3=%f
-#    d1=%f d2=%f d3=%f | window j1=2 j2=2 j3=2 | dd form=xdr | rsf2vtk
-#    ''' % (0,0,0,0.002,0.002,0.002))
-#
-#[Flow('wfld-vtk-%03d.vtk' % i, 'wfld','window j1=2 j2=2 j3=2 n4=1 f4=%d | sfdd form=xdr | sfrsf2vtk' % i) for i in range(20)]
-#proj = Project()
-#proj.Alias('vtk',['wfld-vtk-%03d.vtk' % i for i in range(20)])
-#
-#for i in range(20):
-#    Plot('wfld-%03d' % i, 'wfld-byte',
-#        '''
-#        window n4=1 f4=%d | 
-#        grey3 frame1=%d frame2=%d frame3=%d
-#        title="" label1="z" unit1="km"
-#        label2="x" unit2="km"
-#        label3="y" unit3="km"
-#        flat=n bias=128
-#        ''' % (i,par.nz/2,par.nx/2,par.ny/2))
-#
-#
-##    Flow('wfld-vel-%03d' % i,['mask','wfld-byte'],
-##        '''
-##        dd type=float | 
-##        window n4=1 f4=%d | 
-##        add scale=%g | 
-##        add scale=30 |
-##        add mode=a ${SOURCES[1]}
-##        ''' % (i,1.0/2.74832e-10))
-#    Flow('wfld-vel-%03d' % i, ['mask','byte'],
-#        '''
-#        dd type=int | 
-#        add add=-128 
-#        ''')
-#
-#
-#
-#        #math w=${SOURCES[1]} output="10*input+w" 
-#
-##    Result('wfld-vel-%03d' % i,
-##        '''
-##        byte pclip=99 gainpanel=a | 
-##        sfgrey3 frame1=%d frame2=%d frame3=%d
-##        title="" label1="z" label2="x" label3="y"
-##        unit1="km" unit2="km" unit3="km"
-##        ''' % (par.nz/2,par.nx/2,par.ny/2))
-#    Result('wfld-vel-%03d' % i, 'byte pclip=100 minval=6 maxval=6 gainpanel=a | ' + fdmod.cgrey3d('maxval=6.0 minval=6.0',fdmodpars))
-#
-#Result('test','vel wfld-000' ,'Overlay')
+jsou = sources.isou/NODES
+
+Fork(time=2*jsou,nodes=NODES,ipn=1,ppn=12)
+for NODE in range(NODES):
+    fsou = int(NODE*jsou)
+    esou = int((NODE+1)*jsou)
+    if esou > sources.isou: esou = sources.isou
+    print 'fsou', fsou, 'esou', esou
+    for isou in range(fsou,esou):
+        suffix = '-%04d' % isou
+        fd.run('/scratch/data'+suffix,'vel','den','wave','sou'+suffix,'rec',
+            '/scratch/sou-wfld-fwd'+suffix,
+            time=True,binary='sfawe_dev',out='stdout',**fdpars)
+
+        Flow('/scratch/sou-wfld'+suffix,'/scratch/sou-wfld-fwd'+suffix,
+            '''
+            transp plane=34 | reverse which=4 opt=i | 
+            transp plane=34
+            ''')
+
+        Flow('/scratch/data-rev'+suffix,'/scratch/data'+suffix,
+            '''
+            reverse which=2 opt=i
+            ''')
+
+        fd.run('/scratch/junk'+suffix,'vel','den',
+            '/scratch/data-rev'+suffix,
+            'rec','sou'+suffix,
+            '/scratch/rec-wfld'+suffix,
+            time=True,binary='sfawe_dev',out='stdout',**fdpars)
+
+        Flow('/scratch/jgodwin/image'+suffix,
+            ['/scratch/rec-wfld'+suffix, '/scratch/sou-wfld'+suffix],
+            '''
+            add mode=p ${SOURCES[1]} | 
+            stack axis=4
+            ''')
+    Flow('image-%03d' % NODE,
+        ['/scratch/jgodwin/image-%04d' % i for i in range(fsou,esou)],
+        '''
+        add mode=a ${SOURCES[1:-1]}
+        ''')
+    Iterate()
+Join()
+
+Flow('image',
+    ['image-%03d' % node for node in range(NODES)],
+    '''
+    add mode=a ${SOURCES[1:-1]}
+    ''')
 
 End()

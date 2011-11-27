@@ -1,0 +1,28 @@
+\section{Theory}
+
+\def\hh{{\boldsymbol{\lambda}} }
+
+In class we derived the exact expression for the Green's function 
+(for a source pulse $X_o(t)$):
+\begin{equation}
+ \begin{split}
+  u_{i}(\vec{x},t) = \frac{1}{4\pi\rho}(3\gamma_i \gamma_j-\delta_{ij})   \int_{R/\alpha}^{R/\beta}   {\tau X_{o}(t-\tau)d\tau } \\
+     \mbox{  }+\mbox{  } \frac{1}{4\pi\rho\alpha^2} \gamma_i \gamma_j \frac{1}{R} X_o (t-R/\alpha) \\
+     \mbox{  }+\mbox{  } \frac{1}{4\pi\rho\beta^2}(\delta_{ij} -\gamma_i \gamma_j)\frac{1}{R} X_o (t - \frac{R}{\beta})
+ \end{split}
+\end{equation}
+
+In this setup the source is located in the origin of coordinates $(0,0,0)$, $R$ is the distance
+between source and receiver, $R=|\vec{x}-\vec{0}|$ and $\vec{\gamma}$ is an unit vector that points
+to the receiver location $\vec{\gamma}=\frac{\vec{x}}{R}$. The location of the receiver can be expressed 
+in spherical coordinates $\vec{r}=(\theta,\alpha,R)$. In this exercise we will consider two dimensions 
+($x_2=0$ and $\alpha=0$). \rFg{setup} shows the geometric set up for the Green's function used in this report.
+
+The vector $\gamma_i \gamma_j$ is the $\vec{\gamma}$ unit vector
+scaled by the projection of the unit force $\vec{f}$ over the receiver vector. In our case the force is
+pointing to the $x_1$ axis, therefore $\gamma_j= \cos(\theta)$, and $\gamma_i\gamma_j=(\cos(\theta)^2,\sin(\theta)\cos(\theta))$.
+
+
+\inputdir{XFig}
+ \plot{setup}{width=0.4\textwidth}{Geometric setup of the problem.}
+

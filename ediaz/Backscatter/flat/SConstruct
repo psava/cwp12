@@ -52,6 +52,7 @@ Plot('ggone',fdmod.qqplot('',par))
 # EIC computational domain
 par['nhz']=0
 par['nhx']=100
+par['nhz']=par['nhx']
 par['nht']=100
 par['dht']=par['dt']*10
 
@@ -70,6 +71,22 @@ adcig.eparam(10.0,
              2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
              2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
              par)
+
+# ------------------------------------------------------------
+# CIPs
+
+par['ocz0']=0.995
+par['ocz1']=0.895
+
+
+fdmod.horizontal('ct0',par['ocz0'],par)
+Flow('cc0','ct0','window j2=%(jcx)d'%par)
+Plot('cc0',   fdmod.qqplot('plotcol=5 plotfat=10',par))
+
+
+fdmod.horizontal('ct1',par['ocz1'],par)
+Flow('cc1','ct1','window j2=%(jcx)d'%par)
+Plot('cc1',   fdmod.qqplot('plotcol=5 plotfat=10',par))
 
 # ------------------------------------------------------------
 # wavelet
@@ -172,8 +189,9 @@ for k in (['0','1']):
     wemig.fWRawe('dts','wts'+k,vel,'zer','ss','jdata=4 jsnap=4',par)
     wemig.bWRawe('dtr','wtr'+k,vel,'zer','rr','jdata=4 jsnap=4',par)
     wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
-    wemig.eic('cig'+k,'wts'+k,'wtr'+k,'gg','nhx=0',par)
-    wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg','nht=0',par)
+    wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0',par)
+    wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0',par)
+    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'          ',par)
 
     Flow('citx'+k,
          'cigx'+k,
@@ -184,6 +202,7 @@ for k in (['0','1']):
          '''%(par['nz'],par['nx']/par['jcx'])
          )
 
+
     Flow('cit'+k,
          'cig'+k,
          '''
@@ -193,9 +212,22 @@ for k in (['0','1']):
          '''%(par['nz'],par['nx']/par['jcx'])
          )
 
+    Flow('cip'+k,
+         'cips'+k,
+         '''
+         stack axis=4 | transp
+         '''
+         )
+
 Flow('imgbyt','img0 img1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
 Flow('citbyt','cit0 cit1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
 Flow('citxbyt','citx0 citx1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
+Flow('cipbyt','cip0 cip1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
+
+
+
+
+
 
 for j in range(2):
      k='%d'%j
@@ -214,5 +246,12 @@ for j in range(2):
      Result('citx'+k,
             'citxbyt',
             'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
+
+     Result('cip'+k,'byte gainpanel=a pclip=99.9 |'+ adcig.egrey('',par))
+         
+
+
+
+
 # ------------------------------------------------------------
 End()

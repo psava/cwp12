@@ -77,7 +77,7 @@ adcig.eparam(10.0,
 
 par['ocz0']=0.995
 par['ocz1']=0.895
-
+par['ocz2']=1.095
 
 fdmod.horizontal('ct0',par['ocz0'],par)
 Flow('cc0','ct0','window j2=%(jcx)d'%par)
@@ -88,6 +88,9 @@ fdmod.horizontal('ct1',par['ocz1'],par)
 Flow('cc1','ct1','window j2=%(jcx)d'%par)
 Plot('cc1',   fdmod.qqplot('plotcol=5 plotfat=10',par))
 
+fdmod.horizontal('ct2',par['ocz2'],par)
+Flow('cc2','ct2','window j2=%(jcx)d'%par)
+Plot('cc2',   fdmod.qqplot('plotcol=5 plotfat=10',par))
 # ------------------------------------------------------------
 # wavelet
 fdmod.wavelet('wav_',12,par)
@@ -105,7 +108,7 @@ Flow('dmask',None,
      spike nsp=1 mag=1
      n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
      n2=%(nt)d d2=%(dt)g o2=%(ot)g |
-     smooth rect1=100
+     smooth rect1=30 repeat=50
      ''' % par)
 Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
@@ -126,17 +129,25 @@ Flow('den1',None,
      add add=1
      ''' % par)
 
+Flow('den2',None,  
+     '''
+     spike nsp=1 mag=1.0
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=220 l1=%(nz)d |
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     add add=1
+     ''' % par)
+
 Flow('zer','den0','math output="1.0"')
-
-
 
 
 Flow('vel0','den0','math output="2.2*(2-input)  + (input-1)*(3.5) "')
 Flow('vel1',['den1'],'math output="0.90*(2.2*(2-input) ) +(input-1)*(3.5) "')
+Flow('vel2',['den2'],'math output="1.10*(2.2*(2-input) ) +(input-1)*(3.5) "')
+
 Flow('vc','den0','math output="2.2"')
 
 
-for k in (['0','1']):
+for k in (['0','1','2']):
      Plot('den'+k,fdmod.cgrey('pclip=100 bias=1',par))
      Plot('vel'+k,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
 
@@ -150,25 +161,46 @@ Result('zer',['zer','rr','ggone','ssall'],'Overlay')
 
 
 # 1D plot of the velocity model:
-Result('vel1d',['vel0','vel1'],
+Result('vel1d',['vel0','vel1','vel2'],
     '''
-	cat ${SOURCES[1]} axis=3 |
+	cat ${SOURCES[1]} ${SOURCES[2]}  axis=3 |
+        stack axis=2 |
+	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
+	plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+	''')
+
+
+Result('vel1d-dash',['vel0','vel1','vel2'],
+    '''
+	cat ${SOURCES[1]} ${SOURCES[2]} axis=3 |
     stack axis=2 |
 	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
 	screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+	min2=1.5 max2=3.5 dash=3
 	''')
-# ------------------------------------------------------------
-# ------------------------------------------------------------
-# ------------------------------------------------------------
+
+for vel in ['vel0','vel1','vel2']:
+	Plot(vel+'-fat',[vel,vel],
+		'''
+		cat ${SOURCES[1]} axis=2 |
+		stack axis=2 |
+		graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel
+		screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1
+		plotfat=12 min2=1.5 max2=3.5 d2tic=0.5 wantaxis=n
+		''')
+	Result(vel+'-fat',[vel+'-fat','Fig/vel1d-dash'],'Overlay')
+
 # ------------------------------------------------------------
 # FD modeling
 fdmod.awefd2d('dd','wd','wav','vel0','zer','ss','rr','',par)
-fdmod.awefd2d('do','wo','wav','vc','zer', 'ss','rr','',par)
+fdmod.awefd2d('do','wo','wav','vc','zer', 'ss','rr','ompnth=8',par)
+
 Flow('dat',['dd','do','dmask'],
      '''
      add scale=+1,-1 ${SOURCES[1]} |
      add mode=p      ${SOURCES[2]}
      ''')
+
 Flow('wfl',['wd','wo'],
      'add scale=+1,-1 ${SOURCES[1]}')
 
@@ -181,17 +213,17 @@ Flow('dts','wav','window squeeze=n')
 Flow('dtr','dat','window squeeze=n')
 
 
-for k in (['0','1']):
+for k in (['0','1','2']):
 
     # migration (RTM)
     vel='vel'+k
  	
-    wemig.fWRawe('dts','wts'+k,vel,'zer','ss','jdata=4 jsnap=4',par)
-    wemig.bWRawe('dtr','wtr'+k,vel,'zer','rr','jdata=4 jsnap=4',par)
-    wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100',par)
-    wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0',par)
-    wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0',par)
-    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'          ',par)
+    wemig.fWRawe('dts','wts'+k,vel,'zer','ss','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('dtr','wtr'+k,vel,'zer','rr','jdata=4 jsnap=4 ',par)
+    wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100 ',par)
+    wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0 ',par)
+    wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0 ',par)
+    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'           ',par)
 
     Flow('citx'+k,
          'cigx'+k,
@@ -215,23 +247,22 @@ for k in (['0','1']):
     Flow('cip'+k,
          'cips'+k,
          '''
-         stack axis=4 | transp
+         stack axis=4 
          '''
          )
 
-Flow('imgbyt','img0 img1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.9')
-Flow('citbyt','cit0 cit1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
-Flow('citxbyt','citx0 citx1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
-Flow('cipbyt','cip0 cip1','cat axis=3 space=n ${SOURCES[1]} | byte gainpanel=a pclip=99.7')
+Flow('imgbyt','img0 img1 img2','cat axis=3 space=n: ${SOURCES[1]} ${SOURCES[2]} | byte gainpanel=a pclip=99.9')
+Flow('citbyt','cit0 cit1 cit2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]}  | byte gainpanel=a pclip=99.4')
+Flow('citxbyt','citx0 citx1 citx2','cat axis=3 space=n ${SOURCES[1]} ${SOURCES[2]}  | byte gainpanel=a pclip=99.7')
+Flow('cipbyt','cip0 cip1 cip2','cat axis=4 space=n ${SOURCES[1]} ${SOURCES[2]}  | byte gainpanel=a pclip=99.9')
 
 
 
 
 
 
-for j in range(2):
+for j in range(3):
      k='%d'%j
-     
      # image
      Plot(  'img'+k,
           'imgbyt',
@@ -247,11 +278,8 @@ for j in range(2):
             'citxbyt',
             'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
 
-     Result('cip'+k,'byte gainpanel=a pclip=99.9 |'+ adcig.egrey('',par))
+     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
          
-
-
-
 
 # ------------------------------------------------------------
 End()

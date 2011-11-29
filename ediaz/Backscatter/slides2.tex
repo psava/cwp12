@@ -1,0 +1,123 @@
+
+
+\title[]{Including RTM backscattered energy in MVA flow}
+\subtitle{}
+\author[]{Esteban  D\'{i}az}
+\institute{
+Center for Wave Phenomena \\
+Colorado School of Mines \\
+ediazpan@mines.edu
+}
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\inputdir{flat}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Test experiments}
+\begin{itemize}
+   \item 3 velocity models: correct, 90\% correct, 110\% correct.
+   \item Surface receiver array.
+   \item Density is constant
+\end{itemize}
+\end{frame}
+\cwpnote{}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Slow model}
+  \begin{columns}
+      \column{0.5\textwidth}
+             \plot{vel1}{width=\textwidth}{}
+      \column{0.5\textwidth}
+             \plot{zer}{width=\textwidth}{}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Correct model}
+  \begin{columns}
+      \column{0.5\textwidth}
+             \plot{vel0}{width=\textwidth}{}
+      \column{0.5\textwidth}
+             \plot{zer}{width=\textwidth}{}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Fast model}
+  \begin{columns}
+      \column{0.5\textwidth}
+             \plot{vel2}{width=\textwidth}{}
+      \column{0.5\textwidth}
+             \plot{zer}{width=\textwidth}{}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
+
+%------------------------------------------------------------------
+
+\begin{frame} 
+     \plot{img1}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.4\textwidth}
+	  \plot{citx1}{width=0.8\textwidth}{}
+     \column{0.4\textwidth}
+	  \plot{cit1}{width=0.8\textwidth}{}
+     \column{0.2\textwidth} 
+	    \plot{vel1-fat}{height=0.5\textheight}{}
+ \end{columns} 
+\end{frame}
+
+\begin{frame} \plot{cip1}{width=\textwidth}{}\end{frame}
+%------------------------------------------------------------------
+
+\begin{frame} 
+     \plot{img0}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.4\textwidth}
+	  \plot{citx0}{width=0.8\textwidth}{}
+     \column{0.4\textwidth}
+	  \plot{cit0}{width=0.8\textwidth}{}
+     \column{0.2\textwidth} 
+	    \plot{vel1-fat}{height=0.5\textheight}{}
+ \end{columns} 
+\end{frame}
+
+
+\begin{frame} \plot{cip0}{width=\textwidth}{}\end{frame}
+%------------------------------------------------------------------
+
+\begin{frame} 
+     \plot{img2}{width=\textwidth}{}  
+ \begin{columns} 
+     \column{0.4\textwidth}
+	  \plot{citx2}{width=0.8\textwidth}{}
+     \column{0.4\textwidth}
+	  \plot{cit2}{width=0.8\textwidth}{}
+     \column{0.2\textwidth} 
+	    \plot{vel1-fat}{height=0.5\textheight}{}
+ \end{columns} 
+\end{frame}
+
+\begin{frame} \plot{cip2}{width=\textwidth}{}\end{frame}
+
+
+
+
+
+%------------------------------------------------------------------
+% awk command for frames:
+%
+%
+% jot 25|  \
+ %   awk '{printf("%03d\n",$1*25-25)}' | awk '{print "\\begin{frame} \n \\begin{columns} \n    \\column{0.5\\textwidth}\n      \\plot{Image00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0s-b2-"$1"}{width=\\textwidth}{}\n    \\\column{0.5\\textwidth}\n      \\plot{cross_corr00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0r-b2-"$1"}{width=\\textwidth}{} \n \\end{columns}\n\\end{frame}"}'
+
+%------------------------------------------------------------------

@@ -50,9 +50,9 @@ Plot('ggone',fdmod.qqplot('',par))
 Flow('gg80','gg','put n2=%d n3=%d |window n3=1 f3=79'%(par['nz'],par['ncx']))
 Plot('gg80',fdmod.qqplot('',par))
 
+
 Flow('gg124','gg','put n2=%d n3=%d |window n3=1 f3=123'%(par['nz'],par['ncx']))
 Plot('gg124',fdmod.qqplot('',par))
-
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -123,14 +123,17 @@ for i in range(nvels):
      Flow('cc'+tag,'ct'+tag,'window j2=%(jcx)d'%par)
      Plot('cc'+tag,   fdmod.qqplot('plotcol=5 plotfat=10',par))
 
-     Flow('den'+tag,None,
+     Flow('dentmp'+tag,None,
          '''
          spike nsp=1 mag=1.0
          n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=%(zi)d l1=%(nz)d |
          spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
          add add=1
          ''' % (par))
-     Flow('vel'+tag,'den'+tag,'math output="%(perc)f*(2.2*(2-input) ) +(input-1)*(3.5) "'%( par))
+     Flow('vel'+tag,'den'+tag,'math output="%(perc)f*(input*0 +2.2) "'%( par))
+     Flow('den'+tag,'dentmp'+tag,'math output="%(perc)f*(2.2*(2-input) ) +(input-1)*(3.5) "'%( par))
+     Flow('den-const'+tag,'zer'+tag,'math output="%(perc)f*(2.2i +input*0)"'%( par))
+
      par['perc'] = par['perc'] + par['perc_inc']
      vels=vels+'vel'+tag+'.rsf '
 
@@ -153,8 +156,6 @@ for i in range(nvels):
 Plot('zer',fdmod.cgrey('pclip=100 bias=1',par))
 Result('zer',['zer','rr','ggone','ssall'],'Overlay')
 
-
-
 # 1D plot of the velocity model:
 par['vels']=vels
 Result('vel1d',None,
@@ -163,8 +164,8 @@ Result('vel1d',None,
         stack axis=2 |
 	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
 	plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
-        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g min2=1.5 max2=3.5 d2tic=0.5 
-        labelsz=6 labelfat=3 titlesz=12 titlefat=3
+        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g
+        labelsz=6 labelfat=3 titlesz=12 titlefat=3  min2=1.5 max2=3 d2tic=0.5 
     '''%(par))
 
 
@@ -174,8 +175,8 @@ Result('vel1d-dash',None,
         stack axis=2 |
 	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
 	plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
-        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g  plotfat=2 plotcol=7 
-        labelsz=6 labelfat=3 titlesz=12 titlefat=3 min2=1.5 max2=3.5 d2tic=0.5 
+        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g  plotfat=2 
+        labelsz=6 labelfat=3 titlesz=12 titlefat=3  min2=1.5 max2=3 d2tic=0.5 
     '''%(par))
 
 
@@ -186,7 +187,7 @@ for i in range(nvels):
 	stack axis=2 |
 	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel
 	screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
-	plotfat=12 min2=1.5 max2=3.5 d2tic=0.5 wantaxis=n 
+	plotfat=12 min2=1.5 max2=3 d2tic=0.5 wantaxis=n 
         parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g 
         labelsz=6 labelfat=3 titlesz=12 titlefat=3
      '''%par)
@@ -198,8 +199,8 @@ for i in range(nvels):
 
 
 
-fdmod.awefd2d('dd','wd','wav','vel05','zer','ss','rr','',par)
-fdmod.awefd2d('do','wo','wav','vc','zer', 'ss','rr','',par)
+fdmod.awefd2d('dd','wd','wav','vel05','den05','ss','rr','',par)
+fdmod.awefd2d('do','wo','wav','vel05','zer', 'ss','rr','',par)
 
 Flow('dat',['dd','do','dmask'],
      '''
@@ -237,9 +238,18 @@ for i in range(nvels):
 
     print images,cits, cips, citxs
 
-    wemig.fWRawe('dts','wts'+k,vel,'zer','ss','jdata=4 jsnap=4 ',par)
-    wemig.bWRawe('dtr','wtr'+k,vel,'zer','rr','jdata=4 jsnap=4 ',par)
+    wemig.fWRawe('dts-b','wts-b'+k,vel,'den'+k,'ss','jdata=4 jsnap=4 ',par)
+    wemig.fWRawe('dts-n','wts-n'+k,vel,'den-const'+k,'ss','jdata=4 jsnap=4 ',par)
+
+
+    wemig.bWRawe('dtr-b','wtr-b'+k,vel,'den'+k,'rr','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('dtr-n','wtr-n'+k,vel,'den-const'+k,'rr','jdata=4 jsnap=4 ',par)
+
+
+
+
     wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100 ',par)
+
     wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0 ',par)
     wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0 ',par)
     wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'           ',par)
@@ -271,7 +281,6 @@ for i in range(nvels):
          )
 
 
-
     Flow('citx124-'+k,
          'cigx'+k,
          '''
@@ -299,6 +308,17 @@ for i in range(nvels):
          window n4=1 f4=123  
          '''
          )
+
+
+
+
+
+
+
+
+
+
+
 
 
 Flow('imgbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%images)

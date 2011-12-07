@@ -31,33 +31,21 @@ ediazpan@mines.edu
 
 % ------------------------------------------------------------
 \begin{frame} \frametitle{Slow model}
-  \begin{columns}
-      \column{0.5\textwidth}
-             \plot{vel1}{width=\textwidth}{}
-      \column{0.5\textwidth}
-             \plot{zer}{width=\textwidth}{}
-  \end{columns}
+      \plot{vel1}{width=\textwidth}{}
+      \plot{zer}{width=\textwidth}{}
 \end{frame}
 
 % ------------------------------------------------------------
 \begin{frame} \frametitle{Correct model}
-  \begin{columns}
-      \column{0.5\textwidth}
-             \plot{vel0}{width=\textwidth}{}
-      \column{0.5\textwidth}
-             \plot{zer}{width=\textwidth}{}
-  \end{columns}
-\end{frame}
+      \plot{vel0}{width=\textwidth}{}
+      \plot{zer}{width=\textwidth}{}
+ \end{frame}
 
 % ------------------------------------------------------------
 \begin{frame} \frametitle{Fast model}
-  \begin{columns}
-      \column{0.5\textwidth}
-             \plot{vel2}{width=\textwidth}{}
-      \column{0.5\textwidth}
-             \plot{zer}{width=\textwidth}{}
-  \end{columns}
-\end{frame}
+      \plot{vel2}{width=\textwidth}{}
+      \plot{zer}{width=\textwidth}{}
+ \end{frame}
 
 
 \begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
@@ -72,11 +60,10 @@ ediazpan@mines.edu
      \column{0.4\textwidth}
 	  \plot{cit1}{width=0.8\textwidth}{}
      \column{0.2\textwidth} 
-	    \plot{vel1-fat}{height=0.5\textheight}{}
+	    \plot{vel1-fat}{height=0.4\textheight}{}
  \end{columns} 
 \end{frame}
 
-\begin{frame} \plot{cip1}{width=\textwidth}{}\end{frame}
 %------------------------------------------------------------------
 
 \begin{frame} 
@@ -87,12 +74,10 @@ ediazpan@mines.edu
      \column{0.4\textwidth}
 	  \plot{cit0}{width=0.8\textwidth}{}
      \column{0.2\textwidth} 
-	    \plot{vel1-fat}{height=0.5\textheight}{}
+	    \plot{vel0-fat}{height=0.4\textheight}{}
  \end{columns} 
 \end{frame}
 
-
-\begin{frame} \plot{cip0}{width=\textwidth}{}\end{frame}
 %------------------------------------------------------------------
 
 \begin{frame} 
@@ -103,15 +88,16 @@ ediazpan@mines.edu
      \column{0.4\textwidth}
 	  \plot{cit2}{width=0.8\textwidth}{}
      \column{0.2\textwidth} 
-	    \plot{vel1-fat}{height=0.5\textheight}{}
+	    \plot{vel2-fat}{height=0.4\textheight}{}
  \end{columns} 
 \end{frame}
 
-\begin{frame} \plot{cip2}{width=\textwidth}{}\end{frame}
+\inputdir{XFig}
 
-
-
-
+\begin{frame}  \plot{time_lag0}{}{} \end{frame}
+\begin{frame}  \plot{time_lag1}{}{} \end{frame}
+\begin{frame}  \plot{time_lag2}{}{} \end{frame}
+\begin{frame}  \plot{time_lag3}{}{} \end{frame}
 
 %------------------------------------------------------------------
 % awk command for frames:
@@ -121,3 +107,12 @@ ediazpan@mines.edu
  %   awk '{printf("%03d\n",$1*25-25)}' | awk '{print "\\begin{frame} \n \\begin{columns} \n    \\column{0.5\\textwidth}\n      \\plot{Image00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0s-b2-"$1"}{width=\\textwidth}{}\n    \\\column{0.5\\textwidth}\n      \\plot{cross_corr00-"$1"}{width=\\textwidth}{}\n      \\plot{wt0r-b2-"$1"}{width=\\textwidth}{} \n \\end{columns}\n\\end{frame}"}'
 
 %------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

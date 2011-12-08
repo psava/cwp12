@@ -1,7 +1,7 @@
 # 
 from rsf.proj import *
 import fdmod,adcig,encode,wemig,math
-import commands
+import commands, os
 
 par = {
     'nt':2501, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
@@ -9,7 +9,9 @@ par = {
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
     'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':150,
-    'nb':150
+    'nb':150,
+     'jsnap_gr':25
+
     }
 fdmod.param(par)
 # ------------------------------------------------------------
@@ -112,6 +114,7 @@ par['perc_inc']=perc_inc
 nvels=11
 
 vels=''
+dens=''
 for i in range(nvels):
 # ------------------------------------------------------------
 # CIPs
@@ -136,6 +139,7 @@ for i in range(nvels):
 
      par['perc'] = par['perc'] + par['perc_inc']
      vels=vels+'vel'+tag+'.rsf '
+     dens=dens+'vel'+tag+'.rsf '
 
 
 
@@ -175,7 +179,7 @@ Result('vel1d-dash',None,
         stack axis=2 |
 	graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
 	plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
-        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g  plotfat=2 
+        parallel2=n wherexlabel=t min1=%(zmin)g max1=%(zmax)g  plotfat=2 plotcol=7 
         labelsz=6 labelfat=3 titlesz=12 titlefat=3  min2=1.5 max2=3 d2tic=0.5 
     '''%(par))
 
@@ -236,7 +240,6 @@ for i in range(nvels):
     citxs= citxs +' citx'+k+'.rsf' 
 
 
-    print images,cits, cips, citxs
 
     wemig.fWRawe('dts','wts-b'+k,vel,'den'+k,'ss','jdata=4 jsnap=4 ',par)
     wemig.fWRawe('dts','wts-n'+k,vel,'den-const'+k,'ss','jdata=4 jsnap=4 ',par)
@@ -257,7 +260,7 @@ for i in range(nvels):
 
         wemig.eic('cig'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'gg'  ,'nhx=0 nhz=0 ',par)
         wemig.eic('cigx'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'gg'  ,'nht=0 nhz=0 ',par)
-        wemig.eic('cips'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'cc'+k,'           ',par)
+#        wemig.eic('cips'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'cc'+k,'           ',par)
 
         Flow('citx'+s+'_'+r+k,
             'cigx'+s+'_'+r+k,
@@ -295,7 +298,7 @@ for i in range(nvels):
             transp
             '''%(par['nz'],par['nx']/par['jcx'])
             )
-
+        
 
         Flow('cit124-'+s+'_'+r+k,
             'cig'+s+'_'+r+k,
@@ -319,42 +322,90 @@ for i in range(nvels):
 
 
 
+v= range(nvels)
+for cases in  ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
+
+     Flow('imgbyt'+cases,map(lambda x:'img'+cases+'%02d'%x, v),'cat axis=3 space=n  ${SOURCES[1:%d]}| byte gainpanel=a pclip=99.5'%len(v)) 
+     Flow('citbyt'+cases,map(lambda x:'cit'+cases+'%02d'%x, v),'cat axis=3 space=n ${SOURCES[1:%d]}| byte gainpanel=a pclip=99.5'%len(v)) 
+     Flow('citxbyt'+cases,map(lambda x:'citx'+cases+'%02d'%x, v),'cat axis=3 space=n ${SOURCES[1:%d]}| byte gainpanel=a pclip=99.5'%len(v))
+#     Flow('cipbyt'+cases,None,'cat axis=4 space=n %s| byte gainpanel=a pclip=99.5'%cips)
+
+     for j in range(nvels):
+         k='%02d'%j
+         # image
+
+         Plot(  'img'+cases+k,
+          'imgbyt'+cases,
+          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
+         Result('img'+cases+k,['img'+cases+k,'rr','ssall','ggone'],'Overlay')
+
+         # CIG
+         Result('cit'+cases+k,
+            'citbyt'+cases,
+            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+     
+         Result('citx'+cases+k,
+            'citxbyt'+cases,
+            'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
+
+#         Result('cip'+cases+k, 'cipbyt'+cases, 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
+        
+
+         if(cases+k=='s-b_r-b05'):
+              Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
+	      ## ------------------------------------------------------------ 
+	      ## plot wavefield frames
+	      for i in range(0, 625 , par['jsnap_gr'] ):
+	           tag = '-%03d'%i
+		   t= i*par['dt']
+		   rarray='rr'
+		   
+
+   		   #Source wavefield frame
+		   fdmod.wframe('wts-b'+k+tag,
+		 	'wts-b'+k,i,' wheretitle=t title="Ws(%4.3f)"'%t,par)
+		   Result( 'wts-b'+k+tag,
+			['wts-b'+k+tag,rarray],'Overlay')
+
+		      #Receiver wavefield frame
+	           fdmod.wframe('wtr-b'+k+tag,
+	          	'wtr-b'+k,i,' wheretitle=t  title="Wr(%4.3f)"'%t,par)
+		   Result( 'wtr-b'+k+tag,
+			['wtr-b'+k+tag,rarray],'Overlay')
+
+		      #Cross-corr wavefield frame
+		   fdmod.wframe('cross_corr'+cases+k+tag,
+		 	'cross_corr'+cases+k,i,' wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
+		   Result( 'cross_corr'+cases+k+tag,
+			['cross_corr'+cases+k+tag,rarray],'Overlay')
+
+		      #Image so far:
+		   Flow('img'+cases+k+'_'+tag,'cross_corr'+cases+k,
+				'window n3=%d|stack axis=3'%(i+1))
 
 
 
 
+frames= range(0, 625 , par['jsnap_gr'] )
+
+Flow('imgsfbyt'+'s-b_r-b05',map(lambda x:'img'+'s-b_r-b05_'+'-%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
+j=0
+for i in range(0, 625 , par['jsnap_gr'] ):
+     tag = '-%03d'%i
+     t= i*par['dt']
+     rarray='rr'
+     cases='s-b_r-b'
+     k='05'
+
+     fdmod.wframe('img'+cases+k+'_'+tag,
+            'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
 
 
+     Result( 'img'+cases+k+'_'+tag,
+	['img'+cases+k+'_'+tag,'rr'],'Overlay')
 
-#Flow('imgbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%images)
-#Flow('citbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%cits)
-#Flow('citxbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%citxs)
-#Flow('cipbyt',None,'cat axis=4 space=n %s| byte gainpanel=a pclip=99.5'%cips)
+     j = j +1
 
-
-
-
-
-
-#for j in range(nvels):
-#     k='%02d'%j
-#     # image
-#     Plot(  'img'+k,
-#          'imgbyt',
-#          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
-#     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
-#
-#     # CIG
-#     Result('cit'+k,
-#            'citbyt',
-#            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
-#     
-#     Result('citx'+k,
-#            'citxbyt',
-#            'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
-#
-#     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
-         
-
+              
 # ------------------------------------------------------------
 End()

@@ -396,10 +396,6 @@ for ra in ['0','1','2']:
 		['citx'+ra+'s-b_r-n'+k,'citx'+ra+'s-b_r-b'+k,'citx'+ra+'s-n_r-n'+k,'citx'+ra+'s-n_r-b'+k,'citx-diff'+ra+k],
 		'cat axis=3 space=n ${SOURCES[1:5]}  | byte gainpanel=a pclip=100')
 
-
-
-
-
 		im=0
 		for cases in ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b','-diff-']:
 			#Image plots
@@ -418,11 +414,6 @@ for ra in ['0','1','2']:
 			Result('citx'+ra+cases+k,
 				'citbytx'+ra+k,
 				'window n3=1 f3=%d |'%im + adcig.xgrey('',par))
-
-
 			im=im+1
 
-
-
 End()
-        

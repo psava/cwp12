@@ -351,6 +351,10 @@ for cases in  ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
 #         Result('cip'+cases+k, 'cipbyt'+cases, 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
         
 
+################################################################################################################
+#################################    IMAGING MOVIE FOR CORRECT MODEL ###########################################
+################################################################################################################
+
          if(cases+k=='s-b_r-b05'):
               Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
 	      ## ------------------------------------------------------------ 
@@ -406,6 +410,42 @@ for i in range(0, 625 , par['jsnap_gr'] ):
 
      j = j +1
 
-              
+             
+
+
+
+########################################## Imaging experiment ##################################################################
+
+
+Flow ('ur_b05', ['wtr-b05','wtr-n05'],'add ${SOURCES[1]} scale=1,-1')  
+Flow ('ur_n05', ['wtr-n05'],'cp ')  
+
+Flow ('us_b05', ['wts-b05','wts-n05'],'add ${SOURCES[1]} scale=1,-1')  
+Flow ('us_n05', ['wts-n05'],'cp ')  
+
+wemig.cic('img05_nn','us_n05','ur_n05','nbuf=100 ',par)
+wemig.cic('img05_nb','us_n05','ur_b05','nbuf=100 ',par)
+wemig.cic('img05_bn','us_b05','ur_n05','nbuf=100 ',par)
+wemig.cic('img05_bb','us_b05','ur_b05','nbuf=100 ',par)
+
+
+
+Flow('img05_ref','imgs-b_r-b05','cp')
+
+
+c=['nn','nb','bn','bb','ref']
+Flow('img05_byt',map(lambda x:'img05_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c)) 
+j=0
+for i in c:
+
+   Plot(  'img05_'+i,
+          'img05_byt',
+          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
+   Result( 'img05_'+i,
+	['img05_'+i,'rr'],'Overlay')
+
+
+   j=j+1
+ 
 # ------------------------------------------------------------
 End()

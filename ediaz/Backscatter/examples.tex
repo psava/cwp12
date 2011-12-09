@@ -1,6 +1,29 @@
 \section{Examples}
+In order to analyze the backscattered energy I use a simple two layers model. I then 
+use two cases: constant density and hight  velocity constrast, constant velocity and density
+contrast.  
 
-\inputdir{example}
-\multiplot{2}{vel,den}{width=0.45\textwidth}{Example of multiplot.}
+For each backscatering case I analyze the behaivoour opf the backscatering energy for different
+velocity errors (from -25\% to +25\% in intervals of 5\%). By considering the hard interface in 
+the density model we have the ability to turn off and on the back scatered energy in the receiver
+ and source wavefields.
 
-\rFgs{vel} and \rfn{den} show the example.
+To exemplify this workflow we can consider the following example:
+\begin{enumerate}
+\item Propagate source to model $V(\bf{x}), \rho(\bf{x})$ to obtain $\US=\US^b +\US^n$
+\item Propagate source to model $V(\bf{x}), \rho_o(\bf{x})$, where
+$\rho_o$ is constant, to obtain $\US^n$.
+\item Obtain $\US^b= \US -\US^n$.
+\end{enumerate}
+
+The same workflow applies to the receiver wavefield. By doing this we have the ability to separate all 
+the cross-correlation cases that contributes to an image $R(\bf{x})$.
+
+
+\inputdir{flat2}
+
+\multiplot{3}{vel05,den05,img05_ref}{width=0.4\textwidth}{example....}
+
+
+\multiplot*{4}{img05_nn,img05_nb,img05_bn,img05_bb}{width=0.4\textwidth}{Example of
+  multiplot.}

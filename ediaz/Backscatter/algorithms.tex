@@ -1,0 +1,612 @@
+% ------------------------------------------------------------
+\def\tabhead{
+m          \=mmmm     \=mm\=mm\=mmmmmmmm \=mmm \=mmm \kill
+}
+
+\def\ofxx{\lp   x,  y    \rp}
+\def\ofkk{\lp k_x,k_y    \rp}
+\def\ofxz{\lp   x,  y, z \rp}
+
+\def\ofmmhh{\lp \mm,\ho  \rp}
+\def\ofmmho{\lp \mm,\ho=0\rp}
+\def\ofkmkh{\lp\kkm,\kkh \rp}
+
+\def\ofmmhx{ \lp \mm,\hx  \rp}
+\def\ofmmhxo{\lp \mm,\hx=0\rp}
+\def\ofkmkhx{\lp\kkm,\khx \rp}
+
+% ------------------------------------------------------------
+\def\DWCONT{
+\begin{tabbing} \tabhead
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmm$ \\
+fFT        \>         \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+$\ww-\kk$  \>         \> \> \> $\UU\ofkm *= \PS{\pm}$ \\
+           \>         \> \> \blue{$\}$} \\
+iFT        \>         \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+write      \>         \> \> $\UU\ofmm$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\UWCONT{
+\begin{tabbing}  \tabhead
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmm$ \\
+fFT        \>         \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+$\ww-\kk$  \>         \> \> \> $\UU\ofkm *= \PS{\pm}$ \\
+           \>         \> \> \blue{$\}$} \\
+iFT        \>         \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+write      \>         \> \> $\UU\ofmm$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\GAZDAGmig{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww = \wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmm$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkm *= \PSk{-}$ \\
+           \>iFT      \> \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+\IC        \>         \> \> \> $\RR\ofmz +=          \UU\ofmm$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\GAZDAGmod{
+\begin{tabbing}  \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmm=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmm += \RR\ofmz$ \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkm *= \PSk{+}$ \\
+           \>iFT      \> \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmm$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+
+% ------------------------------------------------------------
+\def\STOLTmig{
+\begin{tabbing} \tabhead
+fFT \> \> \>$\DD \lp \mm,t \rp \rarrow{3D} \DD \lp \kkm,\ww \rp$ \\
+map $\kz \rightarrow \ww$ \> \> \> \> $\ww = - sign(\kz) \frac{\sqrt{\modk{\mm}^2 + \kz^2}}{2s}$ \\
+or \\
+map $\ww \rightarrow \kz$ \> \> \> \> $\kz = \sqrt{\lp2\ws\rp^2 - \modk{\mm}^2}$ \\
+iFT \> \> \>$\RR \lp \mm,z \rp \larrow{3D} \RR \lp \kkm,\kz \rp$
+\end{tabbing}
+}
+
+\def\STOLTmod{
+\begin{tabbing} \tabhead
+fFT \> \> \>$\RR \lp \mm,z \rp \rarrow{3D} \RR \lp \kkm,\kz \rp$ \\
+map $\kz \rightarrow \ww$ \> \> \> \> $\ww = - sign(\kz) \frac{\sqrt{\modk{\mm}^2 + \kz^2}}{2s}$ \\
+or \\
+map $\ww \rightarrow \kz$ \> \> \> \> $\kz = \sqrt{\lp2\ws\rp^2 - \modk{\mm}^2}$ \\
+iFT \> \> \>$\DD \lp \mm,t \rp \larrow{3D} \DD \lp \kkm,\ww \rp$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMIGLONG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmm$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax\{$} \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkm *= \PSk{-}$ \\
+           \>iFT      \> \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmm *= \PSx{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmm$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMODLONG{
+\begin{tabbing}  \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmm=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin\{$} \\
+\IC        \>         \> \> \> $\UU\ofmm += \RR\ofmz$ \\
+\WR        \>         \> \> \> \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmm *= \PSx{+}$ \\
+           \>fFT      \> \> \> $\UU\ofmm \rarrow{2D} \UU\ofkm$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkm *= \PSk{+}$ \\
+           \>iFT      \> \> \> $\UU\ofmm \larrow{2D} \UU\ofkm$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmm$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMIG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmm$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\UU\ofmm *= \PS{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmm$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMOD{
+\begin{tabbing} \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmm=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmm += \RR\ofmz$ \\
+\WR        \>         \> \> \> $\UU\ofmm *= \PS{+}$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmm$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMIGLONGzo{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofxz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofxx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofxx \rarrow{2D} \UU\ofkk$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkk *= \PSk{-}$ \\
+           \>iFT      \> \> \> $\UU\ofxx \larrow{2D} \UU\ofkk$ \\
+           \>$\ww-\xx$\> \> \> $\UU\ofxx *= \PSx{-}$ \\
+\IC        \>         \> \> \> $\RR\ofxz += \UU\ofxx$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofxz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMODLONGzo{
+\begin{tabbing}  \tabhead
+read       \>         \> $\RR\ofxz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofxx=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofxx += \RR\ofxz$ \\
+\WR        \>         \> \> \> \\
+           \>$\ww-\xx$\> \> \> $\UU\ofxx *= \PSx{+}$ \\
+           \>fFT      \> \> \> $\UU\ofxx \rarrow{2D} \UU\ofkk$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkk *= \PSk{+}$ \\
+           \>iFT      \> \> \> $\UU\ofxx \larrow{2D} \UU\ofkk$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofxx$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMIGzo{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofxz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofxx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\UU\ofxx *= \PS{-}$ \\
+\IC        \>         \> \> \> $\RR\ofxz += \UU\ofxx$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofxz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMODzo{
+\begin{tabbing} \tabhead
+read       \>         \> $\RR\ofxz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofxx=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin\{$} \\
+\IC        \>         \> \> \> $\UU\ofxx += \RR\ofxz$ \\
+\WR        \>         \> \> \> $\UU\ofxx *= \PS{+}$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofxx$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMIGsp{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofxz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\US\ofxx$ \\
+read       \>         \> \> $\UR\ofxx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\US\ofxx *= \PS{+}$ \\
+\WR        \>         \> \> \> $\UR\ofxx *= \PS{-}$ \\
+\IC        \>         \> \> \> $\RR\ofxz += \CONJ{\US\ofxx} 
+                                                  \UR\ofxx$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofxz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\SSRMODsp{
+\begin{tabbing} \tabhead
+read       \>         \> $\RR\ofxz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\DS\ofxx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\US\ofxx *= \PS{+}$ \\
+\IC        \>         \> \> \> $\TT\ofxz  = \US\ofxx *
+	                                    \RR\ofxz$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \> $\UR\ofxx=0$ \\
+	   \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+           \>         \> \> \> $\UR\ofxx += \TT\ofxz$ \\
+\WR        \>         \> \> \> $\UR\ofxx *= \PS{+}$ \\
+	   \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UR\ofxx$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\DSRMIGLONG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmmhh$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofmmhh \rarrow{4D} \UU\ofkmkh$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkmkh *= \PSk{-}$ \\
+           \>iFT      \> \> \> $\UU\ofmmhh \larrow{4D} \UU\ofkmkh$ \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmmhh *= \PSx{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmmho$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\DSRMODLONG{
+\begin{tabbing}  \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmmhh=0$ \\
+           \>         \> \> \blue{$z= \zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmmho += \RR\ofmz$ \\
+\WR        \>         \> \> \> \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmmhh *= \PSx{+}$ \\
+           \>fFT      \> \> \> $\UU\ofmmhh \rarrow{4D} \UU\ofkmkh$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkmkh *= \PSk{+}$ \\
+           \>iFT      \> \> \> $\UU\ofmmhh \larrow{4D} \UU\ofkmkh$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmmhh$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+
+% ------------------------------------------------------------
+\def\CAMMIGLONG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmmhx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> \\
+           \>fFT      \> \> \> $\UU\ofmmhx \rarrow{3D} \UU\ofkmkhx$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkmkhx *= \PSk{-}$ \\
+           \>iFT      \> \> \> $\UU\ofmmhx \larrow{3D} \UU\ofkmkhx$ \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmmhx *= \PSx{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmmhxo$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\CAMMODLONG{
+\begin{tabbing}  \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmmhx=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmmhxo += \RR\ofmz$ \\
+\WR        \>         \> \> \> \\
+           \>$\ww-\xx$\> \> \> $\UU\ofmmhx *= \PSx{+}$ \\
+           \>fFT      \> \> \> $\UU\ofmmhx \rarrow{3D} \UU\ofkmkhx$ \\
+           \>$\ww-\kk$\> \> \> $\UU\ofkmkhx *= \PSk{+}$ \\
+           \>iFT      \> \> \> $\UU\ofmmhx \larrow{3D} \UU\ofkmkhx$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmmhx$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\DSRMIG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmmhh$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\UU\ofmmhh *= \PS{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmmho$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\DSRMOD{
+\begin{tabbing} \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmmhh=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmmho += \RR\ofmz$ \\
+\WR        \>         \> \> \> $\UU\ofmmhh *= \PS{+}$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmmhh$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\CAMMIG{
+\begin{tabbing} \tabhead
+           \>         \> $\RR\ofmz=0$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+read       \>         \> \> $\UU\ofmmhx$ \\
+           \>         \> \> \blue{$z=\zmin \dots \zmax \{$} \\
+\WR        \>         \> \> \> $\UU\ofmmhx *= \PS{-}$ \\
+\IC        \>         \> \> \> $\RR\ofmz += \UU\ofmmhxo$ \\
+           \>         \> \> \blue{$\}$} \\
+           \>         \> \darkgreen{$\}$} \\
+write      \>         \> $\RR\ofmz$
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\CAMMOD{
+\begin{tabbing} \tabhead
+read       \>         \> $\RR\ofmz$ \\
+           \>         \> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+           \>         \> \> $\UU\ofmmhx=0$ \\
+           \>         \> \> \blue{$z=\zmax \dots \zmin \{$} \\
+\IC        \>         \> \> \> $\UU\ofmmhxo += \RR\ofmz$ \\
+\WR        \>         \> \> \> $\UU\ofmmhx *= \PS{+}$ \\
+           \>         \> \> \blue{$\}$} \\
+write      \>         \> \> $\UU\ofmmhx$ \\
+           \>         \> \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\outW{
+\begin{tabbing} \tabhead
+\darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+\> \blue{$z=\zmin \dots \zmax \{$} \\
+\> \> \dots \\
+\> \blue{$\}$} \\
+\darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\outZ{
+\begin{tabbing} \tabhead
+\blue{$z=\zmin \dots \zmax \{$} \\
+\> \darkgreen{$\ww=\wmin \dots \wmax \{$} \\
+\> \> \dots \\
+\> \darkgreen{$\}$} \\
+\blue{$\}$}
+\end{tabbing}
+}
+
+
+% ------------------------------------------------------------
+%% 
+ % finite-differences
+ %%
+% ------------------------------------------------------------
+
+% ------------------------------------------------------------
+\def\fdtabhead{
+mm                \=mmm   \= mm \= mm \= mm \= mm \= mm \kill
+}
+
+% ------------------------------------------------------------
+\def\FDMOD{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\UU_{-} = \UU=0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $f$ \\
+                  \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \\
+derivatives       \>        \>        \>       \> $g  = \LAPL{\UU} - \frac{1}{\rho} \lb \GRAD{\rho} \cdot \GRAD{\UU} \rb$ \\
+inject source     \>        \>        \>       \> $g += f$ \\
+acceleration      \>        \>        \>       \> $\ddot{\UU}  = g v^2$ \\
+time step         \>        \>        \>       \> $\UU_{+} = \ddot{\UU} \dt^2 + 2 \UU - \UU_{-}$ \\
+                  \>        \>        \>       \> $\UU_{-} = \UU$ \\
+                  \>        \>        \>       \> $\UU      = \UU_{+}$ \\
+                  \>        \>        \> \red{$\}$} \\
+write             \>        \>        \> $\UU_{t}$ \\
+                  \>        \>  \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\FDMODcart{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\UU_{-} = \UU=0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $f$ \\
+                  \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \\
+derivatives       \>        \>        \>       \> $g  = \dtwo{\UU}{x} + \dtwo{\UU}{x} + \dtwo{\UU}{z}$ \\
+inject source     \>        \>        \>       \> $g += f$ \\
+acceleration      \>        \>        \>       \> $\ddot{\UU}  = g v^2$ \\
+time step         \>        \>        \>       \> $\UU_{+} = \ddot{\UU} \dt^2 + 2 \UU - \UU_{-}$ \\
+                  \>        \>        \>       \> $\UU_{-} = \UU$ \\
+                  \>        \>        \>       \> $\UU      = \UU_{+}$ \\
+                  \>        \>        \> \red{$\}$} \\
+write             \>        \>        \> $\UU_{t}$ \\
+                  \>        \>  \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\FDMODshort{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\UU\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $\DD\ofs$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \UU\ofx, \DD\ofs \rb$ \red{$\}$} \\
+write             \>        \>        \> $\UU\ofx$ \\
+                  \>        \>  \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\FDMsou{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\US\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $\DS\ofs$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \US\ofx, \DS\ofs \rb$ \red{$\}$} \\
+write             \>        \>        \> $\US\ofx$ \\
+                  \>        \>  \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\FDMrec{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\UR\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmax \dots \tmin \{$}       \\ 
+read              \>        \>        \> $\DR\ofr$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \UR\ofx, \DR\ofr \rb$ \red{$\}$} \\
+write             \>        \>        \> $\UR\ofx$ \\
+                  \>        \>  \darkgreen{$\}$}
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\FDMcor{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\RR\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $\US\ofx$ \\
+read              \>        \>        \> $\UR\ofx$ \\
+\IC               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} $\RR\ofx += \US\ofx \UR\ofx$ \red{$\}$} \\
+                  \>        \>  \darkgreen{$\}$} \\
+write             \>        \>  $\RR\ofx$ \\
+\end{tabbing}
+}
+% ------------------------------------------------------------
+\def\FDMcorext{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\RR\ofxm =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $\US\ofx$ \\
+read              \>        \>        \> $\UR\ofx$ \\
+                  \>        \>        \> \blue{$\hh=\lmin \dots \lmax \{$} \\
+                  \>        \>        \>     \> \red{$\xx=\xmin \dots \xmax \{$} \\
+\IC               \>        \>        \>     \>     \> $\RR\ofxm += \US \ofxmm \UR\ofxmp$ \\
+                  \>        \>        \>     \> \red{$\}$} \\
+                  \>        \>        \> \blue{$\}$} \\
+                  \>        \>  \darkgreen{$\}$} \\
+write             \>        \>  $\RR\ofxm$ \\
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\ZORTM{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\RR\ofx =0$ \\ 
+                  \>        \> $\UU\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmax \dots \tmin \{$}       \\ 
+read              \>        \>        \> $\DD\ofr$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \UU\ofx, \DD\ofr \rb$ \red{$\}$} \\
+                  \>        \>  \darkgreen{$\}$} \\
+\IC               \>        \> $\RR\ofx = \UU\ofx$ \\
+write             \>        \> $\RR\ofx$ 
+\end{tabbing}
+}
+
+% ------------------------------------------------------------
+\def\RTM{
+\begin{tabbing} \fdtabhead
+                  \>        \> $\US\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read              \>        \>        \> $\DS\ofs$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \US\ofx, \DS\ofs \rb$ \red{$\}$} \\
+write             \>        \>        \> $\US\ofx$ \\
+                  \>        \>  \darkgreen{$\}$} \\
+%
+                  \>        \> $\RR\ofx =0$ \\ 
+                  \>        \> $\UR\ofx =0$ \\ 
+                  \>        \> \darkgreen{$t=\tmax \dots \tmin \{$}       \\ 
+read              \>        \>        \> $\DR\ofr$ \\
+\WR               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} \texttt{FDM} $\lb \UR\ofx, \DR\ofr \rb$ \red{$\}$} \\
+read              \>        \>        \> $\US\ofx$ \\
+\IC               \>        \>        \> \red{$\xx=\xmin \dots \xmax \{$} $\RR\ofx += \US\ofx \UR\ofx$ \red{$\}$} \\
+                  \>        \>  \darkgreen{$\}$} \\
+write             \>        \>  $\RR\ofx$
+\end{tabbing}
+}
+
+
+% ------------------------------------------------------------
+\def\eFDMOD{
+\begin{tabbing} \fdtabhead
+                         \> \> $\uu_{-} = \uu=0$ \\ 
+                         \> \> \darkgreen{$t=\tmin \dots \tmax \{$}       \\ 
+read                     \> \> \> $\stress_f$ and $\ff$ \\
+                         \> \> \> \red{$\xx=\xmin \dots \xmax \{$} \\
+G.L.                     \> \> \> \> $\GEOMlaw$ \\
+C.L.                     \> \> \> \> $\HOOKElaw$ \\
+\alert{$\stress$ source} \> \> \> \> $\stress += \stress_f$ \\
+E.M.                     \> \> \> \> $\NEWTONlaw$ \\
+\alert{$\uu$ source}     \> \> \> \> $\ddot{\uu} +=\ff$ \\
+time step                \> \> \> \> $\uu_{+} = \ddot{\uu} \dt^2 + 2 \uu - \uu_{-}$ \\
+                         \> \> \> \> $\uu_{-} = \uu$ \\
+                         \> \> \> \> $\uu     = \uu_{+}$ \\
+
+                         \> \> \> \red{$\}$} \\
+write                    \> \> \> $\uu\ofx$ \\
+                         \> \> \darkgreen{$\}$}
+\end{tabbing}
+}

@@ -3,7 +3,7 @@ In order to analyze the backscattered energy I use a simple two layers model. I 
 use two cases: constant density and hight  velocity constrast, constant velocity and density
 contrast.  
 
-For each backscatering case I analyze the behaivoour opf the backscatering energy for different
+For each backscatering case I analyze the behaviour of the backscatering energy for different
 velocity errors (from -25\% to +25\% in intervals of 5\%). By considering the hard interface in 
 the density model we have the ability to turn off and on the back scatered energy in the receiver
  and source wavefields.
@@ -19,11 +19,22 @@ $\rho_o$ is constant, to obtain $\US^n$.
 The same workflow applies to the receiver wavefield. By doing this we have the ability to separate all 
 the cross-correlation cases that contributes to an image $R(\bf{x})$.
 
+\subsection{Understanding the backscattered energy.}
+
+In order to get an understanding of the phenomena, I do a very simple 2D example. I consider
+a constant velocity medium as shown in figure \rfn{vel05} and, a two layered density model in figure \rfn{den05}. The idea of having the 
+hard interface in the density model is that allow us to split in an easy way the cases shown in equation \ref{eq:cases}. 
+The experiment is composed by one shot with a receiver array in the complete surface. The conventional image
+given by equation ~\ref{eq:IC} is shown in figure ~\rfn{img05_ref}.
+
+
+
 
 \inputdir{flat2}
 
-\multiplot{3}{vel05,den05,img05_ref}{width=0.4\textwidth}{example....}
+\multiplot{3}{vel05,den05,img05_ref}{width=0.4\textwidth}{Constant velocit model of 2.2km/s (a), density model (b) 
+and retreived image (c).}
 
-
-\multiplot*{4}{img05_nn,img05_nb,img05_bn,img05_bb}{width=0.4\textwidth}{Example of
-  multiplot.}
+\multiplot*{4}{img05_nn,img05_nb,img05_bn,img05_bb}{width=0.4\textwidth}{Understanding the backscattered energy by 
+splitting $R(\bf{x})$ shown in figure ~\ref{fig:img05_ref} in: $R(\bf{x})^{nn}$ (a), $R(\bf{x})^{nb}$ (b), $R(\bf{x})^{bn}$ (c) and
+$R(\bf{x})^{bb}$ (d).}

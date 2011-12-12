@@ -131,6 +131,7 @@ for i in range(nvels):
          add add=1
          ''' % (par))
      Flow('vel'+tag,'den'+tag,'math output="%(perc)f*(2.2*(2-input) ) +(input-1)*(3.5) "'%( par))
+     Flow('vel-const'+tag,'den'+tag,'math output="%(perc)f*(2.2 +input*0 )"'%( par))
      par['perc'] = par['perc'] + par['perc_inc']
      vels=vels+'vel'+tag+'.rsf '
 
@@ -226,6 +227,7 @@ citxs=''
 
 for i in range(nvels):
     k='%02d'%i
+    tag=k
     # migration (RTM)
     vel='vel'+k
     print k	
@@ -237,68 +239,80 @@ for i in range(nvels):
 
     print images,cits, cips, citxs
 
-    wemig.fWRawe('dts','wts'+k,vel,'zer','ss','jdata=4 jsnap=4 ',par)
-    wemig.bWRawe('dtr','wtr'+k,vel,'zer','rr','jdata=4 jsnap=4 ',par)
-    wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100 ',par)
-    wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0 ',par)
-    wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0 ',par)
-#    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'           ',par)
+    wemig.fWRawe('dts','wts-b'+k,vel,'zer','ss','jdata=4 jsnap=4 ',par)
+    wemig.fWRawe('dts','wts-n'+k,'vel-const'+k,'zer','ss','jdata=4 jsnap=4 ',par)
 
-    Flow('citx'+k,
-         'cigx'+k,
-         '''
-         put n4=%d n5=%d label4=z label5=c |
-         window |
-         stack axis=3 | transp
-         '''%(par['nz'],par['nx']/par['jcx'])
-         )
+    wemig.bWRawe('dtr','wtr-b'+k,vel,'zer','rr','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,'zer','rr','jdata=4 jsnap=4 ',par)
 
 
-    Flow('cit'+k,
-         'cig'+k,
-         '''
-         put n4=%d n5=%d label4=z label5=c |
-         window |
-         stack axis=3 | transp
-         '''%(par['nz'],par['nx']/par['jcx'])
-         )
+    Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=15 |spray axis=3 n=626 o=0 d=0.004')
+    
+    Flow ('ur_b'+tag, ['wtr-b'+tag,'wtr-n'+tag,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
+    Flow ('ur_n'+tag, ['wtr-b'+tag,'ur_b'+tag],'add ${SOURCES[1]} scale=1,-1')  
 
-#    Flow('cip'+k,
-#         'cips'+k,
-#         '''
-#         stack axis=4 
-#         '''
-#         )
+    Flow ('us_b'+tag, ['wts-b'+tag,'wts-n'+tag,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
+    Flow ('us_n'+tag, ['wts-b'+tag,'us_b'+tag],'add ${SOURCES[1]} scale=1,-1')   
 
 
 
-    Flow('citx124-'+k,
-         'cigx'+k,
+
+
+    for cases in ['b b','b n','n b','n n']:
+        words=cases.split()
+        s=words[0]
+        r=words[1]
+        wemig.cic('img'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'nbuf=100 ',par)
+        wemig.eic('cig'+k+'_'+s+r,'ur_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
+        wemig.eic('cigx'+k+'_'+s+r,'ur_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
+
+        Flow('citx'+k+'_'+s+r,
+           'cigx'+k+'_'+s+r,
+           '''
+           put n4=%d n5=%d label4=z label5=c |
+           window |
+           stack axis=3 | transp
+           '''%(par['nz'],par['nx']/par['jcx'])
+        )
+
+        Flow('cit'+k+'_'+s+r,
+           'cig'+k+'_'+s+r,
+           '''
+           put n4=%d n5=%d label4=z label5=c |
+           window |
+           stack axis=3 | transp
+           '''%(par['nz'],par['nx']/par['jcx'])
+        )
+ 
+        Flow('citx124-'+k+'_'+s+r,
+         'cigx'+k+'_'+s+r,
          '''
          put n4=%d n5=%d label4=z label5=c |
          window |
          window f3=123 n3=1 |
           transp
          '''%(par['nz'],par['nx']/par['jcx'])
-         )
-
-
-    Flow('cit124-'+k,
-         'cig'+k,
+        )
+        Flow('cit124-'+k+'_'+s+r,
+         'cig'+k+'_'+s+r,
          '''
          put n4=%d n5=%d label4=z label5=c |
          window |
          window f3=123 n3=1 |
-         transp
+          transp
          '''%(par['nz'],par['nx']/par['jcx'])
-         )
+        )
 
-#    Flow('cip124-'+k,
-#         'cips'+k,
-#         '''
-#         window n4=1 f4=123  
-#         '''
-#         )
+        
+
+
+
+
+
+
+
+
+
 
 
 Flow('imgbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%images)
@@ -310,23 +324,55 @@ Flow('citxbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%citxs)
 
 
 
+c=['bb','bn','nb','nn']
+
 
 for j in range(nvels):
      k='%02d'%j
-     # image
-     Plot(  'img'+k,
-          'imgbyt',
-          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
-     Result('img'+k,['img'+k,'rr','ssall','ggone'],'Overlay')
 
-     # CIG
-     Result('cit'+k,
-            'citbyt',
-            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+
+
+     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c))  
+     Flow('cit'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c))  
+     Flow('citx'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c))  
+     i=0
+     for cases in ['b b','b n','n b','n n']:
+          words=cases.split()
+          s=words[0]
+          r=words[1]
+          
+          # image
+          Plot(  'img'+k+'_'+s+r,
+               'img'+k+'_byt',
+               'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
+          Result('img'+k+'_'+s+r,['img'+k,'rr','ssall','ggone'],'Overlay')
      
-     Result('citx'+k,
-            'citxbyt',
-            'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
+          # CIG
+          Result('cit'+k+'_'+s+r,
+                 'cit'+k+'_byt',
+                 'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
+          
+          Result('citx'+k+'_'+s+r,
+                 'citx'+k+'_byt',
+                 'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
+
+     Flow('img'+k+'_ref',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
+      
+     Plot(  'img'+k+'_ref',
+             'img'+k+'_ref',
+              fdmod.cgrey('pclip=98.5',par))
+
+     Flow('cit'+k+'_ref',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
+     # CIG
+     Result('cit'+k+'_ref',
+                 'cit'+k+'_ref',
+                  adcig.tgrey('pclip=98.5',par))
+     Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
+     Result('citx'+k+'_ref',
+                 'citx'+k+'_ref',
+                  adcig.tgrey('pclip=98.5',par))
+
+
 
 #     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
          

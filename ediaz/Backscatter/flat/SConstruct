@@ -242,7 +242,7 @@ for i in range(nvels):
     wemig.cic('img'+k,'wts'+k,'wtr'+k,'nbuf=100 ',par)
     wemig.eic('cig'+k ,'wts'+k,'wtr'+k,'gg'  ,'nhx=0 nhz=0 ',par)
     wemig.eic('cigx'+k,'wts'+k,'wtr'+k,'gg'  ,'nht=0 nhz=0 ',par)
-    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'           ',par)
+#    wemig.eic('cips'+k,'wts'+k,'wtr'+k,'cc'+k,'           ',par)
 
     Flow('citx'+k,
          'cigx'+k,
@@ -263,12 +263,12 @@ for i in range(nvels):
          '''%(par['nz'],par['nx']/par['jcx'])
          )
 
-    Flow('cip'+k,
-         'cips'+k,
-         '''
-         stack axis=4 
-         '''
-         )
+#    Flow('cip'+k,
+#         'cips'+k,
+#         '''
+#         stack axis=4 
+#         '''
+#         )
 
 
 
@@ -293,18 +293,18 @@ for i in range(nvels):
          '''%(par['nz'],par['nx']/par['jcx'])
          )
 
-    Flow('cip124-'+k,
-         'cips'+k,
-         '''
-         window n4=1 f4=123  
-         '''
-         )
+#    Flow('cip124-'+k,
+#         'cips'+k,
+#         '''
+#         window n4=1 f4=123  
+#         '''
+#         )
 
 
 Flow('imgbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%images)
-Flow('citbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%cits)
+Flow('citbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=98.0'%cits)
 Flow('citxbyt',None,'cat axis=3 space=n %s | byte gainpanel=a pclip=99.5'%citxs)
-Flow('cipbyt',None,'cat axis=4 space=n %s| byte gainpanel=a pclip=99.5'%cips)
+#Flow('cipbyt',None,'cat axis=4 space=n %s| byte gainpanel=a pclip=99.5'%cips)
 
 
 
@@ -328,7 +328,7 @@ for j in range(nvels):
             'citxbyt',
             'window n3=1 f3=%d |'%j + adcig.xgrey('',par))
 
-     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
+#     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
          
 
 # ------------------------------------------------------------

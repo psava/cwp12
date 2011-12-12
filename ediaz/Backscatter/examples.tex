@@ -1,13 +1,13 @@
 \section{Examples}
 In order to analyze the backscattered energy I use a simple two layers model. I study
  two cases: (1)  constant velocity and density contrast and,
-  (2) constant density and hight  velocity contrast.  
+  (2) constant density and velocity contrast.  
 
-For the case of the hard interface in the density model I study the contribution of each case of 
-equation ~\ref{eq:cases}. For the hard interfere in the velocity model I study the potential
+For the case of the hard interface in the density model, I study the contribution of each case of 
+equation ~\ref{eq:cases}. For the hard interface in the velocity model I study the potential
 to observe kinematic changes in the backscattered energy.
 
-In order to analyze the contribution of each case of equation ~\ref{eq:cases} I use the following flow:
+In order to analyze the contribution of each case of equation~\ref{eq:cases}, I use the following flow:
 \begin{enumerate}
 \item Propagate source to model $V(\bf{x}), \rho(\bf{x})$ to obtain $\US=\US^b +\US^n$
 \item Propagate source to model $V(\bf{x}), \rho_o(\bf{x})$, where
@@ -22,22 +22,23 @@ the cross-correlation cases that contributes to an image $R(\bf{x})$.
 \inputdir{flat2}
 \subsection{Understanding the backscattered energy.}
 
-In order to get an understanding of the phenomena, I do a very simple 2D example. I consider
-a constant velocity medium as shown in figure \rfn{vel05} and, a two layered density model in figure \rfn{den05}. The idea of having the 
-hard interface in the density model is that allow us to split in an easy way the cases shown in equation \ref{eq:cases}. 
+In order to obtain an understanding of the phenomena, I do a very simple 2D example. I consider
+a constant velocity medium as shown in figure~\rfn{vel05} and, a two layered density model in figure \rfn{den05}. I use
+the hard interface in the density model to split in an easy way the cases shown in equation \ref{eq:cases}. 
 The experiment is composed by one shot with a receiver array in the complete surface. The conventional image
-given by equation ~\ref{eq:IC} is shown in figure ~\rfn{img05_ref}. 
+given by equation~\ref{eq:IC} is shown in figure~\rfn{img05_ref}. 
 
 \multiplot{4}{vel05,den05,img05_ref,cit05_ref}{width=0.4\textwidth}{Constant velocity model of 2.2km/s (a), density model (b) 
 and retreived image (c) and time-lag gather (d). The vertical line shows the location of the time lag gather.}
 
-With this model with variable density we can produce al the cases shown in equation ~\ref{eq:cases}.  In figure 3 I show the individual
-contributions. We can see in ~\rfn{img05_nb} how the backscattered energy is concentrated toward the source, this happens because
-the backscattered receiver field acts as the source wave field. Similar analysis can be applied in figure ~\ref{fig:img05_bn}, where
-the source wave field acts as the receiver wave field. One can see that in the all the cases contributes at some degree with the geology.
+With this model with variable density we can produce all the cases shown in equation ~\ref{eq:cases}.  In figures ~\rfn{img05_nn} to ~\rfn{img05_bb},
+ I show the individual contributions. We can see in~\rfn{img05_nb} how the backscattered energy is concentrated toward the source, this happens because
+the backscattered receiver field acts as the source wavefield. Similar analysis can be applied in figure ~\ref{fig:img05_bn}, where
+the source wavefield acts as the receiver wavefield. One can see that all the cases contributes at some degree with the geology, of course the most important
+contribution is given by $R(\bf{x})^{nn}$.
 
 We can also analyze how does the backscattering images look in the extended image domain. \rFg{cit05_ref} shows a time-lag
-gather located at the center of the model (yellow vertical line in figure ~\ref{fig:vel05}). One can see that the backscattered energy 
+gather located at the center of the model (yellow vertical line in figure ~\ref{fig:vel05}). We can observe that the backscattered energy 
 is concentrated at $\tau=0$, this event correspond to the contribution of $R(\bf{x})^{nb} + R(\bf{x})^{bn}$ as shown in figures ~\ref{fig:cit05_nb}
 and \ref{fig:cit05_bn}. We can see that the $R(\bf{x})^{bb}$ does not produces low frequency energy in the image, since it behaves as $R(\bf{x})^{nn}$, but
 with opposite slope as shown in figure ~\ref{fig:cit05_bb} .
@@ -45,10 +46,10 @@ with opposite slope as shown in figure ~\ref{fig:cit05_bb} .
 
 \subsection{Backscattered energy: does it carry kinematic information?}
 
-To test the sensibility of the backscattered energy to velocity errors I modify the model: now the hard interface is in the velocity model. The idea
-behind this is to simulate a salt-sediment interface. I modify the top layer of the model (sediments) in steps of 5\%, I leave the bottom layer constant. The interface
-moves accordantly with the image.  One can see in figures ~\rfn{cit01} to ~\rfn{cit09}  how the backscatterted energy is sensible to the velocity information. One other
-aspect to analyze is that the backscattered energy is easy to track since has vertical slope. The error picking location could be defined as the intersection between
+To test the sensibility of the backscattered energy to velocity errors I modify the model by making the hard interface in the velocity model. The idea
+ is to simulate a salt-sediment interface. I modify the top layer of the model (sediments) in steps of 5\%, I leave the bottom layer constant. The interface
+moves accordantly with the image.  Figures ~\rfn{cit01} to ~\rfn{cit09}  show how the backscatterted energy is sensible to the velocity information. One other
+aspect to analyze is that the backscattered energy is easy to track since it has vertical slope. The error picking location could be defined as the intersection between
 $R(\bf{x},\tau)^{nn}$ with $R(\bf{x},\tau)^{bn} +R(\bf{x},\tau)^{nb}$.
 
 

@@ -1,0 +1,656 @@
+\bibliographystyle{seg}
+\input{./Share/pcsmacros}
+
+\bibliography{SEG}
+
+\title[]{Understanding the backscattered energy in RTM: noise or signal?}
+\subtitle{}
+\author[]{Esteban  D\'{i}az}
+\institute{
+Center for Wave Phenomena \\
+Colorado School of Mines \\
+ediazpan@mines.edu
+}
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\inputdir{flat2}
+
+\begin{frame}
+	\begin{itemize}
+		\item What it is?  
+		\item How is it formed?
+		\item Why is it considered as noise?
+		\item Why would I say is signal? 
+		\item Can we use it for model update?
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}
+   What have we learn so far from this events?
+\end{frame}
+\inputdir{pngs}
+
+\begin{frame}
+Modeling domain approach, without.
+\plot{fletcher_1}{width=0.6\textwidth}{}
+\end{frame}
+
+\begin{frame}
+With. From ~\cite{fletcher:2049}
+\plot{fletcher_2}{width=0.6\textwidth}{}
+\end{frame}
+
+\begin{frame}
+Image domain approach, without.
+\plot{antoine_1}{width=0.6\textwidth}{}
+\end{frame}
+
+\begin{frame}
+With. From ~\cite{guitton:S19}
+\plot{antoine_2}{width=0.6\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+Extended images filter approach, without.
+\plot{bruno_1}{width=0.6\textwidth}{}
+\end{frame}
+
+\begin{frame}
+With. From ~\cite{kaelin:3125}
+\plot{bruno_2}{width=0.6\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+	\begin{itemize}
+		\item As we saw before, the backscattered energy masks the geology.
+		\item But... If this energy is strong and is spread over the image means we did great with the model!
+	\end{itemize}
+\end{frame}
+
+
+
+
+\inputdir{flat2}
+
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-000}{width=1\textwidth}{}
+      \plot{wts-b05-000}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-000}{width=1\textwidth}{}
+      \plot{wtr-b05-000}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-025}{width=1\textwidth}{}
+      \plot{wts-b05-025}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-025}{width=1\textwidth}{}
+      \plot{wtr-b05-025}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-050}{width=1\textwidth}{}
+      \plot{wts-b05-050}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-050}{width=1\textwidth}{}
+      \plot{wtr-b05-050}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-075}{width=1\textwidth}{}
+      \plot{wts-b05-075}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-075}{width=1\textwidth}{}
+      \plot{wtr-b05-075}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-100}{width=1\textwidth}{}
+      \plot{wts-b05-100}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-100}{width=1\textwidth}{}
+      \plot{wtr-b05-100}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-125}{width=1\textwidth}{}
+      \plot{wts-b05-125}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-125}{width=1\textwidth}{}
+      \plot{wtr-b05-125}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-150}{width=1\textwidth}{}
+      \plot{wts-b05-150}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-150}{width=1\textwidth}{}
+      \plot{wtr-b05-150}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-175}{width=1\textwidth}{}
+      \plot{wts-b05-175}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-175}{width=1\textwidth}{}
+      \plot{wtr-b05-175}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-200}{width=1\textwidth}{}
+      \plot{wts-b05-200}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-200}{width=1\textwidth}{}
+      \plot{wtr-b05-200}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-225}{width=1\textwidth}{}
+      \plot{wts-b05-225}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-225}{width=1\textwidth}{}
+      \plot{wtr-b05-225}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-250}{width=1\textwidth}{}
+      \plot{wts-b05-250}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-250}{width=1\textwidth}{}
+      \plot{wtr-b05-250}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-275}{width=1\textwidth}{}
+      \plot{wts-b05-275}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-275}{width=1\textwidth}{}
+      \plot{wtr-b05-275}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-300}{width=1\textwidth}{}
+      \plot{wts-b05-300}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-300}{width=1\textwidth}{}
+      \plot{wtr-b05-300}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-325}{width=1\textwidth}{}
+      \plot{wts-b05-325}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-325}{width=1\textwidth}{}
+      \plot{wtr-b05-325}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-350}{width=1\textwidth}{}
+      \plot{wts-b05-350}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-350}{width=1\textwidth}{}
+      \plot{wtr-b05-350}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-375}{width=1\textwidth}{}
+      \plot{wts-b05-375}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-375}{width=1\textwidth}{}
+      \plot{wtr-b05-375}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-400}{width=1\textwidth}{}
+      \plot{wts-b05-400}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-400}{width=1\textwidth}{}
+      \plot{wtr-b05-400}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-425}{width=1\textwidth}{}
+      \plot{wts-b05-425}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-425}{width=1\textwidth}{}
+      \plot{wtr-b05-425}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-450}{width=1\textwidth}{}
+      \plot{wts-b05-450}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-450}{width=1\textwidth}{}
+      \plot{wtr-b05-450}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-475}{width=1\textwidth}{}
+      \plot{wts-b05-475}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-475}{width=1\textwidth}{}
+      \plot{wtr-b05-475}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-500}{width=1\textwidth}{}
+      \plot{wts-b05-500}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-500}{width=1\textwidth}{}
+      \plot{wtr-b05-500}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-525}{width=1\textwidth}{}
+      \plot{wts-b05-525}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-525}{width=1\textwidth}{}
+      \plot{wtr-b05-525}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-550}{width=1\textwidth}{}
+      \plot{wts-b05-550}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-550}{width=1\textwidth}{}
+      \plot{wtr-b05-550}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-575}{width=1\textwidth}{}
+      \plot{wts-b05-575}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-575}{width=1\textwidth}{}
+      \plot{wtr-b05-575}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-600}{width=1\textwidth}{}
+      \plot{wts-b05-600}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-600}{width=1\textwidth}{}
+      \plot{wtr-b05-600}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+
+
+\begin{frame} \frametitle{Defining the backscattered energy.}
+
+\red{The only requirement to get it is to have a hard interface in the model}.
+
+If that is the case, then, we can define:
+\beq
+\US= \US^b + \US^n,
+\eeq
+
+and
+\beq
+\UR= \UR^b + \UR^n.
+\eeq
+
+Using the conventional imaging condition ~\cite{claerbout:467}:
+\beq
+R(\bf{x})= \sum_{shots} \sum_t \US(\bf{x},t) \UR(\bf{x},t),
+\label{eq:IC}
+\eeq
+
+Then,
+
+\beq
+R(\bf{x})^{}= R(\bf{x})^{nn} +R(\bf{x})^{nb}+R(\bf{x})^{bn}+ R(\bf{x})^{bb}.
+\label{eq:cases}
+\eeq
+
+\end{frame}
+
+
+
+\begin{frame}
+We can generalize it using the extended imaging condition ~\cite{sava:S209}:
+\beq
+R(\bf{x_a},\bf{\lambda},\tau) =  \sum_{shots} \sum_t \US(\bf{x_a}-\bf{\lambda},t-\tau) \UR(\bf{x_a}+\bf{\lambda},t+\tau),
+\eeq
+
+and,
+
+\beq
+R(\bf{x_a},\bf{\lambda},\tau) = R(\bf{x_a},\bf{\lambda},\tau)^{nn} +R(\bf{x_a},\bf{\lambda},\tau)^{nb} +R(\bf{x_a},\bf{\lambda},\tau)^{bn} +R(\bf{x_a},\bf{\lambda},\tau)^{bb} 
+\eeq
+\end{frame}
+
+
+
+\inputdir{flat}
+\begin{frame} \frametitle{splitting the wavefield $\US$}
+
+     $\US^{b}= \US - \US^{n}$               
+    \plot{us_b05_ex}{width=0.5\textwidth}{  }
+   
+ \begin{columns} 
+    \column{0.3\textwidth}
+      \plot{wts-b05_ex}{width=1\textwidth}{}
+    \column{0.3\textwidth}
+      \plot{wts-n05_ex}{width=1\textwidth}{}
+    \column{0.3\textwidth}
+        \plot{mask05_ex}{width=1\textwidth}{}
+ \end{columns}
+ 
+ \end{frame}
+
+
+ \begin{frame} 
+ \plot{img05_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{citx05_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \plot{cit05_ref}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+
+
+\begin{frame}
+ \plot{img05_ref}{height=0.3\textheight}{}
+\begin{columns}
+    \column{0.5\textwidth}
+      \plot{img05_nn}{width=1\textwidth}{}
+      \plot{img05_bn}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{img05_nb}{width=1\textwidth}{}
+      \plot{img05_bb}{width=1\textwidth}{}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+      \plot{citx05_ref}{height=0.45\textheight}{}
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{citx05_nn}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{citx05_nb}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{citx05_bn}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{citx05_bb}{height=0.35\textheight}{}
+
+\end{columns}
+\end{frame}
+
+\begin{frame}
+      \plot{cit05_ref}{height=0.45\textheight}{}
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{cit05_nn}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{cit05_nb}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{cit05_bn}{height=0.35\textheight}{}
+    \column{0.25\textwidth}
+      \plot{cit05_bb}{height=0.35\textheight}{}
+
+\end{columns}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame} \frametitle{Test experiments}
+\begin{itemize}
+   \item 11 velocity models: from 75\% to 125\%
+   \item Surface receiver array.
+   \item Tests with the hard interface in the velocity
+\end{itemize}
+\end{frame}
+\cwpnote{}
+
+
+\begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
+
+
+
+
+
+ \begin{frame} 
+ \plot{img00_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx00_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit00_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel00-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img01_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx01_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit01_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel01-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img02_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx02_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit02_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel02-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img03_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx03_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit03_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel03-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img04_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx04_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit04_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel04-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img05_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx05_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit05_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel05-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img06_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx06_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit06_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel06-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img07_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx07_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit07_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel07-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img08_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx08_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit08_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel08-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img09_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx09_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit09_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel09-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \plot{img10_ref}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{citx10_ref}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{cit10_ref}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{vel10-fat}{height=0.45\textheight}{}
+   \end{columns}
+\end{frame}
+
+
+
+\begin{frame} \frametitle{Summary}
+\begin{itemize}
+    \item We now understand the backscattered energy.
+    \item We understand which combinations contributes to the image.
+    \item The backscattered energy  in the extended images demonstrated to be sensitive to velocity
+    errors.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame} \frametitle{Acknowledgments}
+I thank Paul and my classmates in Seismic Migration for great discussions!
+\end{frame}
+
+
+
+
+\bibliography{SEG}

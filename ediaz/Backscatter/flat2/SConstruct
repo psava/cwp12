@@ -367,24 +367,24 @@ for cases in  ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
 
    		   #Source wavefield frame
 		   fdmod.wframe('wts-b'+k+tag,
-		 	'wts-b'+k,i,' wheretitle=t title="Ws(%4.3f)"'%t,par)
+		 	'wts-b'+k,i,' wheretitle=t title="Ws(%4.3f)" pclip=99'%t,par)
 		   Result( 'wts-b'+k+tag,
 			['wts-b'+k+tag,rarray],'Overlay')
 
 		      #Receiver wavefield frame
 	           fdmod.wframe('wtr-b'+k+tag,
-	          	'wtr-b'+k,i,' wheretitle=t  title="Wr(%4.3f)"'%t,par)
+	          	'wtr-b'+k,i,' wheretitle=t  title="Wr(%4.3f)" pclip=99'%t,par)
 		   Result( 'wtr-b'+k+tag,
 			['wtr-b'+k+tag,rarray],'Overlay')
 
 		      #Cross-corr wavefield frame
 		   fdmod.wframe('cross_corr'+cases+k+tag,
-		 	'cross_corr'+cases+k,i,' wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
+		 	'cross_corr'+cases+k,i,' wheretitle=t title="Ws*Wr(%4.3f)" pclip=99'%t,par)
 		   Result( 'cross_corr'+cases+k+tag,
 			['cross_corr'+cases+k+tag,rarray],'Overlay')
 
 		      #Image so far:
-		   Flow('img'+cases+k+'_'+tag,'cross_corr'+cases+k,
+		   Flow('img'+cases+k+tag,'cross_corr'+cases+k,
 				'window n3=%d|stack axis=3'%(i+1))
 
 
@@ -392,7 +392,7 @@ for cases in  ['s-b_r-n','s-b_r-b','s-n_r-n','s-n_r-b']:
 
 frames= range(0, 625 , par['jsnap_gr'] )
 
-Flow('imgsfbyt'+'s-b_r-b05',map(lambda x:'img'+'s-b_r-b05_'+'-%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
+Flow('imgsfbyt'+'s-b_r-b05',map(lambda x:'img'+'s-b_r-b05-'+'%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
 j=0
 for i in range(0, 625 , par['jsnap_gr'] ):
      tag = '-%03d'%i
@@ -402,10 +402,10 @@ for i in range(0, 625 , par['jsnap_gr'] ):
      k='05'
 
      fdmod.wframe('img'+cases+k+'_'+tag,
-            'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(%4.3f)"'%t,par)
+            'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99'%t,par)
 
 
-     Result( 'img'+cases+k+'_'+tag,
+     Result( 'img'+cases+k+tag,
 	['img'+cases+k+'_'+tag,'rr'],'Overlay')
 
      j = j +1
@@ -414,88 +414,4 @@ for i in range(0, 625 , par['jsnap_gr'] ):
 
 
 
-########################################## Imaging experiment ##################################################################
-
-
-
-
-
-Flow('mask05','den05','math output="(input-2.2)/1.3"|smooth rect1=15 |spray axis=3 n=626 o=0 d=0.004')
-
-
-
-
-Flow ('ur_b05', ['wtr-b05','wtr-n05','mask05'],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
-Flow ('ur_n05', ['wtr-b05','ur_b05'],'add ${SOURCES[1]} scale=1,-1')  
-
-Flow ('us_b05', ['wts-b05','wts-n05','mask05'],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
-Flow ('us_n05', ['wts-b05','us_b05'],'add ${SOURCES[1]} scale=1,-1')  
-
-wemig.cic('img05_nn','us_n05','ur_n05','nbuf=100 ',par)
-wemig.cic('img05_nb','us_n05','ur_b05','nbuf=100 ',par)
-wemig.cic('img05_bn','us_b05','ur_n05','nbuf=100 ',par)
-wemig.cic('img05_bb','us_b05','ur_b05','nbuf=100 ',par)
-
-wemig.eic('cig05_nn','us_n05','ur_n05','gg'  ,'nhx=0 nhz=0 ',par)
-wemig.eic('cig05_nb','us_n05','ur_b05','gg'  ,'nhx=0 nhz=0 ',par)
-wemig.eic('cig05_bn','us_b05','ur_n05','gg'  ,'nhx=0 nhz=0 ',par)
-wemig.eic('cig05_bb','us_b05','ur_b05','gg'  ,'nhx=0 nhz=0 ',par)
-
-
-
-
-
-
-Flow('img05_ref','imgs-b_r-b05','cp')
-Flow('cit05_ref','cits-b_r-b05','cp')
-
-
-c=['nn','nb','bn','bb','ref']
-Flow('img05_byt',map(lambda x:'img05_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c)) 
-j=0
-for i in c:
-    if (i!='ref'):
-        Flow('cit05_'+i,
-        'cig05_'+i,
-        '''
-        put n4=%d n5=%d label4=z label5=c |
-        window |
-        stack axis=3 | transp
-        '''%(par['nz'],par['nx']/par['jcx'])
-        )
-
-    Plot(  'img05_'+i,
-          'img05_byt',
-          'window n3=1 f3=%d |'%j + fdmod.cgrey('',par))
-    Result( 'img05_'+i,
-	['img05_'+i,'rr','ggone'],'Overlay')
-
-
-    j=j+1
- 
-Flow('cit05_byt',map(lambda x:'cit05_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=98.5'%len(c)) 
-
-
-
-
-
-
-
-j=0
-for i in c:
-   
-    # CIG
-    Result('cit05_'+i,
-            'cit05_byt',
-            'window n3=1 f3=%d |'%j + adcig.tgrey('',par))
-    j+=1   
-
-
-
-
-
-
-
-
-# ------------------------------------------------------------
 End()

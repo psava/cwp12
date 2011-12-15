@@ -1,0 +1,2 @@
+ jot 26 |awk '{printf("%03d\n",($1-1)*25)}'|   awk '{print "%-----------------------\n \\begin{frame} \n \\begin{columns} \n    \\column{0.5\\textwidth}\n      \\plot{imgs-b_r-b05-"$1"}{width=1\\textwidth}{}\n      \\plot{wts-b05-"$1"}{width=1\\textwidth}{}\n    \\column{0.5\\textwidth}\n      \\plot{cross_corrs-b_r-b05-"$1"}{width=1\\textwidth}{}\n      \\plot{wtr-b05-"$1"}{width=1\\textwidth}{}\n \\end{columns}\n\\end{frame}"}'
+

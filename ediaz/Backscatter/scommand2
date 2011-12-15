@@ -1,0 +1,3 @@
+jot 11|awk '{printf("%02d\n",$1-1)}' |   awk '{print "%-----------------------\n \\begin{frame} \n \\plot{img"$1"_ref}{height=0.45\\textheight}{}\n \\begin{columns} \n    \\column{0.4\\textwidth}\n      \\plot{citx"$1"_ref}{height=0.45\\textheight}{}\n    \\column{0.4\\textwidth}\n      \\plot{cit"$1"_ref}{height=0.45\\textheight}{}\n   \\column{0.2\\textwidth}\n      \\plot{vel"$1"_ref-fat}{height=0.45\\textheight}{}\n   \\end{columns}\n\\end{frame}"}'
+
+

@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+from rsf.proj import *
+import fdmod,zomig,encode
+
+par = {
+    'nz':1000,'dz':0.00667, 'oz':0,      'lz':'z', 'uz':'km',
+    'nx':891, 'dx':0.02667, 'ox':2.9337, 'lx':'x', 'ux':'km',
+    'ny':1,   'dy':0.02667, 'oy':0,      'ly':'y', 'uy':'km',
+    'nt':1000,'dt':0.004,   'ot':0,      'lt':'t', 'ut':'s',
+    'nw':96,  'jw':1,       'ow':5,
+    'verb':'y','eps':0.01,'nrmax':5,'dtmax':0.00005,
+    'tmx':32,'tmy':0,'pmx':32,'pmy':0,'incore':'y'
+    }
+par['tmin']=1.25
+par['zmin']=1.0
+par['zmax']=3.0
+par['ox']=4
+par['nx']=800
+fdmod.param(par)
+
+par['ratio']=0.4
+par['height']=5.5
+
+# ------------------------------------------------------------
+# near offset data (use as "zero offset")
+# ------------------------------------------------------------
+Flow  ('zof','./data/gom/gom.noff.hh',
+       '''
+       window n1=%(nt)d |
+       bandpass fhi=20 |
+       window min2=%(ox)g n2=%(nx)d |
+       put label1=%(lt)s unit1=%(ut)s label2=%(lx)s unit2=%(ux)s
+       ''' % par)
+Result('zof',fdmod.dgrey('pclip=99',par))
+
+# ------------------------------------------------------------
+# dominant dip
+# ------------------------------------------------------------
+Flow  ('dip','zof','dip verb=y rect1=60 rect2=20 liter=100 liter=100')
+Result('dip',fdmod.dgrey('color=j',par))
+
+# ------------------------------------------------------------
+# diffractions
+# ------------------------------------------------------------
+Flow  ('dif','zof dip','pwd order=3 dip=${SOURCES[1]} verb=n')
+Result('dif',fdmod.dgrey('pclip=99',par))
+
+# ------------------------------------------------------------
+# velocity
+# ------------------------------------------------------------
+Flow('vel','./data/gom/gom.velo.hh',
+     '''
+     window n2=1 f2=0 |
+     smooth rect1=50 | 
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     put label1=%(lz)s unit1=%(uz)s label2=%(ux)s unit2=%(ux)s
+     ''' % par)
+Result('vel','window min1=%(zmin)g max1=%(zmax)g |'%par
+       +fdmod.cgrey('allpos=y color=j bias=1.5',par))
+
+# ------------------------------------------------------------
+# slowness
+# ------------------------------------------------------------
+zomig.slowness('slo','vel',par)
+
+# datuming slowness
+Flow('sdtm','slo','window squeeze=n n3=2 j3=150')
+# migration slowness
+Flow('smig','slo','window squeeze=n      f3=150 | window squeeze=n n3=300 ')
+
+Result('smig','window | transp |'+fdmod.cgrey('allpos=y color=j bias=0.21',par))
+
+# ------------------------------------------------------------
+# depth migration
+# ------------------------------------------------------------
+
+# data in the frequency domain
+for i in ('zof','dif'):
+    encode.time2freq(i,'f'+i,par)
+
+    # datuming
+    zomig.Adttwo3('d'+i,'f'+i,'sdtm',par)
+
+ds=0.05 # fractional change of the slowness
+for j in range(9):
+    s=1+(j-4)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    # scale slowness
+    Flow('slo'+tag,'slo','scale rscale=%g'%s)
+
+    # migration
+    for i in ('zof','dif'):
+        
+        zomig.image('i'+i+tag,'slo'+tag,'f'+i,par)
+        Result(     'i'+i+tag,'window | transp |' + fdmod.cgrey('pclip=99.9',par))
+
+# ------------------------------------------------------------
+End()

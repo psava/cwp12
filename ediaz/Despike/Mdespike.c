@@ -11,7 +11,7 @@
          *    *            |
         *      *           |
        *        *          *
-   ****          * * * * * *****
+   ****          * * * * *  *****
  
  
    
@@ -81,18 +81,18 @@ int main (int argc, char* argv[])
         sf_floatread(uo,arr_size,in);
  
         for (i1=0; i1<arr_size; i1++){
-            fprintf(stderr,"hola\n");
+            
             sum=0.0;
             for (i2=i1-m ; i2<=i1+m ; i2++){
+                k=i2;
                 if(i2<0) {
-                    k=abs(i2);
-                }else {
+                    k=fabsf(i2);
+                }else if (i2>=n1) {
                     k=(n1-i2-1)+n1;
                 }
-                fprintf(stderr,"hola2 %d %d %d\n",i2,i1,m);
-                sum+= uo[k];
+                sum= sum+ uo[k];
             }
-            sum *= 1/(2*m+1);
+            sum *= 1.0/(2.0*m+1.0);
             der_tmp[i1]=sum;
         }
         
@@ -100,16 +100,17 @@ int main (int argc, char* argv[])
         for (i1=0; i1<arr_size; i1++){
             sum=0.0;
             for (i2=i1-m ; i2<=i1+m ; i2++){
+				k=i2;
                 if(i2<0) {
-                    k=abs(i2);
-                }else {
+                    k=fabsf(i2);
+                }else if (i2>=n1) {
                     k=(n1-i2-1)+n1;
                 }
-                sum+= (uo[k]-der_tmp[k])*(uo[k]-der_tmp[k]);                
+                sum= sum+ (uo[k]-der_tmp[k])*(uo[k]-der_tmp[k]);                
             }
-            sum *= 1/(2*m+1);
-            if(abs(uo[i1]-der_tmp[i1])/sum >sigma){
-                der[i1]=der_tmp[i1] +(uo[i1]-der_tmp[i1])*sigma*sum/(abs(uo[i2]-der_tmp[i2]));
+            sum *= 1.0/(2.0*m+1.0);
+            if(fabsf(uo[i1]-der_tmp[i1])/sum >sigma){
+                der[i1]=der_tmp[i1] +(uo[i1]-der_tmp[i1])*sigma*sum/(fabsf(uo[i1]-der_tmp[i1]));
             }else {
                 der[i1]=uo[i1];
             }                                                             

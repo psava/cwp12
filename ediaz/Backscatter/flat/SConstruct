@@ -9,7 +9,8 @@ par = {
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
     'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':150,
-    'nb':150
+    'nb':150,
+    'jsnap_gr':25
     }
 fdmod.param(par)
 # ------------------------------------------------------------
@@ -134,6 +135,9 @@ for i in range(nvels):
      Flow('vel-const'+tag,'den'+tag,'math output="%(perc)f*(2.2 +input*0 )"'%( par))
      par['perc'] = par['perc'] + par['perc_inc']
      vels=vels+'vel'+tag+'.rsf '
+
+
+
 
 
 
@@ -305,7 +309,7 @@ for i in range(nvels):
 
         
 
-
+wemig.cic('img05const','wts-n05','wtr-n05','nbuf=100 ',par)
 
 #-----------------------------------------------------------------------------
 #      example of wavefield separation.
@@ -350,9 +354,9 @@ for j in range(nvels):
 
 
 
-     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.0'%len(c))  
-     Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.5'%len(c))  
-     Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.5'%len(c))  
+     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
+     Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
+     Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
      i=0
      for cases in ['b b','b n','n b','n n']:
           words=cases.split()
@@ -379,22 +383,75 @@ for j in range(nvels):
       
      Plot(  'img'+k+'_ref',
              'img'+k+'_ref',
-              fdmod.cgrey('pclip=98.5',par))
+              fdmod.cgrey('pclip=99.9',par))
      Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall','ggone'],'Overlay')
      Flow('cit'+k+'_ref',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
      # CIG
      Result('cit'+k+'_ref',
                  'cit'+k+'_ref',
-                  adcig.tgrey('pclip=98.5',par))
+                  adcig.tgrey('pclip=99.9',par))
      Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
      Result('citx'+k+'_ref',
                  'citx'+k+'_ref',
-                  adcig.xgrey('pclip=98.5',par))
+                  adcig.xgrey('pclip=99.9',par))
 
 
+
+
+
+frames= range(0, 625 , par['jsnap_gr'] )
+
+# cases to test in a movie!
+for k in ['01','05','09']:
 
 #     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
-         
+     cases='s-b_r-b'    
+     Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
+     Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
+     ## ------------------------------------------------------------ 
+     ## plot wavefield frames
 
+     for i in range(0, 625 , par['jsnap_gr'] ):
+         tag = '-%03d'%i
+         t= i*par['dt']
+         rarray='rr'
+		   
+         #Source wavefield frame
+	 fdmod.wframe('wts-b'+k+tag,
+	 'wts-b'+k,i,' wheretitle=t title="Ws(%4.3f)" pclip=99'%t,par)
+         Result( 'wts-b'+k+tag,
+	 ['wts-b'+k+tag,rarray],'Overlay')
+
+         #Receiver wavefield frame
+	 fdmod.wframe('wtr-b'+k+tag,
+	 'wtr-b'+k,i,' wheretitle=t  title="Wr(%4.3f)" pclip=99'%t,par)
+	 Result( 'wtr-b'+k+tag,
+	 ['wtr-b'+k+tag,rarray],'Overlay')
+
+	 #Cross-corr wavefield frame
+	 fdmod.wframe('cross_corr'+cases+k+tag,
+	 'cross_corr'+cases+k,i,' wheretitle=t title="Ws*Wr(%4.3f)" pclip=99'%t,par)
+	 Result( 'cross_corr'+cases+k+tag,
+         ['cross_corr'+cases+k+tag,rarray],'Overlay')
+
+         #Image so far:
+         Flow('img'+cases+k+tag,'cross_corr'+cases+k,
+         'window n3=%d|stack axis=3'%(i+1))
+
+     Flow('imgsfbyt'+'s-b_r-b'+k,map(lambda x:'img'+'s-b_r-b'+k+'-'+'%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
+     j=0
+     for i in range(0, 625 , par['jsnap_gr'] ):
+         tag = '-%03d'%i
+         t= i*par['dt']
+         rarray='rr'
+         cases='s-b_r-b'
+
+         fdmod.wframe('img'+cases+k+'_'+tag,
+         'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99'%t,par)
+
+         Result( 'img'+cases+k+tag,
+         ['img'+cases+k+'_'+tag,'rr'],'Overlay')
+
+         j = j +1
 # ------------------------------------------------------------
 End()

@@ -155,7 +155,7 @@ for s in SHOTS:
     fdmod.point('ss'+stag,par['ox']+s*par['dx'],0.01524,par)
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
-    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jdata=4 jsnap=4',par)
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10',par)
 
     ori=s*par['dx']
     npad= -1*int((par['o1x']+ori)/par['dx'])
@@ -173,7 +173,7 @@ for s in SHOTS:
       '''%par)
 
 
-    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 ',par)
 
 
     wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)

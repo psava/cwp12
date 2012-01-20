@@ -27,6 +27,25 @@ par = {
 # add F-D modeling parameters
 fdmod.param(par)
 #-------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+
+#-------------------------------------------------------------
 
 
 
@@ -113,6 +132,21 @@ Flow('vel_rtm','vel','window j2=2 j1=2')
 Flow('den_rtm','den','window j2=2 j1=2')
 
 
+Flow('vel_water','vel','math output="1.5"')
+
+
+stag='-0000'
+
+fdmod.point('ss'+stag,par['ox']+0.5*(par['nx']-1)*par['dx'],0.01524,par)
+fdmod.awefd2d('d0'+stag,'wt0s'+stag,'wav','vel_water','den','ss'+stag,'rr','',par)
+
+par['o1x']=-1*(par['ox']+0.5*(par['nx']-1)*par['dx'])
+Flow('water-wave',['d0'+stag],'put o1=%(o1x)f'%par)
+
+
+
+
+
 
 
 for s in SHOTS:
@@ -121,17 +155,31 @@ for s in SHOTS:
     fdmod.point('ss'+stag,par['ox']+s*par['dx'],0.01524,par)
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
-    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','',par)
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jdata=4 jsnap=4',par)
+
+    ori=s*par['dx']
+    npad= -1*int((par['o1x']+ori)/par['dx'])
+    par['ori']=ori
+    par['npad2']=npad
+
+    # Here I am deleting the recorded source wavefield from the data dd-stag --> process -->ds-stag
+    Flow('ds'+stag, ['water-wave','dd'+stag],
+      '''
+      window min1=-%(ori)f |
+      pad end1=%(nx)d | 
+      window n1=%(nx)d |
+      put o1=%(ox)f |
+      add scale=-1,1 ${SOURCES[1]} 
+      '''%par)
+
+
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr','jdata=4 jsnap=4 ',par)
+
+
+    wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)
     
 
 
-    
-    
 
-
-
-
-
-
-
+ 
 End()

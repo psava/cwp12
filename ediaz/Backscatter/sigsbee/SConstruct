@@ -6,6 +6,7 @@ import commands
  # Sigsbee 2A
 ##
 data='sigsbee2a_stratigraphy.sgy'
+Fetch(data,'sigsbee')
 Flow(['vstr2A','vstr2Ahead'],data,
          '''
          segyread tape=$SOURCE tfile=${TARGETS[1]} |
@@ -20,8 +21,25 @@ par = {
     'nx':3201, 'ox':0, 'dx':0.00762, 'lx':'x','ux':'km',
     'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
     'orec':0.0, 'jrec':1, 'nrec':1600,
-    'osou':6.0, 'jsou':32, 'nsou':25
+    'osou':6.0, 'jsou':32, 'nsou':1,
+    'nqx':801, 'oqx':6.0,
+    'nqz':801, 'oqz':0.0
     }
+
+
+
+
+
+wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
+
+
+
+
+
+
+
+
+
 
 
 # add F-D modeling parameters
@@ -73,7 +91,7 @@ Result('wav',
 Flow('r_',None,'math n1=%(nx)d d1=%(dx)g o1=%(ox)g output=0' % par)
 Flow('s_',None,'math n1=1      d1=0      o1=0      output=0' % par)
 # receiver positions
-Flow('zr','r_','math output="0" ')
+Flow('zr','r_','math output="2*%(dz)f" '%par)
 Flow('xr','r_','math output="x1"')
 Flow('rr',['xr','zr'],
      '''
@@ -155,7 +173,7 @@ for s in SHOTS:
     fdmod.point('ss'+stag,par['ox']+s*par['dx'],0.01524,par)
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
-    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10',par)
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10 '+wimage ,par)
 
     ori=s*par['dx']
     npad= -1*int((par['o1x']+ori)/par['dx'])
@@ -172,8 +190,9 @@ for s in SHOTS:
       add scale=-1,1 ${SOURCES[1]} 
       '''%par)
 
+    #fdmod.awefd2d('ds-tmp'+stag,'wtr'+stag,'ds'+stag,'vel','den','rr','rr','jsnap=10',par)
 
-    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 ',par)
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 '+wimage,par)
 
 
     wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)

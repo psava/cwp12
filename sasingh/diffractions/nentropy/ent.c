@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     int i1,i2,d1,d2,o1,ix1,ix2,ix , iz,m1,ix3,ix4;
 
     float  **d,**dat,**nsum,**neg,**dN;
-    float sumG,sumN,neg1,AmpNorm,h; 
+    float sumG,sumN,neg1,AmpNorm,h,h1; 
     double scalea, logs;
     sf_file in, out; /* Input and output files */
 
@@ -91,9 +91,11 @@ sumG=0;
           for (i2=o1; i2<n2; ++i2){
             for (i1=o1; i1<n1; ++i1){
 //              fprintf(stderr, "values: %f \n",dat[ix1][ix2]);
+                if (dat[i2][i1] * dat[i2][i1] > (0.5e-20)) {
 	            d[i2][i1]= dat[i2][i1] * dat[i2][i1]; //make all amplitudes positive
 //              fprintf(stderr, "values1: %f \n",d[ix1][ix2]);
-
+                  }
+                  else d[i2][i1]=0;
 //    fprintf(stderr,"values: %d %d\n",kmid1,kmid2);
               sumG += d[i2][i1];// sum of each trace
             }
@@ -126,12 +128,16 @@ sumG=0;
 
 //    fprintf(stderr,"values: %d %d\n",kmid1,kmid2);
       if (sumN==0.) AmpNorm=0;
-      else (AmpNorm =(d[ix1][ix2])/(sumN));
+      else (AmpNorm =(d[ix1][ix2])/(SumN));
        
 	      dN[ix1][ix2]=AmpNorm;
 		h=(((ix2-m1)*(ix2-m1))+((ix1-kmid2)*(ix1-kmid2)))/(2*box1*box2*1.41); //penalty oper
 		h=exp(-4*h);
-	        	scalea=box1*box2*AmpNorm*h;
+		h1=(((box1*0.5)*(box1*0.5))+((box2*0.5)*(box2*0.5)))/(2*box1*box2*1.41); //penalty oper
+    h1=exp(-4*h1);
+      if (h1>= h) scalea=0;
+      else
+	        	scalea=box1*box2*AmpNorm*(h-h1);
               if (AmpNorm==0) {logs=0;}
 //		else {logs=log(scalea);}
 //		        logs=log(scalea);

@@ -64,7 +64,7 @@ Flow('vsmo',
 # ------------------------------------------------------------
 # plot velocities
 for v in ('vstr','vsmo'):
-    Plot(  v+'i',f.cgrey('allpos=y bias=1.43',par)) # plot the velocity file
+    Plot(  v,f.cgrey('allpos=y bias=1.43',par)) # plot the velocity file
 
     # overlay sources and receivers
     Result(v+'i',[v,'ss','rH'],'Overlay') #overlay velocity file 
@@ -104,8 +104,8 @@ for i in range( int((par['nt']-1)/par['jsnap']) ):
     tag = '-%02d'%i
     f.wframe('wfld'+tag,
              'wfld',i,'pclip=99.9',par)
-    Result(  'wfld'+tag,
-            ['wfld'+tag,'ss','rH'],'Overlay') #overlay the source and reciever to to know where it is
+#    Result(  'wfld'+tag,
+#            ['wfld'+tag,'ss','rH'],'Overlay') #overlay the source and reciever to to know where it is
     
 # ------------------------------------------------------------
 # undo wavelet delay, remove the wavelet delay, because the wavelet had a delay in the begining
@@ -116,8 +116,8 @@ Flow('datH',
      pad end2=%(kt)d |
      put o2=%(ot)g
      ''' %par)
-Result('datH',       'window j2=4 | transp|'
-       + f.dgrey(''%par,par)) #dgrey is used to creat grey plots
+#Result('datH',       'window j2=4 | transp|'
+#       + f.dgrey(''%par,par)) #dgrey is used to creat grey plots
 # ------------------------------------------------------------
 
 
@@ -155,7 +155,7 @@ Flow('adif',map(lambda i: 'bps-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
      cat axis=3 space=n ${SOURCES[1:%d]} | 
      scale axis=123
      '''%ns)
-Result('adif',f.cgrey('',par))
+#Result('adif',f.cgrey('',par))
 
 #Cube of kurtosis from migrated diffracted images
 Flow('3Dafoc',
@@ -163,7 +163,7 @@ Flow('3Dafoc',
      '''
      focus rect1=100 rect2=100 rect3=5   
      '''%par)
-Result('3Dafoc',f.cgrey('color=j',par))
+#Result('3Dafoc',f.cgrey('color=j',par))
 #Cube of kurtosis from migrated diffracted images
 Flow('div3Dafoc',
      'adif',
@@ -171,21 +171,21 @@ Flow('div3Dafoc',
      focus rect1=100 rect2=100 rect3=5 |
      math output="1/abs(input)"
      '''%par)
-Result('3Dafoc',f.cgrey('color=j',par))
+#Result('3Dafoc',f.cgrey('color=j',par))
 #Cube of kurtosis from migrated diffracted images using different windows
 Flow('ZVafoc',
      'adif',
      '''
      focus rect1=100 rect3=3   
      '''%par)
-Result('ZVafoc',f.cgrey('color=j',par))
+#Result('ZVafoc',f.cgrey('color=j',par))
 #Cube of kurtosis from migrated diffracted images
 Flow('ZXafoc',
      'adif',
      '''
      focus rect1=100 rect2=100 
      '''%par)
-Result('ZXafoc',f.cgrey('color=j',par))
+#Result('ZXafoc',f.cgrey('color=j',par))
 
 #Overlay of kurtosis on diffractions images 
 #Flow('amix',['adif','afoc'],
@@ -225,23 +225,24 @@ Flow('ndifbyt'   ,'adif', 'byte gainpanel=a pclip=100')
 for j in range(ns):
   ve=1+(j-hs)*dve
   tag = "-%03d"%(ve*100)
-  Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)  
-  Result('ndif'+tag,
-         'ndifbyt',
-         'window n3=1 f3=%d |' %j
-         + f.cgrey('labelsz=9',par))
+#  Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)  
+
+#  Result('ndif'+tag,
+#         'ndifbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('labelsz=9',par))
   
   Flow('neg12'+tag,['ndif'+tag,'test.exe'],
        '''
        ./${SOURCES[1]} box1=100 box2=100
        '''%par)
-  Result('neg12'+tag,f.cgrey('color=j',par))
+#  Result('neg12'+tag,f.cgrey('color=j',par))
 
   Flow('neg2d1'+tag,['ndif'+tag,'neg2d.exe'],
        '''
        ./${SOURCES[1]} box1=100 box2=100
        '''%par)
-  Result('neg2d1'+tag,f.cgrey('color=j',par))
+#  Result('neg2d1'+tag,f.cgrey('color=j',par))
 
   Flow('ZXSafoc'+tag, 
        'ndif'+tag,
@@ -267,18 +268,23 @@ for j in range(ns):
        cat axis=3 space=n ${SOURCES[1:%d]} |
        scale axis=12
        '''%ns)
-  Result('aNeg2d',f.cgrey('allpos=y color=j',par))
+#  Result('aNeg2d',f.cgrey('allpos=y color=j',par))
 
 Flow('aNeg2dbyt'   ,'aNeg2d', 'byte gainpanel=a pclip=100')
 
 for j in range(ns):
   ve=1+(j-hs)*dve
   tag = "-%03d"%(ve*100)
-  Result('aNeg2dsc'+tag,
+  Plot('aNeg2dsc'+tag,
          'aNeg2dbyt',
          'window n3=1 f3=%d |' %j
          + f.cgrey('color=j labelsz=9',par))
-
+   
+  Plot('ndif'+tag,
+         'ndifbyt',
+         'window n3=1 f3=%d |' %j
+         + f.cgrey('labelsz=9',par))
+  Result('Side_dif_neg'+tag,['ndif'+tag,'aNeg2dsc'+tag],'SideBySideIso')
 #  Result('aZXSafoc',f.cgrey('allpos=y color=j',par))
 
 

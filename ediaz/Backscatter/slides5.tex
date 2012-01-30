@@ -17,6 +17,9 @@ ediazpan@mines.edu
 \def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
 \def\cen#1{\begin{center}        \textbf{#1} \end{center}}
 
+
+\setlength{\unitlength}{0.1cm} 
+
 % ------------------------------------------------------------
 \mode<beamer> { \cwpcover }
 
@@ -43,33 +46,58 @@ ediazpan@mines.edu
 
 \begin{frame}
 Modeling domain approach, without.
-\plot{fletcher_1}{width=0.6\textwidth}{}
+\plot{fletcher_1}{width=0.6\textwidth}{
+\put(-20,60){\vector(1,0){10}}
+\klabellarge{-8}{58}{\bf{x}}
+\put(-20,60){\vector(0,-1){10}}
+\klabellarge{-20}{45}{\bf{z}}}
+
 \end{frame}
 
 \begin{frame}
 With. From ~\cite{fletcher:2049}
-\plot{fletcher_2}{width=0.6\textwidth}{}
+\plot{fletcher_2}{width=0.6\textwidth}{
+\put(-20,60){\vector(1,0){10}}
+\klabellarge{-8}{58}{\bf{x}}
+\put(-20,60){\vector(0,-1){10}}
+\klabellarge{-20}{45}{\bf{z}}}
 \end{frame}
 
 \begin{frame}
 Image domain approach, without.
-\plot{antoine_1}{width=0.6\textwidth}{}
+\plot{antoine_1}{width=0.6\textwidth}{
+\put(-20,50){\vector(1,0){10}}
+\klabellarge{-8}{48}{\bf{x}}
+\put(-20,50){\vector(0,-1){10}}
+\klabellarge{-20}{35}{\bf{z}}}
 \end{frame}
 
 \begin{frame}
 With. From ~\cite{guitton:S19}
-\plot{antoine_2}{width=0.6\textwidth}{}
+\plot{antoine_2}{width=0.6\textwidth}{
+\put(-20,50){\vector(1,0){10}}
+\klabellarge{-8}{48}{\bf{x}}
+\put(-20,50){\vector(0,-1){10}}
+\klabellarge{-20}{35}{\bf{z}}}
 \end{frame}
 
 
 \begin{frame}
 Extended images filter approach, without.
-\plot{bruno_1}{width=0.6\textwidth}{}
+\plot{bruno_1}{width=0.6\textwidth}{
+\put(-20,60){\vector(1,0){10}}
+\klabellarge{-8}{58}{\bf{x}}
+\put(-20,60){\vector(0,-1){10}}
+\klabellarge{-20}{45}{\bf{z}}}
 \end{frame}
 
 \begin{frame}
 With. From ~\cite{kaelin:3125}
-\plot{bruno_2}{width=0.6\textwidth}{}
+\plot{bruno_2}{width=0.6\textwidth}{
+\put(-20,60){\vector(1,0){10}}
+\klabellarge{-8}{58}{\bf{x}}
+\put(-20,60){\vector(0,-1){10}}
+\klabellarge{-20}{45}{\bf{z}}}
 \end{frame}
 
 
@@ -84,18 +112,302 @@ With. From ~\cite{kaelin:3125}
 
 
 \inputdir{flat}
-\begin{frame} \big{Slow velocity (-20\% error) movie} \end{frame}
-\include{movie_imaging01}
+%\begin{frame} \big{Slow velocity (-20\% error) movie} \end{frame}
+%\include{movie_imaging01}
+
 \begin{frame} \big{Correct velocity movie} \end{frame}
-\include{movie_imaging05}
-\begin{frame} \big{Fast velocity (+20\% error) movie} \end{frame}
-\include{movie_imaging09}
+
+
+
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-000}{width=1\textwidth}{}
+      \plot{wts-b05-000}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-000}{width=1\textwidth}{}
+      \plot{wtr-b05-000}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-025}{width=1\textwidth}{}
+      \plot{wts-b05-025}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-025}{width=1\textwidth}{}
+      \plot{wtr-b05-025}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-050}{width=1\textwidth}{}
+      \plot{wts-b05-050}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-050}{width=1\textwidth}{}
+      \plot{wtr-b05-050}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-075}{width=1\textwidth}{}
+      \plot{wts-b05-075}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-075}{width=1\textwidth}{}
+      \plot{wtr-b05-075}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-100}{width=1\textwidth}{}
+      \plot{wts-b05-100}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-100}{width=1\textwidth}{}
+      \plot{wtr-b05-100}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-125}{width=1\textwidth}{}
+      \plot{wts-b05-125}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-125}{width=1\textwidth}{}
+      \plot{wtr-b05-125}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-150}{width=1\textwidth}{}
+      \plot{wts-b05-150}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-150}{width=1\textwidth}{}
+      \plot{wtr-b05-150}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-175}{width=1\textwidth}{}
+      \plot{wts-b05-175}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-175}{width=1\textwidth}{}
+      \plot{wtr-b05-175}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-200}{width=1\textwidth}{}
+      \plot{wts-b05-200}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-200}{width=1\textwidth}{}
+      \plot{wtr-b05-200}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-225}{width=1\textwidth}{}
+      \plot{wts-b05-225}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-225}{width=1\textwidth}{}
+      \plot{wtr-b05-225}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-250}{width=1\textwidth}{}
+      \plot{wts-b05-250}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-250}{width=1\textwidth}{}
+      \plot{wtr-b05-250}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-275}{width=1\textwidth}{}
+      \plot{wts-b05-275}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-275}{width=1\textwidth}{}
+      \plot{wtr-b05-275}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-300}{width=1\textwidth}{}
+      \plot{wts-b05-300}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-300}{width=1\textwidth}{}
+      \plot{wtr-b05-300}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-325}{width=1\textwidth}{}
+      \plot{wts-b05-325}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-325}{width=1\textwidth}{}
+      \plot{wtr-b05-325}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-350}{width=1\textwidth}{}
+      \plot{wts-b05-350}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-350}{width=1\textwidth}{}
+      \plot{wtr-b05-350}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-375}{width=1\textwidth}{}
+      \plot{wts-b05-375}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-375}{width=1\textwidth}{}
+      \plot{wtr-b05-375}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-400}{width=1\textwidth}{}
+      \plot{wts-b05-400}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-400}{width=1\textwidth}{}
+      \plot{wtr-b05-400}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-425}{width=1\textwidth}{}
+      \plot{wts-b05-425}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-425}{width=1\textwidth}{}
+      \plot{wtr-b05-425}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-450}{width=1\textwidth}{}
+      \plot{wts-b05-450}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-450}{width=1\textwidth}{}
+      \plot{wtr-b05-450}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-475}{width=1\textwidth}{}
+      \plot{wts-b05-475}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-475}{width=1\textwidth}{}
+      \plot{wtr-b05-475}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-500}{width=1\textwidth}{}
+      \plot{wts-b05-500}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-500}{width=1\textwidth}{}
+      \plot{wtr-b05-500}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-525}{width=1\textwidth}{}
+      \plot{wts-b05-525}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-525}{width=1\textwidth}{}
+      \plot{wtr-b05-525}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-550}{width=1\textwidth}{}
+      \plot{wts-b05-550}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-550}{width=1\textwidth}{}
+      \plot{wtr-b05-550}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-575}{width=1\textwidth}{}
+      \plot{wts-b05-575}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-575}{width=1\textwidth}{}
+      \plot{wtr-b05-575}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+ \begin{columns} 
+    \column{0.5\textwidth}
+      \plot{imgs-b_r-b05-600}{width=1\textwidth}{}
+      \plot{wts-b05-600}{width=1\textwidth}{}
+    \column{0.5\textwidth}
+      \plot{cross_corrs-b_r-b05-600}{width=1\textwidth}{}
+      \plot{wtr-b05-600}{width=1\textwidth}{}
+ \end{columns}
+\end{frame}
+
+
+
+
+
+
+%\begin{frame} \big{Fast velocity (+20\% error) movie} \end{frame}
+%\include{movie_imaging09}
 
 
 
 \begin{frame} \frametitle{Defining the backscattered energy.}
 
-\red{The only requirement to get it is to have a hard interface in the model}.
+\red{The only requirement to get it is to have a strong contrast in the model}.
 
 If that is the case, then, we can define:
 \beq
@@ -142,79 +454,128 @@ R(\bf{x_a},\bf{\lambda},\tau) = R(\bf{x_a},\bf{\lambda},\tau)^{nn} +R(\bf{x_a},\
 \inputdir{flat}
 \begin{frame} \frametitle{splitting the wavefield $\US$}
 
-     $\US^{b}= \US - \US^{n}$               
-    \plot{us_b05_ex}{width=0.5\textwidth}{  }
-   
+     %$\US^{b}= \US - \US^{n}$               
+
+    \plot{us_b05_ex}{width=0.5\textwidth}{
+      \klabellarge{35}{+40}{$\US^{b} = $}  }
+ 
  \begin{columns} 
     \column{0.3\textwidth}
-      \plot{wts-b05_ex}{width=1\textwidth}{}
+      \plot{wts-b05_ex}{width=1\textwidth}{
+      \klabellarge{30}{-20}{$(\US  $}  
+      \klabellarge{100}{-20}{$ -  $}  }
     \column{0.3\textwidth}
-      \plot{wts-n05_ex}{width=1\textwidth}{}
+      \plot{wts-n05_ex}{width=1\textwidth}{
+      \klabellarge{30}{-20}{$\US^{n} ) $}  }
     \column{0.3\textwidth}
-        \plot{mask05_ex}{width=1\textwidth}{}
- \end{columns}
+      \plot{mask05_ex}{width=1\textwidth}{
+      \klabellarge{20}{-20}{$\times MASK$}  }
+\end{columns}
  
  \end{frame}
 
 
  \begin{frame} 
- \plot{img05_ref}{height=0.45\textheight}{}
+ \plot{img05_ref}{height=0.45\textheight}{
+ \klabellarge{47}{-5}{$R(\bf{x})$} }
+
  \begin{columns} 
     \column{0.5\textwidth}
-      \plot{citx05_ref}{height=0.45\textheight}{}
+      \plot{citx05_ref}{height=0.45\textheight}{
+      \klabellarge{-40}{20}{$R(\bf{x},\bf{\lambda})$} }
     \column{0.5\textwidth}
-      \plot{cit05_ref}{height=0.45\textheight}{}
+      \plot{cit05_ref}{height=0.45\textheight}{
+      \klabellarge{-40}{20}{$R(\bf{x},\bf{\tau})$} }
+      
    \end{columns}
 \end{frame}
 
 
 \begin{frame}
- \plot{img05_ref}{height=0.3\textheight}{}
+ \plot{img05_ref}{height=0.3\textheight}{
+ \wlabellarge{75}{3}{$R(\bf{x})$}}
 \begin{columns}
     \column{0.5\textwidth}
-      \plot{img05_nn}{width=1\textwidth}{}
-      \plot{img05_bn}{width=1\textwidth}{}
+      \plot{img05_nn}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$R(\bf{x})^{nn}$}}
+      \plot{img05_bn}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$R(\bf{x})^{bn}$}}
+
     \column{0.5\textwidth}
-      \plot{img05_nb}{width=1\textwidth}{}
-      \plot{img05_bb}{width=1\textwidth}{}
+      \plot{img05_nb}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$R(\bf{x})^{nb}$}}
+
+      \plot{img05_bb}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$R(\bf{x})^{bb}$}}
+
 \end{columns}
 \end{frame}
 
 
 \begin{frame}
-      \plot{citx05_ref}{height=0.45\textheight}{}
+      \plot{citx05_ref}{height=0.45\textheight}{
+       \klabellarge{-50}{50}{$R(\bf{x},\bf{\lambda_x})$} }
 \begin{columns}
     \column{0.25\textwidth}
-      \plot{citx05_nn}{height=0.35\textheight}{}
+      \plot{citx05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\lambda_x})^{nn}$} } 
     \column{0.25\textwidth}
-      \plot{citx05_nb}{height=0.35\textheight}{}
+      \plot{citx05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\lambda_x})^{nb}$} }
     \column{0.25\textwidth}
-      \plot{citx05_bn}{height=0.35\textheight}{}
+      \plot{citx05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\lambda_x})^{bn}$} }
     \column{0.25\textwidth}
-      \plot{citx05_bb}{height=0.35\textheight}{}
+      \plot{citx05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\lambda_x})^{bb}$} }
 
 \end{columns}
 \end{frame}
 
 \begin{frame}
-      \plot{cit05_ref}{height=0.45\textheight}{}
+      \plot{cit05_ref}{height=0.45\textheight}{
+       \klabellarge{-50}{50}{$R(\bf{x},\bf{\tau})$} }
+
 \begin{columns}
     \column{0.25\textwidth}
-      \plot{cit05_nn}{height=0.35\textheight}{}
+      \plot{cit05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{nn}$} }
     \column{0.25\textwidth}
-      \plot{cit05_nb}{height=0.35\textheight}{}
+      \plot{cit05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{nb}$} }
     \column{0.25\textwidth}
-      \plot{cit05_bn}{height=0.35\textheight}{}
+      \plot{cit05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{bn}$} }
+
     \column{0.25\textwidth}
-      \plot{cit05_bb}{height=0.35\textheight}{}
+      \plot{cit05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{bb}$} }
 
 \end{columns}
 \end{frame}
 
+\inputdir{sigsbeeplot}
 
+ \begin{frame} 
 
+ \begin{columns} 
+    \column{0.2\textwidth}
+      \plot{Cigx5}{height=0.6\textheight}{}
+    \column{0.6\textwidth}
+      \plot{Image}{height=0.6\textheight}{}
+    \column{0.2\textwidth}
+      \plot{Cig5}{height=0.6\textheight}{}
+      
+   \end{columns}
+\end{frame}
 
-
+\inputdir{flat}
+\begin{frame} \frametitle{Summary}
+\begin{itemize}
+    \item We now understand the backscattered energy.
+    \item We understand which combinations contributes to the image.
+\end{itemize}
+\end{frame}
 
 
 \begin{frame} \frametitle{Test experiments}
@@ -225,7 +586,6 @@ R(\bf{x_a},\bf{\lambda},\tau) = R(\bf{x_a},\bf{\lambda},\tau)^{nn} +R(\bf{x_a},\
 \end{itemize}
 \end{frame}
 \cwpnote{}
-
 
 \begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
 

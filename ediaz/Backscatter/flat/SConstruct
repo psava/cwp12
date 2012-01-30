@@ -4,7 +4,7 @@ import fdmod,adcig,encode,wemig,math
 import commands
 
 par = {
-    'nt':2501, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
     'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
@@ -89,15 +89,15 @@ Result('wav','window n2=500 |'+fdmod.waveplot('',par))
 
 # ------------------------------------------------------------
 # data mask
-par['xk']=100
-par['xl']=par['nx']-100
+par['xk']=250
+par['xl']=par['nx']-par['xk']
 
 Flow('dmask',None,
      '''
      spike nsp=1 mag=1
      n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
      n2=%(nt)d d2=%(dt)g o2=%(ot)g |
-     smooth rect1=30 repeat=50
+     smooth rect1=50 repeat=30
      ''' % par)
 Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
@@ -198,7 +198,7 @@ for i in range(nvels):
      Result('vel'+tag+'-fat',['Fig/vel1d-dash','vel'+tag+'-fat'],'Overlay')
 
 # ------------------------------------------------------------
-# FD modeling
+# FD modeling to get data
 
 
 
@@ -209,7 +209,10 @@ fdmod.awefd2d('do','wo','wav','vc','zer', 'ss','rr','',par)
 Flow('dat',['dd','do','dmask'],
      '''
      add scale=+1,-1 ${SOURCES[1]} |
-     add mode=p      ${SOURCES[2]}
+     add mode=p      ${SOURCES[2]} |
+     transp |
+     bandpass flo=0.5|
+     transp
      ''')
 
 Flow('wfl',['wd','wo'],
@@ -250,7 +253,7 @@ for i in range(nvels):
     wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,'zer','rr','jdata=4 jsnap=4 ',par)
 
 
-    Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=15 |spray axis=3 n=626 o=0 d=0.004')
+    Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=10 |spray axis=3 n=751 o=0 d=0.004')
     
     Flow ('ur_b'+tag, ['wtr-b'+tag,'wtr-n'+tag,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
     Flow ('ur_n'+tag, ['wtr-b'+tag,'ur_b'+tag],'add ${SOURCES[1]} scale=1,-1')  
@@ -347,16 +350,24 @@ Result('us_n05_ex','us_n05_ex',fdmod.cgrey('',par))
 
 
 c=['bb','bn','nb','nn']
-
+c2=['bb','bn','nb','nn','ref']
+back=['bn','nb']
 
 for j in range(nvels):
      k='%02d'%j
 
 
 
-     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
-     Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
-     Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  | byte gainpanel=a pclip=99.99'%len(c))  
+     Flow('img'+k+'_ref',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+     Flow('cit'+k+'_ref',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+     # CIG
+     Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+
+
+
+     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%len(c2))  
+     Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}  |byte gainpanel=a pclip=99.8  '%len(c2))  
+     Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))  
      i=0
      for cases in ['b b','b n','n b','n n']:
           words=cases.split()
@@ -366,7 +377,9 @@ for j in range(nvels):
           # image
           Plot(  'img'+k+'_'+s+r,
                'img'+k+'_byt',
-               'window n3=1 f3=%d |'%i + fdmod.cgrey('',par))
+               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=100',par))
+#          fdmod.wframe('img'+k+'_'+s+r, 'img'+k+'_byt',i,' ',par)
+
           Result('img'+k+'_'+s+r,['img'+k+'_'+s +r,'rr','ssall','ggone'],'Overlay')
      
           # CIG
@@ -379,21 +392,44 @@ for j in range(nvels):
                  'window n3=1 f3=%d |'%i + adcig.xgrey('',par))
           i+=1
 
-     Flow('img'+k+'_ref',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
-      
+
+
      Plot(  'img'+k+'_ref',
-             'img'+k+'_ref',
-              fdmod.cgrey('pclip=99.9',par))
+          'img'+k+'_byt',
+          'window n3=1 f3=%d |'%(len(c2)-1) + fdmod.cgrey('pclip=99.8',par))
+ #    fdmod.wframe('img'+k+'_ref','img'+k+'_byt',len(c2)-1,' ',par)
+
      Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall','ggone'],'Overlay')
-     Flow('cit'+k+'_ref',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
-     # CIG
+
      Result('cit'+k+'_ref',
-                 'cit'+k+'_ref',
-                  adcig.tgrey('pclip=99.9',par))
-     Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(c))
+                 'cit'+k+'_byt',
+                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.tgrey('',par))
+
      Result('citx'+k+'_ref',
-                 'citx'+k+'_ref',
-                  adcig.xgrey('pclip=99.9',par))
+                'citx'+k+'_byt',
+                'window n3=1 f3=%d |'%(len(c2)-1) + adcig.xgrey('',par))
+
+
+
+
+    #################################################################################
+    ###################### Let us build the "pure" artifacts ########################
+    #################################################################################
+
+
+     Flow('img'+k+'_back',map(lambda x:'img'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(back))
+     Flow('cit'+k+'_back',map(lambda x:'cit'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(back))
+     Flow('citx'+k+'_back',map(lambda x:'citx'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(back))
+
+
+     Flow('penal_cit'+k+'_back','cit'+k+'_back','math output="abs(x2)*input"')
+     Flow('penal_cix'+k+'_back','cit'+k+'_back','math output="abs(x2)*input"')
+
+
+
+
+
+
 
 
 
@@ -402,7 +438,7 @@ for j in range(nvels):
 frames= range(0, 625 , par['jsnap_gr'] )
 
 # cases to test in a movie!
-for k in ['01','05','09']:
+for k in ['05']:
 
 #     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey('',par))
      cases='s-b_r-b'    
@@ -436,9 +472,12 @@ for k in ['01','05','09']:
 
          #Image so far:
          Flow('img'+cases+k+tag,'cross_corr'+cases+k,
-         'window n3=%d|stack axis=3'%(i+1))
+         'window n3=%d| stack axis=3 norm=n '%(i+1))
 
      Flow('imgsfbyt'+'s-b_r-b'+k,map(lambda x:'img'+'s-b_r-b'+k+'-'+'%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
+
+     
+
      j=0
      for i in range(0, 625 , par['jsnap_gr'] ):
          tag = '-%03d'%i
@@ -446,12 +485,37 @@ for k in ['01','05','09']:
          rarray='rr'
          cases='s-b_r-b'
 
-         fdmod.wframe('img'+cases+k+'_'+tag,
-         'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99'%t,par)
+#         fdmod.wframe('img'+cases+k+'_'+tag,
+#         'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99'%t,par)
 
+         #Plot('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k, 'window f3=%d n3=1|'%(i)+ fdmod.cgrey('pclip=100',par))
+         fdmod.wframe('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99.8 '%t,par)
          Result( 'img'+cases+k+tag,
          ['img'+cases+k+'_'+tag,'rr'],'Overlay')
 
          j = j +1
 # ------------------------------------------------------------
+
+
+
+##############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 End()

@@ -1,0 +1,160 @@
+# 
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,math
+import commands
+
+par = {
+    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
+    'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25,
+    'jsou':300, 'nsou':3, 'osou':0.0
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+
+# ------------------------------------------------------------
+# source
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',0,par)
+Plot('rr',fdmod.rrplot('',par))
+
+
+
+Flow('ss','rr','window j2=%(jsou)d'%par)
+Plot('ss',fdmod.ssplot('',par))
+
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',12,par)
+Flow(  'wav', 'wav_','transp')
+
+Result('wav','window n2=500 |'+fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=300
+par['xl']=par['nx']-par['xk']
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=50 repeat=50
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
+
+# ------------------------------------------------------------
+# reflectors
+zo=300
+perc=0.75
+perc_inc=0.05
+
+par['perc']=perc
+par['perc_inc']=perc_inc
+
+nvels=11
+
+vels=''
+for i in range(nvels):
+# ------------------------------------------------------------
+# CIPs
+     par['zi']=math.floor(zo*par['perc'])
+     print i, par['zi']
+     tag='%02d'%i
+     
+     fdmod.horizontal('ct'+tag,par['zi']*par['dz'],par)
+     Flow('cc'+tag,'ct'+tag,'window j2=%(jcx)d'%par)
+     Plot('cc'+tag,   fdmod.qqplot('plotcol=5 plotfat=10',par))
+
+     Flow('den'+tag,None,
+         '''
+         spike nsp=1 mag=1.0
+         n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=%(zi)d l1=%(nz)d |
+         spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+         add add=1
+         ''' % (par))
+     Flow('vel'+tag,'den'+tag,
+        '''
+        math output="%(perc)f*(2.2*(2-input) ) +(input-1)*(3.5) " |
+        math output="input +%(perc)f*0.5*(exp(-(x1-0.5)^2/(2*0.25) -(x2-3.75)^2/(2*0.25)))" |
+        math  output="input +%(perc)f*-0.5*(exp(-(x1-0.5)^2/(2*0.25) -(x2-6.25)^2/(2*0.25)))" |
+        math  output="(2.2*(2-input)) +(input-1)*(3.5)" 
+        '''%par)
+
+     Flow('vel-const'+tag,'den'+tag,'math output="%(perc)f*(2.2 +input*0 )"'%( par))
+     par['perc'] = par['perc'] + par['perc_inc']
+     vels=vels+'vel'+tag+'.rsf '
+
+
+
+
+
+
+
+Flow('zer','den00','math output="1.0"')
+Flow('vc','den00','math output="2.2"')
+
+
+for i in range(nvels):
+     tag='%02d'%i 
+     Plot('den'+tag,fdmod.cgrey('pclip=100 bias=1',par))
+     Plot('vel'+tag,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
+
+     for j in (['vel','den']):
+          Result(j+tag,[j+tag,'rr','ggone','ssall'],'Overlay')
+
+
+Plot('zer',fdmod.cgrey('pclip=100 bias=1',par))
+Result('zer',['zer','rr','ggone','ssall'],'Overlay')
+
+
+
+
+vel2mig=[2,5,8]
+
+
+
+
+
+
+for i in vel2mig:
+    k='%02d'%i
+    tag=k
+    # migration (RTM)
+    vel='vel'+k
+
+
+    for s in range(par['nsou']):
+         ws= (s)*par['jsou']*par['dx'] + par['osou']
+         stag="%02d"%(s-1)
+
+         Flow('ss'+stag,'ss','window n2=1 f2=%d'%(s-1))
+         wemig.fWRawe('dts','wts-b'+k+'_'+stag,vel,'zer','ss'+stag,'jdata=4 jsnap=4 ',par)
+         Flow('data'+k+'_'+stag,'wts-b'+k+'_'+stag,
+         '''
+         window n1=1 f1=0 | 
+         transp |
+         mutter x0=%g v0=4.5 t0=0.2 | 
+         bandpass flo=3.0 |
+         transp 
+         '''%ws )
+
+         
+
+

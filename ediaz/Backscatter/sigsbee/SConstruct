@@ -19,21 +19,20 @@ par = {
     'kt':100,    # wavelet delay
     'nx':3201, 'ox':0, 'dx':0.00762, 'lx':'x','ux':'km',
     'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
-    'orec':6.00456, 'jrec':1, 'nrec':800,
-    'osou':6.00456, 'jsou':32, 'nsou':25,
+    'orec':16.00200, 'jrec':1, 'nrec':800,
+    'osou':16.00200, 'jsou':32, 'nsou':25,
     'nb':150
     }
 
 
-
+plotpar=par
 
 
 plotpar = {
     'nt':7000, 'dt':0.001,'ot':0,    'lt':'t','ut':'s',
-    'ox':6.00456, 'nx':800, 'dx':0.00762, 'lx':'x','ux':'km',
+    'ox':par['orec'], 'nx':800, 'dx':0.00762, 'lx':'x','ux':'km',
     'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
     'nhz':0 , 'nhx':100, 'nhz':100, 'dht':0.001, 
-    'zmin':0.0
     }
 
 
@@ -184,7 +183,20 @@ Flow('vel_water','vel','math output="1.5"')
 
 
 
-iwindow='nqx=1050 oqx=5.00050'
+iwindow='nqx=1050 oqx=%g'%(par['orec']-1.0)
+
+par['nkx']=100
+par['nlx']=par['nrec']-par['nkx']
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n2=%(nrec)d d2=%(dx)g o2=%(orec)g k2=%(nkx)d l2=%(nlx)d
+     n1=%(nt)d d1=%(dt)g o1=%(ot)g |
+     smooth rect2=50 repeat=30 | 
+     transp
+     ''' % par)
+
+
 
 
 
@@ -235,6 +247,7 @@ for s in SHOTS:
 
 
 
+
 Flow('ss','rr','window j2=%(jsou)d'%par)
 Plot('ss',fdmod.ssplot('',par))
 Plot('gg5','gg','window f2=%d n2=%d | '%(par['nz']*4,par['nz'])+fdmod.qqplot('',par))
@@ -242,7 +255,7 @@ Plot('gg5','gg','window f2=%d n2=%d | '%(par['nz']*4,par['nz'])+fdmod.qqplot('',
 
 
 
-Flow('Image',map(lambda x:'Img-%04d'%x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3'%len(SHOTS))
+Flow('Image',map(lambda x:'Img-%04d'%x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3 norm=n'%len(SHOTS))
 
 Plot('Image','Image',fdmod.cgrey('pclip=99.9',par))
 
@@ -251,7 +264,7 @@ Result ('Image',['Image','rr','ss','gg5'],'Overlay')
 Flow('Cig',map(lambda x:'cig-%04d'%x,SHOTS),
    '''
    cat axis=5 space=n ${SOURCES[1:%d]} | 
-   stack axis=5| 
+   stack axis=5 norm=n| 
    transp plane=41 |
    put n1=%d n2=%d |
    transp plane=23 |
@@ -264,7 +277,7 @@ Flow('Cig',map(lambda x:'cig-%04d'%x,SHOTS),
 Flow('Cigx',map(lambda x:'cigx-%04d'%x,SHOTS),
    '''
    cat axis=5 space=n ${SOURCES[1:%d]} | 
-   stack axis=5| 
+   stack axis=5 norm=n| 
    transp plane=41 |
    transp plane=23 |
    put n1=%d n2=%d |
@@ -274,8 +287,8 @@ Flow('Cigx',map(lambda x:'cigx-%04d'%x,SHOTS),
 
 
 
-Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('',par))
-Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('',par))
+Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',par))
+Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.9',par))
 
 
  

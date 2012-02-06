@@ -1,0 +1,80 @@
+from rsf.proj import *
+import fdmod, adcig, encode, wemig, math
+import commands
+
+## 
+ # Sigsbee 2A
+##
+# ------------------------------------------------------------
+par = {
+    'nt':7000, 'dt':0.001,'ot':0,    'lt':'t','ut':'s',
+    'kt':100,    # wavelet delay
+    'nx':3201, 'ox':0, 'dx':0.00762, 'lx':'x','ux':'km',
+    'nz':900, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
+    'orec':6.00456, 'jrec':1, 'nrec':800,
+    'osou':6.00456, 'jsou':32, 'nsou':25,
+    'nb':150
+    }
+par['oxold']=par['ox']
+par['ox']=par['orec']
+par['nx']=par['nrec']
+par['nzold']=1201
+# source
+par['xsou']=par['orec']+par['nrec']/2*par['dx']
+
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+par['jcx']=80
+par['ncx']=par['nx']/par['jcx']
+# add F-D modeling parameters
+fdmod.param(par)
+#-------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*par['jsnap']
+
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+
+Plot('ggone',fdmod.qqplot('',par))
+
+Plot('gg',fdmod.qqplot('',par))
+
+Plot('rr',fdmod.rrplot('',par))
+par['fsou']=int((par['osou']-par['oxold'])/par['dx'])
+SHOTS=range(par['fsou'],
+            par['fsou']+par['nsou']*par['jsou'],
+            par['jsou'])
+
+
+
+
+for s in SHOTS:
+    stag = "-%04d"%s
+    Plot('Img'+stag,'Img'+stag,fdmod.cgrey('pclip=99.8',par))
+
+Plot('ss',fdmod.ssplot('',par))
+Plot('gg5','gg','window f2=%d n2=%d | '%(par['nzold']*4,par['nzold'])+fdmod.qqplot('',par))
+
+Plot('Image','Image',fdmod.cgrey('pclip=99.5',par))
+
+Result ('Image',['Image','rr','ss','gg5'],'Overlay')
+
+Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',par))
+Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99',par))
+
+ 
+End()

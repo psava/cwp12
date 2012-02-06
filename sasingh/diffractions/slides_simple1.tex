@@ -1,0 +1,488 @@
+
+
+\title[]{Measure of Defocussing using Diffractions}
+\subtitle{}
+\author[]{Satyan Singh}
+\institute{
+Center for Wave Phenomena \\
+Colorado School of Mines \\
+sasingh@mines.edu
+}
+\date{}
+\logo{}
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\inputdir{sigsbee}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Introduction}
+What is focussing
+
+\begin{itemize}
+   \item When focussed, diffractions collapse to a point
+   \item When defoccused they are smeared out 
+\end{itemize}
+
+\end{frame}
+\cwpnote{}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Probability Distribution}
+  \inputdir{XFig}
+  \plot{file}{width=\textwidth}{}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Kurtosis}
+
+   \begin{equation} 
+      C_4 = E[x^4] - 3(E[x^2])^2 
+   \end{equation}
+  \begin{itemize} 
+    \item Measure of peakedness relative to normal distributions
+    \item Indicates heaviness of the tails of pdf 
+    \item Measure of non-gaussianity 
+    \item Sensitive to outliers 
+  \end{itemize}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Negentropy}
+
+   \begin{equation} 
+      H =(1/N) \sum_{N}^{i=1} q_i log q_i
+   \end{equation}
+  \begin{itemize} 
+    \item robust to outliers
+    \item Measure of non-gaussianity 
+  \end{itemize}
+\end{frame}
+% -------------------------------------------------------
+\inputdir{test}
+\begin{frame} 
+  \plot{out2}{width=\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\inputdir{test}
+\begin{frame}
+  \plot{test3}{width=\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\inputdir{test}
+\begin{frame}
+  \plot{out1}{width=\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\inputdir{sigsbee}
+\begin{frame} \frametitle{Sigsbee Model}
+
+\begin{itemize}
+   \item Simple Models of Diffraction Data 
+\end{itemize}
+
+\end{frame}
+% -------------------------------------------------------
+\begin{frame} \frametitle{Velocity model}
+\inputdir{sigsbee}
+	\plot{vstr}{width=0.6\textwidth} {}
+	\plot{vsmo}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{timg}{width=0.6\textwidth} {}
+	\plot{uimg}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{tfoc}{width=0.6\textwidth} {}
+	\plot{ufoc}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-076}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-076}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-076}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-076}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-078}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-078}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-078}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-078}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-080}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-080}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-080}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-080}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-082}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-082}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-082}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-082}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-084}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-084}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-084}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-084}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-086}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-086}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-086}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-086}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-088}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-088}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-088}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-088}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-090}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-090}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-090}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-090}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-092}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-092}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-092}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-092}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-094}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-094}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-094}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-094}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-096}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-096}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-098}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-098}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-100}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-100}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-100}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-100}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-102}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-102}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-102}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-102}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-104}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-104}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-104}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-104}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-106}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-106}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-106}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-106}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-108}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-108}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-108}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-108}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-110}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-110}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-110}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-110}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-112}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-112}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-112}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-112}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-114}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-114}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-114}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-114}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-115}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-115}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-115}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-115}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-118}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-118}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-118}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-118}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-120}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-120}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-120}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-120}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-122}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-122}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-122}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-122}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-124}{width=0.6\textwidth} {}
+	\plot{3Dnfoc-124}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ZVnfoc-124}{width=0.6\textwidth} {}
+	\plot{ZXnfoc-124}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-076}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-076}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-078}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-078}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-080}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-080}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-082}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-082}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-084}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-084}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-086}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-086}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-088}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-088}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-090}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-090}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-092}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-092}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-094}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-094}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-096}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-096}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-098}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-098}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-100}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-100}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-102}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-102}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-104}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-104}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-106}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-106}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-108}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-108}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-110}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-110}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-112}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-112}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-114}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-114}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-115}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-115}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-118}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-118}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-120}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-120}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-122}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-122}{width=0.6\textwidth} {}
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+	\plot{ndif-124}{width=0.6\textwidth} {}
+	\plot{div3Dnfoc-124}{width=0.6\textwidth} {}
+\end{frame}	
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Diffractions}
+Observe diffractions for different velocity models 
+\begin{itemize}
+   \item Gulf of mexico data scons 
+   \item Sigsbee data 
+\end{itemize}
+
+\end{frame}
+\cwpnote{}
+
+% -----------------------------------------------------------
+

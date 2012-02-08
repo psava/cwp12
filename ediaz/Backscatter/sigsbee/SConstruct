@@ -6,7 +6,6 @@ import commands
  # Sigsbee 2A
 ##
 data='sigsbee2a_stratigraphy.sgy'
-Fetch(data,'sigsbee')
 Flow(['vstr2A','vstr2Ahead'],data,
          '''
          segyread tape=$SOURCE tfile=${TARGETS[1]} |
@@ -20,7 +19,6 @@ par = {
     'kt':100,    # wavelet delay
     'nx':3201, 'ox':0, 'dx':0.00762, 'lx':'x','ux':'km',
     'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
-<<<<<<< HEAD
     'orec':16.00200, 'jrec':1, 'nrec':800,
     'osou':16.00200, 'jsou':32, 'nsou':25,
     'nb':150
@@ -32,24 +30,11 @@ plotpar=par
 
 plotpar = {
     'nt':7000, 'dt':0.001,'ot':0,    'lt':'t','ut':'s',
-    'ox':par['orec'], 'nx':800, 'dx':0.00762, 'lx':'x','ux':'km',
-    'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
+    'ox':16.00200, 'nx':800, 'dx':0.00762, 'lx':'x','ux':'km',
+    'nz':801, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
     'nhz':0 , 'nhx':100, 'nhz':100, 'dht':0.001, 
     }
 
-=======
-    'orec':0.0, 'jrec':1, 'nrec':1600,
-    'osou':6.0, 'jsou':32, 'nsou':1,
-    'nqx':801, 'oqx':6.0,
-    'nqz':801, 'oqz':0.0
-    }
-
-
-
-
-
-wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
->>>>>>> 1cdbd39f5f0667043f93d718fe6574bbf9733cb8
 
 
 
@@ -60,7 +45,6 @@ wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
 
 
 
-<<<<<<< HEAD
 # source
 par['xsou']=par['orec']+par['nrec']/2*par['dx']
 
@@ -69,9 +53,6 @@ par['ixsou']=par['nx']/2
 par['izsou']=1
 par['jcx']=80
 par['ncx']=par['nx']/par['jcx']
-=======
-
->>>>>>> 1cdbd39f5f0667043f93d718fe6574bbf9733cb8
 # add F-D modeling parameters
 fdmod.param(par)
 #-------------------------------------------------------------
@@ -136,18 +117,13 @@ Flow('r2_',None,'math n1=%(nx)d d1=%(dx)g o1=%(ox)g output=0' % par)
 
 Flow('s_',None,'math n1=1      d1=0      o1=0      output=0' % par)
 # receiver positions
-<<<<<<< HEAD
 Flow('zr','r_','math output="2*%(dz)g" '%par)
-=======
-Flow('zr','r_','math output="2*%(dz)f" '%par)
->>>>>>> 1cdbd39f5f0667043f93d718fe6574bbf9733cb8
 Flow('xr','r_','math output="x1"')
 Flow('rr',['xr','zr'],
      '''
      cat axis=2 space=n
      ${SOURCES[0]} ${SOURCES[1]} | transp
      ''', stdin=0)
-Plot('rr',fdmod.rrplot('',par))
 
 
 
@@ -229,11 +205,7 @@ for s in SHOTS:
     fdmod.point('ss'+stag,s*par['dx'],2*par['dz'],par)
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
-<<<<<<< HEAD
     fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=5 '+iwindow,par)
-=======
-    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10 '+wimage ,par)
->>>>>>> 1cdbd39f5f0667043f93d718fe6574bbf9733cb8
 
     ori=(s)*par['dx']
     par['ori']=ori
@@ -248,14 +220,9 @@ for s in SHOTS:
       transp
       '''%par)
 
-    #fdmod.awefd2d('ds-tmp'+stag,'wtr'+stag,'ds'+stag,'vel','den','rr','rr','jsnap=10',par)
 
-<<<<<<< HEAD
     # back propagation of the receiver wavefield
     wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr','jsnap=5 '+iwindow,par)
-=======
-    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 '+wimage,par)
->>>>>>> 1cdbd39f5f0667043f93d718fe6574bbf9733cb8
 
 
     # cross-correlations: conventional image, source illumination, receiver ilumination
@@ -279,19 +246,22 @@ for s in SHOTS:
 
 
 
+fdmod.param(plotpar)
 
 Flow('ss','rr','window j2=%(jsou)d'%par)
-Plot('ss',fdmod.ssplot('',par))
-Plot('gg5','gg','window f2=%d n2=%d | '%(par['nz']*4,par['nz'])+fdmod.qqplot('',par))
+Plot('ss',fdmod.ssplot('',plotpar))
+Plot('gg5','gg','window f2=%d n2=%d | '%(par['nz']*4,par['nz'])+fdmod.qqplot('',plotpar))
+Plot('gg4','gg','window f2=%d n2=%d | '%(par['nz']*3,par['nz'])+fdmod.qqplot('',plotpar))
 
+Plot('rr',fdmod.rrplot('',plotpar))
 
 
 
 Flow('Image',map(lambda x:'Img-%04d'%x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3 norm=n'%len(SHOTS))
 
-Plot('Image','Image',fdmod.cgrey('pclip=99.9',par))
+Plot('Image','Image',fdmod.cgrey('pclip=99.8',plotpar))
 
-Result ('Image',['Image','rr','ss','gg5'],'Overlay')
+Result ('Image',['Image','rr','ss','gg4'],'Overlay')
 
 Flow('Cig',map(lambda x:'cig-%04d'%x,SHOTS),
    '''
@@ -319,9 +289,10 @@ Flow('Cigx',map(lambda x:'cigx-%04d'%x,SHOTS),
 
 
 
-Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',par))
-Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.9',par))
+Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',plotpar))
+Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.9',plotpar))
 
-
+Result('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
+Result('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))
  
 End()

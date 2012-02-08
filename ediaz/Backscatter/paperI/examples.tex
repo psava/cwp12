@@ -1,0 +1,44 @@
+\section{Examples}
+
+Here I will show the examples with:
+\begin{itemize}
+ \item Two layer model
+ \item Show wavefield synchronization concept
+ \item Show consistency with observation in more complicated 
+ settings like sigsbee.
+
+
+\inputdir{flat}
+
+%Wavefield movie:
+\multiplot{3}{imgs-b_r-b05-150,imgs-b_r-b05-275,imgs-b_r-b05-500,cross_corrs-b_r-b05-150,cross_corrs-b_r-b05-275,cross_corrs-b_r-b05-500,wts-b05-150,wts-b05-275,wts-b05-500,wtr-b05-150,wtr-b05-275,wtr-b05-500}{width=0.3\textwidth}{RTM imaging exercise: columns 1, 2 and 3 correspond to three different snapshots. Rows 1 to 4 correspond to the accumulated image, the cross-correlation, source and receiver wavefield respectively.}
+
+\plot{multipanel}{width=\textwidth}{RTM imaging exercise: columns 1, 2 and 3 correspond to three different snapshots. Rows 1 to 4 coresspond to the accumulated image, the cross-correlation, source and receiver wavefield respectively.}
+
+%Image splitting:
+\multiplot{2}{img05_ref,img05_nn,img05_bn,img05_nb,img05_bb}{width=0.4\textwidth}{Linearity of the imaging condition. We can split the conventional image (a) into four cases: $R(\bf{x})^{nn}$ (b), $R(\bf{x})^{bn}$ (c), $R(\bf{x})^{nb}$ (d), $R(\bf{x})^{bb}$ (e)}
+
+%Time-lag splitting":
+\multiplot{2}{cit05_ref,cit05_nn,cit05_bn,cit05_nb,cit05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (time-lags). We can split the conventional image (a) into four cases: $R(\bf{x},\tau)^{nn}$ (b), $R(\bf{x},\tau)^{bn}$ (c), $R(\bf{x},\tau)^{nb}$ (d), $R(\bf{x},\tau)^{bb}$ (e)}
+
+%Space-lag splitting":
+\multiplot{2}{citx05_ref,citx05_nn,citx05_bn,citx05_nb,citx05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (space-lags). We can split the conventional image (a) into four cases: $R(\bf{x},\lambda_x)^{nn}$ (b), $R(\bf{x},\lambda_x)^{bn}$ (c), $R(\bf{x},\lambda_x)^{nb}$ (d), $R(\bf{x},\lambda_x)^{bb}$ (e)}
+
+%Cip splitting":
+\multiplot{2}{cip05_ref,cip05_nn,cip05_bn,cip05_nb,cip05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (space-lags). We can split the conventional image (a) into four cases: $R(\bf{x},\lambda_x)^{nn}$ (b), $R(\bf{x},\lambda_x)^{bn}$ (c), $R(\bf{x},\lambda_x)^{nb}$ (d), $R(\bf{x},\lambda_x)^{bb}$ (e)}
+
+
+
+
+
+
+\inputdir{sigsbee}
+
+
+\multiplot{2}{Image,Cig4,Cigx4}{height=0.3\textheight}{Sigsbee experiment: image shown in (a), green dots show the source locations, a fixed spread was used at the surface. Yellow line in (a) show the location of the time-shift gather in (b) and the space-lag gather in (c).}
+
+
+
+
+
+\end{itemize}

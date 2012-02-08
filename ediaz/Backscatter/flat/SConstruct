@@ -1,7 +1,7 @@
 # 
 from rsf.proj import *
 import fdmod,adcig,encode,wemig,math
-import commands
+import commands,pplot
 
 par = {
     'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
@@ -298,13 +298,16 @@ for i in range(nvels):
         wemig.cic('img'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'nbuf=100 ',par)
         wemig.eic('cig'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
         wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
+        if (k=='05'):
+            wemig.eic('cigp'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,' nhx=0 ',par)
+            Flow('cip'+k+'_'+s+r,'cigp'+k+'_'+s+r,'sfstack axis=4 norm=n |sftransp plane=32')           
 
         Flow('citx'+k+'_'+s+r,
            'cigx'+k+'_'+s+r,
            '''
            put n4=%d n5=%d label4=z label5=c |
            window |
-           stack axis=3 | transp
+           stack axis=3 norm=n| transp
            '''%(par['nz'],par['nx']/par['jcx'])
         )
 
@@ -313,7 +316,7 @@ for i in range(nvels):
            '''
            put n4=%d n5=%d label4=z label5=c |
            window |
-           stack axis=3 | transp
+           stack axis=3 norm=n | transp
            '''%(par['nz'],par['nx']/par['jcx'])
         )
  
@@ -389,7 +392,9 @@ for j in range(nvels):
      # CIG
      Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
 
-
+     if(k=='05'):
+          Flow('cip'+k+'_ref',map(lambda x:'cip'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+          Flow('cip'+k+'_byt',map(lambda x:'cip'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))
 
      Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%len(c2))  
      Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}  |byte gainpanel=a pclip=99.8  '%len(c2))  
@@ -416,7 +421,12 @@ for j in range(nvels):
           Result('citx'+k+'_'+s+r,
                  'citx'+k+'_byt',
                  'window n3=1 f3=%d |'%i + adcig.xgrey('',par))
-          i+=1
+          if (k=='05'):
+              Result('cip'+k+'_'+s+r,
+                 'cip'+k+'_byt',
+                 'window n3=1 f3=%d |'%i + adcig.ztgrey('',par))
+
+          i+=1 
 
 
 
@@ -434,7 +444,10 @@ for j in range(nvels):
      Result('citx'+k+'_ref',
                 'citx'+k+'_byt',
                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.xgrey('',par))
-
+     if (k=='05'):
+          Result('cip'+k+'_ref',
+                 'cip'+k+'_byt',
+                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.ztgrey('',par))
 
 
 
@@ -488,18 +501,24 @@ for k in ['05']:
          #Source wavefield frame
 	 fdmod.wframe('wts-b'+k+tag,
 	 'wts-b'+k,i,' wheretitle=t title="Ws(%4.3f)" pclip=99'%t,par)
+	 fdmod.wframe('awts-b'+k+tag,
+	 'wts-b'+k,i,' wheretitle=t pclip=99  labelfat=1',par)
          Result( 'wts-b'+k+tag,
 	 ['wts-b'+k+tag,rarray],'Overlay')
 
          #Receiver wavefield frame
 	 fdmod.wframe('wtr-b'+k+tag,
 	 'wtr-b'+k,i,' wheretitle=t  title="Wr(%4.3f)" pclip=99'%t,par)
+	 fdmod.wframe('awtr-b'+k+tag,
+	 'wtr-b'+k,i,'  labelfat=1',par)
 	 Result( 'wtr-b'+k+tag,
 	 ['wtr-b'+k+tag,rarray],'Overlay')
 
 	 #Cross-corr wavefield frame
 	 fdmod.wframe('cross_corr'+cases+k+tag,
 	 'cross_corr'+cases+k,i,' wheretitle=t title="Ws*Wr(%4.3f)" pclip=99'%t,par)
+	 fdmod.wframe('across_corr'+cases+k+tag,
+	 'cross_corr'+cases+k,i,' wheretitle=t pclip=99  labelfat=1',par)
 	 Result( 'cross_corr'+cases+k+tag,
          ['cross_corr'+cases+k+tag,rarray],'Overlay')
 
@@ -523,6 +542,7 @@ for k in ['05']:
 
          #Plot('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k, 'window f3=%d n3=1|'%(i)+ fdmod.cgrey('pclip=100',par))
          fdmod.wframe('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99.8 '%t,par)
+         fdmod.wframe('aimg'+cases+k+'_'+tag, 'imgsfbyt'+cases+k,j,' wheretitle=t  pclip=99.8 labelfat=1',par)
          Result( 'img'+cases+k+tag,
          ['img'+cases+k+'_'+tag,'rr'],'Overlay')
 
@@ -530,4 +550,15 @@ for k in ['05']:
 # ------------------------------------------------------------
 
 ##############################################################
+
+#Movie snapshots for article:
+
+tmp="awtr-b05-150 awtr-b05-275 awtr-b05-500 awts-b05-150 awts-b05-275 awts-b05-500 across_corrs-b_r-b05-150 across_corrs-b_r-b05-275 across_corrs-b_r-b05-500 aimgs-b_r-b05_-150 aimgs-b_r-b05_-275 aimgs-b_r-b05_-500"  
+
+allplots=tmp.split()
+allplots2=allplots
+
+print allplots
+pplot.multip('multipanel',allplots,4,3,0.21,0.21,-5,-12)
+
 End()

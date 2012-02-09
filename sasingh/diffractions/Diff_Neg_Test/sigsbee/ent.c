@@ -1,1 +1,0 @@
-../../nentropy/ent.c

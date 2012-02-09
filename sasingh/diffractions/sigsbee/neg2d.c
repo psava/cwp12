@@ -1,1 +1,0 @@
-/Users/singh/cwp12/sasingh/diffractions/neg2d/neg2d.c

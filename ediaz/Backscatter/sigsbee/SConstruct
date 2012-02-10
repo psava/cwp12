@@ -57,6 +57,9 @@ wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
 
 
 
+<<<<<<< HEAD
+>>>>>>> f47777226066783ac8e058409a76f10600c71af9
+=======
 >>>>>>> f47777226066783ac8e058409a76f10600c71af9
 
 
@@ -66,6 +69,7 @@ wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 
@@ -77,6 +81,8 @@ par['ixsou']=par['nx']/2
 par['izsou']=1
 par['jcx']=80
 par['ncx']=par['nx']/par['jcx']
+=======
+>>>>>>> f47777226066783ac8e058409a76f10600c71af9
 =======
 >>>>>>> f47777226066783ac8e058409a76f10600c71af9
 # add F-D modeling parameters
@@ -144,7 +150,11 @@ Flow('r2_',None,'math n1=%(nx)d d1=%(dx)g o1=%(ox)g output=0' % par)
 Flow('s_',None,'math n1=1      d1=0      o1=0      output=0' % par)
 # receiver positions
 <<<<<<< HEAD
+<<<<<<< HEAD
 Flow('zr','r_','math output="2*%(dz)g" '%par)
+=======
+Flow('zr','r_','math output="2*%(dz)f" '%par)
+>>>>>>> f47777226066783ac8e058409a76f10600c71af9
 =======
 Flow('zr','r_','math output="2*%(dz)f" '%par)
 >>>>>>> f47777226066783ac8e058409a76f10600c71af9
@@ -245,7 +255,11 @@ for s in SHOTS:
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel_rtm','den_rtm','ss'+stag,'rr','jsnap=5 '+iwindow,par)
+=======
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10 '+wimage ,par)
+>>>>>>> f47777226066783ac8e058409a76f10600c71af9
 =======
     fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10 '+wimage ,par)
 >>>>>>> f47777226066783ac8e058409a76f10600c71af9
@@ -266,8 +280,12 @@ for s in SHOTS:
     #fdmod.awefd2d('ds-tmp'+stag,'wtr'+stag,'ds'+stag,'vel','den','rr','rr','jsnap=10',par)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # back propagation of the receiver wavefield
     wemig.bWRawe('ds'+stag,'wtr'+stag,'vel_rtm','den_rtm','rr','jsnap=5 '+iwindow,par)
+=======
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 '+wimage,par)
+>>>>>>> f47777226066783ac8e058409a76f10600c71af9
 =======
     wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 '+wimage,par)
 >>>>>>> f47777226066783ac8e058409a76f10600c71af9

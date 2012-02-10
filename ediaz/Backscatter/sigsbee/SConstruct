@@ -1,0 +1,204 @@
+from rsf.proj import *
+import fdmod, adcig, encode, wemig, math
+import commands
+
+## 
+ # Sigsbee 2A
+##
+data='sigsbee2a_stratigraphy.sgy'
+Fetch(data,'sigsbee')
+Flow(['vstr2A','vstr2Ahead'],data,
+         '''
+         segyread tape=$SOURCE tfile=${TARGETS[1]} |
+         put
+         o1=0  d1=25     label1=z unit1=ft
+         o2=10000 d2=25  label2=x unit2=ft
+         ''',stdin=0)
+# ------------------------------------------------------------
+par = {
+    'nt':7000, 'dt':0.001,'ot':0,    'lt':'t','ut':'s',
+    'kt':100,    # wavelet delay
+    'nx':3201, 'ox':0, 'dx':0.00762, 'lx':'x','ux':'km',
+    'nz':1201, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
+    'orec':0.0, 'jrec':1, 'nrec':1600,
+    'osou':6.0, 'jsou':32, 'nsou':1,
+    'nqx':801, 'oqx':6.0,
+    'nqz':801, 'oqz':0.0
+    }
+
+
+
+
+
+wimage='nqx=%(nqx)d  onx=%(oqx)f nqz=%(nqz)d onz=%(oqz)%f'%par
+
+
+
+
+
+
+
+
+
+
+
+# add F-D modeling parameters
+fdmod.param(par)
+#-------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+
+#-------------------------------------------------------------
+
+
+
+par['fsou']=int((par['osou']-par['ox'])/par['dz'])
+SHOTS=range(par['fsou'],
+            par['fsou']+par['nsou']*par['jsou'],
+            par['jsou'])
+
+
+
+# ------------------------------------------------------------
+# wavelet
+Flow('wav',None,
+         '''
+         spike nsp=1 mag=1 n1=%(nt)d d1=%(dt)g o1=%(ot)g k1=%(kt)d |
+         ricker1 frequency=15 |
+         scale axis=123 |
+         put label1=t label2=x label3=y |
+         transp
+         ''' % par)    
+Result('wav',
+       'transp | window n1=200 | graph title="" label1="t" label2= unit2=')
+# ------------------------------------------------------------
+# experiment setup
+Flow('r_',None,'math n1=%(nx)d d1=%(dx)g o1=%(ox)g output=0' % par)
+Flow('s_',None,'math n1=1      d1=0      o1=0      output=0' % par)
+# receiver positions
+Flow('zr','r_','math output="2*%(dz)f" '%par)
+Flow('xr','r_','math output="x1"')
+Flow('rr',['xr','zr'],
+     '''
+     cat axis=2 space=n
+     ${SOURCES[0]} ${SOURCES[1]} | transp
+     ''', stdin=0)
+Plot('rr',fdmod.rrplot('',par))
+# source positions
+Flow('zs','s_','math output=.01')
+Flow('xs','s_','math output=10.0')
+Flow('rs','s_','math output=1')
+Flow('ss',['xs','zs','rs'],
+     '''
+     cat axis=2 space=n
+     ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | transp
+     ''', stdin=0)
+Plot('ss',fdmod.ssplot('',par))
+
+# ------------------------------------------------------------
+
+# Velocity
+Flow('vel','vstr2A',
+     '''
+     scale rscale=.0003048 |
+     put o1=%(oz)g d1=%(dz)g  o2=%(oz)g d2=%(dz)g 
+     ''' % par)
+
+Plot('vel',fdmod.cgrey('''
+allpos=y bias=1.5 pclip=100 color=j title=Survey\ Design labelsz=4 titlesz=6 wheretitle=t
+''',par))
+Result('vel',['vel','rr','ss'],'Overlay')
+
+# ------------------------------------------------------------
+
+# density
+Flow('den','vel','math output=1')
+
+par['jdata']=10
+
+par['jsnap']=10
+par['snap']=10
+
+# ------------------------------------------------------------
+# finite-differences modeling
+fdmod.awefd('dat','wfl','wav','vel','den','ss','rr','free=y dens=y',par)
+
+#Plot('wfl',fdmod.wgrey('pclip=99 title=Wavefield\ Movie labelsz=4 titlesz=6 wheretitle=t',par),view=1)
+
+Flow('dat_r','dat','reverse axis=2 opt=i')
+
+fdmod.awefd('dat2','wfl_r','dat_r','vel','den','rr','rr','free=y dens=y',par)
+
+Flow('rev_wfl_r','wfl_r','reverse axis=4 opt=i ')
+
+Flow('vel_rtm','vel','window j2=2 j1=2')
+Flow('den_rtm','den','window j2=2 j1=2')
+
+
+Flow('vel_water','vel','math output="1.5"')
+
+
+stag='-0000'
+
+fdmod.point('ss'+stag,par['ox']+0.5*(par['nx']-1)*par['dx'],0.01524,par)
+fdmod.awefd2d('d0'+stag,'wt0s'+stag,'wav','vel_water','den','ss'+stag,'rr','',par)
+
+par['o1x']=-1*(par['ox']+0.5*(par['nx']-1)*par['dx'])
+Flow('water-wave',['d0'+stag],'put o1=%(o1x)f'%par)
+
+
+
+
+
+
+
+for s in SHOTS:
+    stag = "-%04d"%s
+
+    fdmod.point('ss'+stag,par['ox']+s*par['dx'],0.01524,par)
+    Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
+
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel','den','ss'+stag,'rr','jsnap=10 '+wimage ,par)
+
+    ori=s*par['dx']
+    npad= -1*int((par['o1x']+ori)/par['dx'])
+    par['ori']=ori
+    par['npad2']=npad
+
+    # Here I am deleting the recorded source wavefield from the data dd-stag --> process -->ds-stag
+    Flow('ds'+stag, ['water-wave','dd'+stag],
+      '''
+      window min1=-%(ori)f |
+      pad end1=%(nx)d | 
+      window n1=%(nx)d |
+      put o1=%(ox)f |
+      add scale=-1,1 ${SOURCES[1]} 
+      '''%par)
+
+    #fdmod.awefd2d('ds-tmp'+stag,'wtr'+stag,'ds'+stag,'vel','den','rr','rr','jsnap=10',par)
+
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel','den','rr',' jsnap=10 '+wimage,par)
+
+
+    wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)
+    
+
+
+
+ 
+End()

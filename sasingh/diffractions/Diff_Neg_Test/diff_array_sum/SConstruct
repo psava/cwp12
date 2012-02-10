@@ -139,7 +139,7 @@ Result('datH','window j2=4 | transp |'
 # run FD migration
 f.zom('imgH',  # image
       'datH',  # data
-      'vbak',   # velocity
+      'velo',   # velocity
       'dens',   # density
       'rH',    # receiver coordinates
       'free=n', # optional flags
@@ -152,25 +152,22 @@ Result('imgH',['imgH','ss','rH'],'Overlay')
 # ------------------------------------------------------------
 # pad data
 npad=250
-#jumps 
-jp=5
 Flow('padH','datH','reverse which=2 opt=i verb=y | pad end2=%d'%npad)
-
+jp=5
 # backpropagate 
 f.awefd('tdat','twfl',
         'padH',
-        'vbak','dens',
+        'velo','dens',
         'rH','rH',
         'jsnap=1 jdata=4',par)
 
 # extract wavefield
 Flow('wflH','twfl',
-     'window f3=%d j3=%d |'%(par['nt']-npad,jp) +
-     'bandpass flo=5') 
+     'window f3=%d j3=%d |'%((par['nt']-npad),jp) +
+     'bandpass flo=5')
 Result('wflH',f.cgrey('',par))
 #       'byte gainpanel=a pclip=100 |' +
 #       f.cgrey3d('',par))
-
 
 wframes=int((npad*2)/jp) 
 for j in range(wframes):
@@ -212,14 +209,26 @@ Result('aNeg2dbyt',f.cgrey('color=j',par))
 #Plot('aNeg2dbyt','Movie')
 Flow('aNeg2dbytn'   ,'aNeg2dn', 'byte gainpanel=a pclip=100')
 Result('aNeg2dbytn',f.cgrey('color=j',par))
-#Plot('aNeg2dbytn','Movie')
+Flow('divNeg','aNeg2d',
+     'math output="(1/((input)+0.01))"')# |byte gainpanel=a pclip=100')
+Result('divNeg',f.cgrey('color=j',par))
+
+
 
 #Result('Side_dif_neg',['aNeg2dbyt','awflH'],'SideBySideIso')
 #Result('Side_dif_negn',['aNeg2dbytn','awflH'],'SideBySideIso')
-#Result('VelNeg','aNeg2dbyt', 
-#       'transp plane=23 | grey color=j labelsz=9')
+Flow('VelNeg','aNeg2dbyt', 'transp plane=23')
+Result('VelNeg','grey color=j ')
+Flow('VelNeg_s','VelNeg','window f3=300 min3=3 max3=13 j3=50')
+Result('VelNeg_s','grey color=j')
+#Flow('VelNeg_s'
+
+Flow('OF','aNeg2d','stack axis=2| stack axis=1')
+Result('OF','graph')
+Flow('OF1','divNeg','stack axis=2| stack axis=1')
+Result('OF1','graph')
+
 
 
 
 End()
-

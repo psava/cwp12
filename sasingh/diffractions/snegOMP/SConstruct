@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 from rsf.proj import *
 
-Program('sneg','sneg.c')
-
+Program('sneg','sneg.c',
+  CFLAGS='-fopenmp -O3 -std=c99 -pedantic -Wall')
 Flow   ('test1', None,
         '''
         spike nsp=1 mag=1
-          n1=200 d1=0.004 k1=50 o1=0
-          n2=200 d2=0.004 k2=50 o2=0 | 
+          n1=2000 d1=0.004 k1=50 o1=0
+          n2=2000 d2=0.004 k2=50 o2=0 n3=1| 
         ricker1 frequency=10 |
         smooth rect2=3 repeat=3
         ''')

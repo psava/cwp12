@@ -1,0 +1,311 @@
+#!/usr/bin/env python
+# Exploding reflector modeling/migration demo
+from rsf.proj import *
+import fdmod as f
+
+Program('nen3d','MinEntropy.c')
+
+# ------------------------------------------------------------
+par = dict(
+    nx=2001, dx=0.010, ox=0, lx='x', ux='km',
+    nz=701,  dz=0.010, oz=0, lz='z', uz='km',
+    nt=6000, dt=0.001, ot=0, lt='t', ut='s',
+    jsnap=100,
+    kt=100,
+    nb=100
+    )
+par['wweight']=5
+
+# ------------------------------------------------------------
+# set plotting parameters
+f.param(par)
+
+# ------------------------------------------------------------
+# source coordinates (exploding reflectors)
+f.boxarray('ss',
+            3,2.5,1.0, #   vertical n,o,d
+           17,2.0,1.0, # horizontal n,o,d
+           par)
+Plot('ss',f.ssplot('plotcol=2',par))
+
+# ------------------------------------------------------------
+# horizontal array
+f.horizontal('tH',0.1,par)
+par['jrH']=4    # jump (grid points)
+par['orH']=0    # origin
+par['nrH']=501  # number
+par['crH']=4    # color
+
+# window array
+Flow('rH','tH',
+     'window j2=%d min2=%g n2=%d'%
+     (par['jrH'],  # jump
+      par['orH'],  # origin
+      par['nrH'])) # number
+    
+# plot array
+Plot('rH',f.rrplot('plotcol=%d'%par['crH'],par))
+
+# ------------------------------------------------------------
+# make density
+Flow('dens',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g
+     n2=%(nx)d o2=%(ox)g d2=%(dx)g  |
+     put label1=%(lz)s label2=%(lx)s unit1=%(uz)s unit2=%(ux)s
+     ''' % par)
+
+# ------------------------------------------------------------
+# make velocity
+Flow('vbak','dens','math output="3.0"')
+Flow('sbak','vbak','math output="1/input"')
+f.gauss2d('gauP', 6.0,1.5,0.75,0.75,par)
+f.gauss2d('gauM',14.0,1.5,0.75,0.75,par)
+Flow('velo','vbak','window')
+
+# plot velocity
+allvels = ['velo','vbak']
+Flow('velall',allvels,
+     '''
+     cat axis=3 space=n ${SOURCES[1]} |
+     byte gainpanel=a pclip=100 mean=y
+     ''')
+
+for v in allvels:
+    Plot(  v,'velall',
+           'window n3=1 f3=%d |'%allvels.index(v) +
+           f.cgrey('allpos=y bias=2.5',par))
+    Result(v,[v,'ss','rH'],'Overlay')
+# ------------------------------------------------------------
+
+ds=0.05 # fractional change of the slowness
+ns=21
+hs=(ns-1)/2
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    Flow('slow'+tag,['sbak','gauP','gauM'],
+         'add scale=1,%g,%g ${SOURCES[1:3]}'%(+0.3333*(1-s),-0.3333*(1-s)))
+    Flow('velo'+tag,'slow'+tag,'math output="1/input"')
+
+Flow('velomig',
+     map(lambda j: 'velo-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+     '''
+     cat axis=3 space=n ${SOURCES[1:%d]} |
+     put o3=0 d3=1 label3=v unit3=""
+     '''%ns)
+Result('velomig',f.wgrey('mean=y',par))
+Flow('velomig1'   ,'velomig', 'byte gainpanel=a pclip=100')
+Result('velomig1',f.wgrey('',par))
+
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+    Flow('velomigi'+tag,'velomig1','window n3=1 f3=%d' %j)
+    Result('velomigi'+tag,f.wgrey('color=j',par))
+
+
+# ------------------------------------------------------------
+# construct wavelet
+f.wavelet('wav_',15,par) 
+
+# transpose wavelet
+Flow(  'wav','wav_','transp')      
+
+# plot wavelet
+Result('wav','window n2=1000 |'
+       + f.waveplot('',par)) 
+
+# ------------------------------------------------------------
+# run FD modeling
+f.awefd1('tmpH',  # data file (all receivers)
+         'wfld',  # wavefield snapshots
+         'wav',   # source wavelet
+         'vbak',  # velocity
+         'dens',  # density
+         'ss',    # source coordinates
+         'rH',    # receiver coordinates
+         'free=n',# optional flags
+         par)
+
+# ------------------------------------------------------------
+# plot wavefield frames
+nframes = int((par['nt']-1)/par['jsnap'])
+
+f.wom('wfom','wfld','vbak',1.86,par)
+for i in range(nframes):
+    tag = '-%02d'%i
+    f.wframe('wfom'+tag,
+             'wfom',i,'pclip=99',par)
+    Plot(    'wfld'+tag,
+            ['wfom'+tag,'ss','rH'],'Overlay')
+Result('wfld',
+       map(lambda x: 'wfld-%02d' % x,range(nframes)),
+       'Movie')
+    
+# ------------------------------------------------------------
+# undo wavelet delay
+Flow('datH','tmpH',
+     '''
+     window squeeze=n f2=%(kt)d |
+     pad end2=%(kt)d |
+     put o2=%(ot)g
+     ''' %par)
+Result('datH','window j2=4 | transp |'
+       + f.dgrey('pclip=100',par))
+
+
+# ------------------------------------------------------------
+# pad data
+npad=250
+Flow('padH','datH','reverse which=2 opt=i verb=y | pad end2=%d'%npad)
+
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    f.zom('jnkH'+tag,  # image
+          'datH',      # data
+          'velo'+tag,  # velocity
+          'dens',      # density
+          'rH',        # receiver coordinates
+          'free=n',    # optional flags
+          par)
+    Flow('imgH'+tag,'jnkH'+tag,'bandpass flo=5')
+    Plot(  'imgH'+tag,f.cgrey('',par))
+    Result('imgH'+tag,['imgH'+tag,'rH'],'Overlay')
+
+    Flow('negS'+tag,['imgH'+tag,'nen3d.exe'],
+         '''
+          ./${SOURCES[1]} box1=50 box2=50
+         '''%par)
+    Plot('negS'+tag,f.cgrey('color=j wantscalebar=y',par))
+
+
+Flow('image',
+     map(lambda i: 'imgH-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+     '''
+        cat axis=3 space=n ${SOURCES[1:%d]} |
+        scale axis=12
+     '''%ns)
+
+Flow('nentropy',['image','nen3d.exe'],
+     '''
+        ./${SOURCES[1]} box1=50 box2=50 |
+        scale axis=12
+     '''%par)
+
+Flow('nentropy1',
+     map(lambda i: 'negS-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+     '''
+        cat axis=3 space=n ${SOURCES[1:%d]} |
+        scale axis=12
+     '''%ns)
+Result('nentropy1',f.wgrey('color=e wantscalebar=y',par))
+Result('nentropy' ,f.wgrey('color=e wantscalebar=y',par))
+
+Flow('penalty','nentropy1',
+     '''
+        math output="1/(0.01+input)" |
+        scale axis=12
+     ''')
+
+Flow('residual',['image','penalty'],
+     '''
+        add mode=p ${SOURCES[1]}
+     ''')
+
+Flow('velbyte','velomig', 'byte gainpanel=a pclip=100 mean=y')
+Flow('imgbyte','image',   'byte gainpanel=a pclip=100')
+Flow('penbyte','penalty', 'byte gainpanel=a pclip=100')
+Flow('resbyte','residual','byte gainpanel=a pclip=100')
+
+par['velcol']='j'
+par['imgcol']=''
+par['nencol']='e'
+par['pencol']='e'
+par['rescol']=''
+
+for m in (['vel','img','pen','res']):
+    for j in range(ns):
+        s=1+(j-hs)*ds # slowness scaling factor
+        tag = "-%03d"%(100*s)
+
+        Flow(m+tag,m+'byte','window n3=1 f3=%d' %j)
+
+        Plot(m+tag,f.cgrey('color=%s'%par[m+'col'],par))
+        Result(m+tag,[m+tag,'rH'],'Overlay')
+
+    Result(m+'all',
+          map(lambda i: m+'-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+          'Movie')
+
+Flow('OF','residual',
+     '''
+       math output="input*input" | 
+       stack axis=2 | 
+       stack axis=1
+     ''')
+Result('OF',
+       '''
+          put d1=1 o1=-10 
+          label1="velocity profiles" unit1="" label2="OF" unit2=""| 
+          graph plotfat=5 symbol="*"
+       ''')
+
+#Different negentropy box parameters
+
+nk=12
+for i in range(nk):
+    boxd=(i+1)*10
+    tag="-%03d"%(boxd)
+
+    t='box'+tag
+
+    Flow('nentropy'+t,['image','nen3d.exe'],
+         '''
+            ./${SOURCES[1]} box1=%d box2=%d | 
+            scale axis=12
+         '''%((boxd),(boxd)))
+
+    Flow('penalty'+t,'nentropy'+t,
+         '''
+            math output="1/(0.01+input)" |
+            scale axis=12
+         ''')
+
+    Flow('residual'+t,['image','penalty'+t],
+         '''
+            add mode=p ${SOURCES[1]}
+         ''')
+
+    Flow('OF'+t,'residual'+t,
+         '''
+            math output="input*input" | 
+            stack axis=2 | 
+            stack axis=1
+         ''')
+
+    Result('OF'+t,
+           '''
+              put o1=0 d1=1 
+              label1="velocity profiles" unit1="" label2="OF" unit2=""| 
+              graph plotfat=5
+           '''%par)
+
+    b='byte'+t      
+    Flow('nen'+b,'nentropy'+t,   'byte gainpanel=a pclip=100')
+    Flow('pen'+b,'penalty' +t,   'byte gainpanel=a pclip=100')
+    Flow('res'+b,'residual'+t,   'byte gainpanel=a pclip=100')
+    
+    for m in (['nen','pen','res']):
+        Result(m+b,f.cgrey('color=%s'%par[m+'col'],par))
+
+#Result('OF'+'box'+'all',
+#       map(lambda i: 'OFbox-%03d' %((1+i)*10),range(nk)),
+#       'Movie')
+
+
+End()

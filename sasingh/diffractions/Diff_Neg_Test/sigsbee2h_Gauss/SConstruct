@@ -31,6 +31,7 @@ par['xsou']=par['ox']+par['nx']/2*par['dx']
 par['zsou']=par['oz']+par['nz']/2*par['dz']
 f.point('ss1',par['xsou'],par['zsou'],par)
 Plot('ss1',f.ssplot('plotcol=5',par)) #makes a plot of all the source coordinates# 5 is the current plot color
+
 par['xsou1']=par['ox']+par['nx']/4*par['dx']
 par['zsou1']=par['oz']+par['nz']/2*par['dz']
 f.point('ss2',par['xsou1'],par['zsou1'],par)
@@ -73,23 +74,9 @@ Flow('vsmo',
      'vstr',
      'smooth rect1=35 rect2=35 repeat=4') #under repeat the number indicates the amout of smoothing to be done
 
-#Gaussian anomaly
-f.gauss2d('gauss1',8.5,2.25,0.25,0.25,par)
-Result('gauss1',f.cgrey('',par))
-f.gauss2d('gauss2',10.2,2.25,0.25,0.25,par)
-Result('gauss2',f.cgrey('',par))
-
-Flow('gauss','gauss1 gauss2','math g=${SOURCES[1]} output="input +g"'%par)
-Result('gauss',f.cgrey('',par))
-
-#Gaussian Anomaly parameter
-par['amag']=0.25
-
-#Gaussian Vel Model
-Flow('vga', 'vsmo gauss','math g=${SOURCES[1]} output="input-(%(amag)g)*g"'%par)
-#------------------------------------------------------------
+# ------------------------------------------------------------
 # plot velocities
-for v in ('vstr','vsmo','vga'):
+for v in ('vstr','vsmo'):
     Plot(  v,f.cgrey('allpos=y bias=1.43',par)) # plot the velocity file
 
     # overlay sources and receivers
@@ -99,7 +86,7 @@ for v in ('vstr','vsmo','vga'):
 # make constant density
 Flow(  'dens','vsmo','math output=1') #
 Plot(  'dens',f.cgrey('allpos=y bias=1.43',par))
-Result('dens',['dens','ss','rH'],'Overlay')
+#Result('dens',['dens','ss','rH'],'Overlay')
 
 # ------------------------------------------------------------
 # construct wavelet
@@ -117,7 +104,7 @@ Result('wav','window n2=1000 |'
 f.awefd1('tmpH',  # data file (all receivers)
          'wfld',  # wavefield snapshots
          'wav',   # source wavelet
-         'vga',  # velocity
+         'vsmo',  # velocity
          'dens',  # density
          'ss',    # source coordinates
          'rH',    # receiver coordinates
@@ -251,7 +238,7 @@ Flow('ndifbyt'   ,'adif', 'byte gainpanel=a pclip=100')
 for j in range(ns):
   ve=1+(j-hs)*dve
   tag = "-%03d"%(ve*100)
-#  Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)  
+  Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)  
 
 #  Result('ndif'+tag,
 #         'ndifbyt',
@@ -264,7 +251,7 @@ for j in range(ns):
        '''%par)
 #  Result('neg12'+tag,f.cgrey('color=j',par))
 
-  Flow('neg2dn'+tag,['ndif'+tag,'neg2d.exe'],
+  Flow('neg2d1'+tag,['ndif'+tag,'neg2d.exe'],
        '''
        ./${SOURCES[1]} box1=100 box2=100
        '''%par)
@@ -282,11 +269,11 @@ for j in range(ns):
        cat axis=3 space=n ${SOURCES[1:%d]} |
        scale axis=12
        '''%ns)
-#  Flow('aNeg',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
-#       '''
-#       cat axis=3 space=n ${SOURCES[1:%d]} |
-#       scale axis=12
-#       '''%ns)
+  Flow('aNeg',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+       '''
+       cat axis=3 space=n ${SOURCES[1:%d]} |
+       scale axis=12
+       '''%ns)
 #  Result('aNeg',f.cgrey('allpos=y color=j',par))
 
   Flow('aNeg2d',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
@@ -295,11 +282,13 @@ for j in range(ns):
        scale axis=12
        '''%ns)
 #  Result('aNeg2d',f.cgrey('allpos=y color=j',par))
-  Flow('aNeg2dn',map(lambda i: 'neg2dn-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+
+  Flow('aNeg2dn',map(lambda i: 'neg2d1-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
        '''
        cat axis=3 space=n ${SOURCES[1:%d]} |
        scale axis=12
        '''%ns)
+#  Result('aNeg2d',f.cgrey('allpos=y color=j',par))
 
 Flow('aNeg2dbyt'   ,'aNeg2d', 'byte gainpanel=a pclip=100')
 Flow('aNeg2dbytn'   ,'aNeg2dn', 'byte gainpanel=a pclip=100')
@@ -311,14 +300,7 @@ for j in range(ns):
          'aNeg2dbyt',
          'window n3=1 f3=%d |' %j
          + f.cgrey('color=j labelsz=9 title="Global"',par))
-#  Flow('aNeg2dscvel'+tag,
-#         'aNeg2dbyt',
-#        'window n1=1 f1=%d ' %j)
-#  Flow('VelNeg',map(lambda i: 'aNeg2dscvel-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
-#       '''
-#       cat axis=1 space=n ${SOURCES[1:%d]} 
-#       '''%ns)
-#  Result('VelNeg',f.cgrey('allpos=y color=j',par))
+
   Plot('aNeg2dscn'+tag,
          'aNeg2dbytn',
          'window n3=1 f3=%d |' %j
@@ -333,7 +315,6 @@ for j in range(ns):
 
 Result('VelNeg','aNeg2dbyt', 
        'transp plane=23 | grey color=j labelsz=9')
-
 
 #  Result('aZXSafoc',f.cgrey('allpos=y color=j',par))
 

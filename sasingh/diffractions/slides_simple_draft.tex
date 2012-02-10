@@ -1,0 +1,673 @@
+
+
+\title[]{A measure of diffractions focusing, with potential for automatic velocity updates}
+\subtitle{}
+\author[]{Satyan Singh}
+\institute{
+Center for Wave Phenomena \\
+Colorado School of Mines \\
+sasingh@mines.edu
+}
+\date{}
+\logo{}
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee}
+     \plot{Side_dif_neg-100}{width=0.8\textwidth} {}
+     \plot{Side_dif_neg-120}{width=0.8\textwidth} {}
+\end{frame}
+
+
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Motivation}
+
+\begin{itemize}
+   \item To automate velocity picking for diffraction imaging
+\end{itemize}
+\end{frame}
+%-----------------------------------------------------------------
+\begin{frame} \frametitle{Negentropy}
+
+
+   \begin{equation} 
+      H =-\sum_{i=1}^{N} p_i log p_i
+   \end{equation}
+  \begin{equation}
+        H'= \frac{1}{N} \sum_{i=1}^{N} (Np_i) log(Np_i)
+  \end{equation}
+\begin{itemize}
+ \item where $N$ is the number of possible outcomes and $p_i$ is the probability of an outcome (Shannon 1948).
+\end{itemize}
+
+\end{frame}
+%--------------------------------------------------------------
+\inputdir{XFig}
+\begin{frame} \frametitle{Negentropy}
+  \plot{lowneg} {width=0.45\textwidth} {}
+  \plot{high} {width=0.45\textwidth} {}
+\end{frame}
+%---------------------------------------------------------
+
+\begin{frame} \frametitle{Negentropy}
+\begin{equation}
+        V= \frac{1}{N} \sum_{i=1}^{N} (Na'_i)log(Na'_i)
+\end{equation}
+where: $ a'_i= a/ \sum_{i=1} a_i $
+
+\begin{equation}
+        V= \frac{1}{N} \sum_{i=1}^{N_1} \sum_{j=1}^{N_2} (Na'_{ij})log(Na'_{ij})
+\end{equation}
+\begin{tabbing}
+ where: $ a'_{ij}= \frac{a_{ij}}{ \sum_{i,j} a_{ij}}$
+\end{tabbing}
+
+
+\end{frame}
+
+%---------------------------------------------------------
+
+\begin{frame} \frametitle{Negentropy}
+\begin{equation}
+        V= \frac{1}{N} \sum_{i=1}^{N} (q_i)F(q_i)
+\end{equation}
+  \plot{lowneg} {width=0.35\textwidth} {}
+  \plot{high} {width=0.35\textwidth} {}
+
+
+\end{frame}
+% -------------------------------------------------------
+\begin{frame} \frametitle{Velocity model}
+\inputdir{diff}
+	\plot{vsmo}{width=0.6\textwidth} {}
+\end{frame}	
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-080}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-082}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-084}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-086}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-088}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-090}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-092}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-094}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-096}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-098}{width=0.8\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-100}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-102}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-104}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-106}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-108}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-110}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-112}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-114}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-115}{width=0.8\textwidth} {}
+\end{frame}
+
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-118}{width=0.8\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+
+\begin{frame}
+\inputdir{diff}
+     \plot{Side_dif_neg-120}{width=0.8\textwidth} {}
+\end{frame}
+%---------------------------------------------------------
+
+\begin{frame} \frametitle{Acquistion Model- D(r,t)}
+
+\inputdir{Diff_Neg_Test/of}
+     \plot{velo}{width=\textwidth} {}
+\end{frame}
+%---------------------------------------------------------
+\begin{frame} 
+\begin{center}
+ \Huge Velocity Models and \\* Migrated Images R(x) 
+\end{center}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-050} {width=0.85\textwidth} {}
+     \plot{imgH-050} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-055} {width=0.85\textwidth} {}
+     \plot{imgH-055} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-060} {width=0.85\textwidth} {}
+     \plot{imgH-060} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-064} {width=0.85\textwidth} {}
+     \plot{imgH-064} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-070} {width=0.85\textwidth} {}
+     \plot{imgH-070} {width=0.85\textwidth} {}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-075} {width=0.85\textwidth} {}
+     \plot{imgH-075} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-080} {width=0.85\textwidth} {}
+     \plot{imgH-080} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-085} {width=0.85\textwidth} {}
+     \plot{imgH-085} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-090} {width=0.85\textwidth} {}
+     \plot{imgH-090} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-095} {width=0.85\textwidth} {}
+     \plot{imgH-095} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-100} {width=0.85\textwidth} {}
+     \plot{imgH-100} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-105} {width=0.85\textwidth} {}
+     \plot{imgH-105} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-110} {width=0.85\textwidth} {}
+     \plot{imgH-110} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-114} {width=0.85\textwidth} {}
+     \plot{imgH-114} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-120} {width=0.85\textwidth} {}
+     \plot{imgH-120} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-125} {width=0.85\textwidth} {}
+     \plot{imgH-125} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-130} {width=0.85\textwidth} {}
+     \plot{imgH-130} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-135} {width=0.85\textwidth} {}
+     \plot{imgH-135} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-140} {width=0.85\textwidth} {}
+     \plot{imgH-140} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-145} {width=0.85\textwidth} {}
+     \plot{imgH-145} {width=0.85\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{velomigi-150} {width=0.85\textwidth} {}
+     \plot{imgH-150} {width=0.85\textwidth} {}
+\end{frame}
+
+%---------------------------------------------------------
+\begin{frame} 
+\begin{center}
+\Huge Migrated Image R(x) \\* and  Penalty P(R)
+\end{center}
+
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-050} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-050} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-055} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-055} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-060} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-060} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-064} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-064} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-070} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-070} {width=0.85\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-075} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-075} {width=0.85\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-080} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-080} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-085} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-085} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-090} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-090} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-095} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-095} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-100} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-100} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-105} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-105} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-110} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-110} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-114} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-114} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-120} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-120} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-125} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-125} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-130} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-130} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-135} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-135} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-140} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-140} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-145} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-145} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-150} {width=0.85\textwidth} {}
+     \plot{adivNeg1i-150} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+
+
+%---------------------------------------------------------
+\begin{frame} 
+\begin{center}
+ \Huge Migrated Image and \\* Residual = P(R)*R(x)
+\end{center}
+
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-050} {width=0.85\textwidth} {}
+     \plot{ResSTi-050} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-055} {width=0.85\textwidth} {}
+     \plot{ResSTi-055} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-060} {width=0.85\textwidth} {}
+     \plot{ResSTi-060} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-064} {width=0.85\textwidth} {}
+     \plot{ResSTi-064} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-070} {width=0.85\textwidth} {}
+     \plot{ResSTi-070} {width=0.85\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-075} {width=0.85\textwidth} {}
+     \plot{ResSTi-075} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-080} {width=0.85\textwidth} {}
+     \plot{ResSTi-080} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-085} {width=0.85\textwidth} {}
+     \plot{ResSTi-085} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-090} {width=0.85\textwidth} {}
+     \plot{ResSTi-090} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-095} {width=0.85\textwidth} {}
+     \plot{ResSTi-095} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-100} {width=0.85\textwidth} {}
+     \plot{ResSTi-100} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-105} {width=0.85\textwidth} {}
+     \plot{ResSTi-105} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-110} {width=0.85\textwidth} {}
+     \plot{ResSTi-110} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-114} {width=0.85\textwidth} {}
+     \plot{ResSTi-114} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-120} {width=0.85\textwidth} {}
+     \plot{ResSTi-120} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-125} {width=0.85\textwidth} {}
+     \plot{ResSTi-125} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-130} {width=0.85\textwidth} {}
+     \plot{ResSTi-130} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-135} {width=0.85\textwidth} {}
+     \plot{ResSTi-135} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-140} {width=0.85\textwidth} {}
+     \plot{ResSTi-140} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-145} {width=0.85\textwidth} {}
+     \plot{ResSTi-145} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{imgH-150} {width=0.85\textwidth} {}
+     \plot{ResSTi-150} {width=0.85\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame} 
+\begin{center}
+ \Huge Objective Function  $\sum(P(R)*R(x))$
+\end{center}
+
+\end{frame}	
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/of}
+     \plot{OF} {width=0.9\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+
+\begin{frame}\frametitle{Summary}
+\begin{itemize}
+  \item Operator measures the focusing of diffractors 
+  \item OF => we can use the procedures discussed for automatic velocity updates
+\end{itemize}
+ 
+\end{frame}
+%---------------------------------------------------
+\begin{frame}\frametitle{Acknowledgements}
+\begin{itemize}
+  \item Paul Sava,iteam and CWP Students
+\end{itemize}
+ 
+\end{frame}
+%------------------------------

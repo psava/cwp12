@@ -7,10 +7,10 @@
 int main(int argc, char* argv[])
 {
     int n1, n2, box1,box2,klo1,khi1,klo2,khi2,kmid1,kmid2;
-    int i1,i2,d1,d2,o1,ix1,ix2,ix , iz,m1,ix3,ix4;
+    int i1,i2,d1,d2,o1,ix1,ix2,ix , iz,m1;
 
     float  **d,**dat,**nsum,**neg,**dN;
-    float sumG,sumN,neg1,AmpNorm,h,h1; 
+    float sumG,sum,neg1,AmpNorm,h; 
     double scalea, logs;
     sf_file in, out; /* Input and output files */
 
@@ -50,14 +50,15 @@ int main(int argc, char* argv[])
 //    box2=box2*d2;
 //    n1=n1*d1;
 //    n2=n2*d2;
-    fprintf(stderr,"values: %d %d %d %d\n",box1,box2,n1,n2);
+
+    fprintf(stderr,"values: %d %d\n",box1,box2);
     /* allocate floating point array */
     dat = sf_floatalloc2 (n1,n2);
 	  //nsum= sf_floatalloc2 ((n1-
     /* initialise the size of the searching box*/
-    klo1=0;
+    klo1=o1;
     khi1=box1;
-    klo2=0;
+    klo2=o1;
     khi2=box2;
     int s1= n1-(box1);
     int s2= n2-(box2);
@@ -76,78 +77,65 @@ int main(int argc, char* argv[])
     neg  =sf_floatalloc2 (n1,n2);
     for (ix=0; ix<n2; ix++) {
       for (iz=0; iz<n1; iz++) {
-        neg[ix][iz]=0.0;
-        nsum[ix][iz]=0.0;
-        dat[ix][iz]=0.0;
-        d[ix][iz]=0.0;
-	      dN[ix][iz]=0.0;
+        neg[iz][ix]=0.0;
+        nsum[iz][ix]=0.0;
+        dat[iz][ix]=0.0;
+        d[iz][ix]=0.0;
+	dN[iz][ix]=0.0;
       }
     }
     fprintf(stderr,"I GOT HERE\n");
     sf_floatread(dat[0],n1*n2,in); 
 //    sf_floatwrite(dat[0],n1*n2,out);
 sumG=0;
-    fprintf(stderr,"values: %d %d\n",n1,n2);
           for (i2=o1; i2<n2; ++i2){
             for (i1=o1; i1<n1; ++i1){
 //              fprintf(stderr, "values: %f \n",dat[ix1][ix2]);
-                if (dat[i2][i1] * dat[i2][i1] > (0.5e-20)) {
-	            d[i2][i1]= dat[i2][i1] * dat[i2][i1]; //make all amplitudes positive
+	            d[i1][i2]= dat[i1][i2] * dat[i1][i2]; //make all amplitudes positive
 //              fprintf(stderr, "values1: %f \n",d[ix1][ix2]);
-                  }
-                  else d[i2][i1]=0;
+
 //    fprintf(stderr,"values: %d %d\n",kmid1,kmid2);
-              sumG += d[i2][i1];// sum of each trace
+              sumG += d[i1][i2];// sum of each trace
             }
 	}
-	fprintf(stderr,"values1: %f %f\n",d[50][50],sumG);
+	fprintf(stderr,"values: %f\n",sumG);
 //    fprintf(stderr,"values: %d %d %d %d %f\n",ix1,m1,ix2,kmid1,sumA);
     //initialise the box for negentropy
     fprintf(stderr,"I GOT HERE1\n");
-   for (klo2=0, khi2=box2; klo2<(n2-box2) && khi2<(n2); ++klo2,++khi2) {
+   for (klo2=o1, khi2=box2; klo2<(n2-box2) && khi2<(n2); ++klo2,++khi2) {
         kmid2++; 
       m1=(kmid1-1);
 //      fprintf(stderr,"values: %d %d \n", kmid1, m1); 
-      for (klo1=0, khi1=box1; klo1<(n1-box1) && khi1<(n1); ++klo1,++khi1){
+      for (klo1=o1, khi1=box1; klo1<(n1-box1) && khi1<(n1); ++klo1,++khi1){
         m1++;
 //    fprintf(stderr,"I GOT HERE LOOP\n");
 //    fprintf(stderr,"values: %d %d %d %d %d\n",khi1,khi2,m,n1);
 //          sumA=0;
-	          sumN=0;
-          for (ix3=klo2; ix3<khi2; ++ix3){
-            for (ix4=klo1; ix4<khi1; ++ix4){
-              sumN += d[ix3][ix4];}
-              }
-              
+	
 		neg1=0.0;scalea=0.0;logs=0.0;AmpNorm=0.0;h=0;
-          for (ix1=klo2; ix1<khi2; ++ix1){
-            for (ix2=klo1; ix2<khi1; ++ix2){
+          for (ix2=klo2; ix2<khi2; ++ix2){
+            for (ix1=klo1; ix1<khi1; ++ix1){
 //              fprintf(stderr, "values: %f \n",dat[ix1][ix2]);
 //	            d[ix1][ix2]= dat[ix1][ix2] * dat[ix1][ix2]; //make all amplitudes positive
 //              fprintf(stderr, "values1: %f \n",d[ix1][ix2]);
 
 //    fprintf(stderr,"values: %d %d\n",kmid1,kmid2);
-      if (sumN==0.) AmpNorm=0;
-      else (AmpNorm =(d[ix1][ix2])/(sumN));
-       
+              sum += d[ix1][ix2];// sum of each trace
+	      AmpNorm =(d[ix1][ix2])/sumG;
 	      dN[ix1][ix2]=AmpNorm;
-		h=(((ix2-m1)*(ix2-m1))+((ix1-kmid2)*(ix1-kmid2)))/(2*box1*box2*1.41); //penalty oper
+		h=(((ix1-m1)*(ix1-m1))+((ix2-kmid2)*(ix2-kmid2)))/(3*box1*box2*1.41); //penalty oper
 		h=exp(-4*h);
-		h1=(((box1*0.5)*(box1*0.5))+((box2*0.5)*(box2*0.5)))/(2*box1*box2*1.41); //penalty oper
-    h1=exp(-4*h1);
-      if (h1>= h) scalea=0;
-      else
-	        	scalea=box1*box2*AmpNorm*(h-h1);
+	        	scalea=box1*box2*AmpNorm*h;
               if (AmpNorm==0) {logs=0;}
-//		else {logs=log(scalea);}
+		else {logs=log(scalea);}
 //		        logs=log(scalea);
-		else {	logs= scalea*scalea;}
+//			logs= scalea*scalea;
 
 			neg1 += (scalea*logs);
 		}
 //    fprintf(stderr,"values: %d %d %f %f\n",m1,ix2,sumA,nsum[m1][ix2]);
          }
-		neg[kmid2][m1] = neg1/(box1*box2);
+		neg[m1][kmid2] = neg1/(box1*box2);
 //    fprintf(stderr,"I GOT HERE LOOP\n");
          //normalising the amplitudes
 //          logs= (scalea)*scalea;

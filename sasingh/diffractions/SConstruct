@@ -1,109 +1,106 @@
 #!/usr/bin/env python
-from rsf.proj import *
+from rsf.tex import *
+import glob, os
 
-Program('neg2d','neg2d.c')
+for handout in glob.glob('handout*.tex'):
+    name = os.path.splitext(handout)[0]
+    Paper(name,
+          lclass='cwphandout',
+	use='graphicx,color,listings,amsmath,amssymb,amsbsy,hyperref,framed')
+    
+# ------------------------------------------------------------
+for slides in glob.glob('slides*.tex'):
+    slidesname = os.path.splitext(slides)[0]
+    Paper(slidesname,
+          lclass='cwpslides',
+          use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment')
+    
+for notes in glob.glob('notes*.tex'):
+    notesname = os.path.splitext(notes)[0]
+    Paper(notesname,
+          lclass='cwpnotes',
+          options='notesonly',
+          use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy')
+    
+# ------------------------------------------------------------
+#for article in glob.glob('article*.tex'):
+#    name = os.path.splitext(article)[0]
+#    Paper(name,
+#          lclass='geophysics',
+#          options='manuscript',
+#          use='times,mathptm,natbib,color,amssymb,mathrsfs,amsbsy,lineno,ulem',
+#          include=r'''
+#          \linenumbers*[1]
+#          ''')
 
-Flow   ('test1', None,
-        '''
-        spike nsp=1 mag=1
-          n1=100 d1=0.004 k1=50 o1=0
-          n2=100 d2=0.004 k2=50 o2=0 | 
-        ricker1 frequency=10 |
-        smooth rect2=3 repeat=3
-        ''')
-Flow('out1',['test1','neg2d.exe'],
-     '''
-     ./${SOURCES[1]} box1=10 box2=10 
-     ''')
-Flow('test12',None,
-     '''
-     spike nsp=3 mag=0.2,0.2,0.2
-       n1=100 d1=0.004 k1=58,50,58 o1=0
-       n2=100 d2=0.004 k2=42,50,58 o2=0 |
-        ricker1 frequency=10 |
-       smooth rect2=3 repeat=3 
-     ''')
-Flow('out12','neg2d.exe',
-     '''
-     spike nsp=3 mag=0.2,0.2,0.2
-       n1=100 d1=0.004 k1=58,50,58 o1=0
-      n2=100 d2=0.004 k2=42,,50,58 o2=0 |
-        ricker1 frequency=10 |
-        smooth rect2=3 repeat=3 |
-    ./$SOURCE box1=20 box2=20 
-    ''')
-Flow('test13',None,
-     '''
-     spike nsp=4 mag=1,0.33,0.33,0.33
-       n1=100 d1=0.004 k1=80,58,50,58 o1=0
-       n2=100 d2=0.004 k2=80,42,50,58 o2=0 |
-        ricker1 frequency=10 |
-        smooth rect2=3 repeat=3 
-    ''')
-Flow('out13','neg2d.exe',
-     '''
-     spike nsp=4 mag=1,1.0,1.0,1.0
-       n1=100 d1=0.004 k1=80,58,50,58 o1=0
-       n2=100 d2=0.004 k2=80,42,,50,58 o2=0 |
-        ricker1 frequency=10 |
-        smooth rect2=3 repeat=3 |
-     ./$SOURCE box1=20 box2=20 
-     ''')
-Flow('out2','neg2d.exe',
-     '''
-     spike nsp=2 mag=1.0,1.0
-       n1=100 d1=1 k1=40,70  o1=0
-       n2=100 d2=1 k2=40,70  o2=0 |
-     ./$SOURCE box1=10 box2=10 
-     ''')
-Flow('out3','neg2d.exe',
-     '''
-     spike nsp=8 mag=0.2,0.2,0.2,0.2,0.2,0.2,1,1
-       n1=100 d1=0.01 k1=15,16,17,18,19,20,50,70  o1=0
-       n2=100 d2=0.01 k2=15,16,17,18,19,20,50,70  o2=0 |
-     ./$SOURCE box1=10 box2=10 
-     ''')
+for article in glob.glob('article*.tex'):
+    name = os.path.splitext(article)[0]
+    Paper(name,
+          lclass='geophysics',
+          options='manuscript',
+          use='times,color,natbib,amsmath,graphicx,amssymb,amsbsy,lineno,ulem,setspace,rotating',
+          include=r'''
+          \linenumbers*[1]
+          ''')
+    
+for geo in glob.glob('geo*.tex'):
+    name = os.path.splitext(geo)[0]
+    Paper(name,
+          lclass='geophysics',
+          options='twocolumn,twoside',
+          use='times,natbib,amsmath,graphicx,color,amssymb,amsbsy,lineno,ulem,setspace')
 
-#Flow(['out1','out2'],'negentropy.exe',
-#     '''
-#        spike nsp=1 mag=1
-#              n1=500 d1=1 k1=250 o1=0
-#              n2=500 d2=1 k2=250 |
-#        ricker1 frequency=10 |
-#        smooth rect2=3 repeat=6 | scale axis=123
-#     ./$SOURCE box1=10 box2=10 data=${TARGETS[1]} 
-#     ''')
-#
-Result('test1','window |  grey')
-Result('out1','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
-Result('test12','window |  grey')
-Result('out12','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
-Result('test13','window |  grey')
-Result('out13','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
-Result('out2','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
-Result('out3','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+for report in glob.glob('report*.tex'):
+    name = os.path.splitext(report)[0]
+    Paper(name,lclass='cwpreport',
+          use='times,color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment',
+          include=r'''
+          \setlength{\paperwidth}{8.5in}
+          \setlength{\paperheight}{11.0in}
+          \setlength{\topmargin}{-0.25in}
+          \setlength{\textheight}{8.75in}
+          \setlength{\textwidth}{6.5in}
+          \setlength{\oddsidemargin}{+.015625in}
+          \setlength{\evensidemargin}{+.015625in}
+          ''')
+    
+for cover in glob.glob('cover*.tex'):
+    name = os.path.splitext(cover)[0]
+    Paper(name,
+          lclass='geophysics',
+          options='12pt',
+          use='')
 
-#Flow('test1','negentropy.exe',
-#     '''
-#        spike nsp=1 mag=1
-#              n1=50 d1=1 k1=15 o1=0
-#              n2=50 d2=1 k2=15 |
-#        ricker1 frequency=10 |
-#        smooth rect2=3 repeat=6 |
-#     ./$SOURCE box1=10 box2=10 data=test1.rsf
-#     ''')
+# ------------------------------------------------------------
 
-#Result('test1','attr')
+for segabs in glob.glob('segabs*.tex'):
+    name = os.path.splitext(segabs)[0]
+    Paper(name,
+          lclass='segabs',
+          options='notimes',
+          use='natbib,graphicx,color,listings,amsmath,amssymb,amsbsy')
+    
+for eageabs in glob.glob('eageabs*.tex'):
+    name = os.path.splitext(eageabs)[0]
+    Paper(name,
+          lclass='eageabs',
+          options='11pt',
+          use='times,natbib,color,amssymb,amsmath,amsbsy,graphicx,fancyhdr')
 
+for pept in glob.glob('pept*.tex'):
+    name = os.path.splitext(pept)[0]
+    Paper(name,
+          lclass='cwppept',
+          options='11pt',
+          use='times,natbib,color,amssymb,amsmath,amsbsy,graphicx,fancyhdr')
 
-#Result ('test2', None,
-#        '''
-#        spike nsp=1 mag=1
-#              n1=500 d1=1 k1=250 o1=0
-#              n2=500 d2=1 k2=250 |
-#        ricker1 frequency=10 |
-#        smooth rect2=3 repeat=3 |
-#        scale axis=123
-#        ''')
+for thesis in glob.glob('thesis*.tex'):
+    name = os.path.splitext(thesis)[0]
+    Paper(name,
+        lclass='article',
+#        options='letterpaper,twoside,12pt',
+        options='letterpaper,12pt,nolabel',
+        use='csm-thesis,natbib,amsmath,comment,listings,color,graphicx,rotating')
 
-End()        
+# End(use='color')
+End(lclass='cwparticle',options='10pt',use='times,mathptm,natbib,color,amssymb,mathrsfs,amsbsy,lineno,ulem,multicol')

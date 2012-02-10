@@ -1,0 +1,346 @@
+#!/usr/bin/env python
+# Exploding reflector modeling/migration demo
+from rsf.proj import *
+import fdmod as f
+
+Program('negl','ent.c')
+Program('negs','sneg.c')
+
+
+# ------------------------------------------------------------
+par = dict(
+    nx=2001, dx=0.010, ox=0, lx='x', ux='km',
+    nz=701,  dz=0.010, oz=0, lz='z', uz='km',
+    nt=6000, dt=0.001, ot=0, lt='t', ut='s',
+    jsnap=100,
+    kt=100,
+    nb=100
+    )
+par['wweight']=5
+
+# ------------------------------------------------------------
+# set plotting parameters
+f.param(par)
+
+# ------------------------------------------------------------
+# source coordinates (exploding reflectors)
+f.boxarray('ss',
+            3,2.5,1.0, #   vertical n,o,d
+           17,2.0,1.0, # horizontal n,o,d
+           par)
+Plot('ss',f.ssplot('plotcol=2',par))
+
+# ------------------------------------------------------------
+# horizontal array
+f.horizontal('tH',0.1,par)
+par['jrH']=4    # jump (grid points)
+par['orH']=0    # origin
+par['nrH']=501  # number
+par['crH']=4    # color
+
+# window array
+Flow('rH','tH',
+     'window j2=%d min2=%g n2=%d'%
+     (par['jrH'],  # jump
+      par['orH'],  # origin
+      par['nrH'])) # number
+    
+# plot array
+Plot('rH',f.rrplot('plotcol=%d'%par['crH'],par))
+
+# ------------------------------------------------------------
+# make density
+Flow('dens',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g
+     n2=%(nx)d o2=%(ox)g d2=%(dx)g  |
+     put label1=%(lz)s label2=%(lx)s unit1=%(uz)s unit2=%(ux)s
+     ''' % par)
+
+# ------------------------------------------------------------
+# make velocity
+Flow('vbak','dens','math output="3.0"')
+Flow('sbak','vbak','math output="1/input"')
+f.gauss2d('gauP', 6.0,1.5,0.75,0.75,par)
+f.gauss2d('gauM',14.0,1.5,0.75,0.75,par)
+Flow('velo','vbak','window')
+#Flow('slow',['sbak','gauP','gauM'],
+#     'add scale=1,+0.125,-0.125 ${SOURCES[1:3]}')
+#Flow('velo','slow','math output="1/input"')
+
+# plot velocity
+allvels = ['velo','vbak']
+Flow('velall',allvels,
+     '''
+     cat axis=3 space=n ${SOURCES[1]} |
+     byte gainpanel=a pclip=100 mean=y
+     ''')
+
+for v in allvels:
+    Plot(  v,'velall',
+           'window n3=1 f3=%d |'%allvels.index(v) +
+           f.cgrey('allpos=y bias=2.5',par))
+    Result(v,[v,'ss','rH'],'Overlay')
+# ------------------------------------------------------------
+
+ds=0.05 # fractional change of the slowness
+ns=21
+hs=(ns-1)/2
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    Flow('slow'+tag,['sbak','gauP','gauM'],
+         'add scale=1,%g,%g ${SOURCES[1:3]}'%(+0.3333*(1-s),-0.3333*(1-s)))
+    Flow('velo'+tag,'slow'+tag,'math output="1/input"')
+
+Flow('velomig',
+     map(lambda j: 'velo-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+     '''
+     cat axis=3 space=n ${SOURCES[1:%d]} |
+     put o3=0 d3=1 label3=v unit3=""
+     '''%ns)
+Result('velomig',f.wgrey('mean=y',par))
+
+# ------------------------------------------------------------
+# construct wavelet
+f.wavelet('wav_',15,par) 
+
+# transpose wavelet
+Flow(  'wav','wav_','transp')      
+
+# plot wavelet
+Result('wav','window n2=1000 |'
+       + f.waveplot('',par)) 
+
+# ------------------------------------------------------------
+# run FD modeling
+f.awefd1('tmpH',  # data file (all receivers)
+         'wfld',  # wavefield snapshots
+         'wav',   # source wavelet
+         'vbak',  # velocity
+         'dens',  # density
+         'ss',    # source coordinates
+         'rH',    # receiver coordinates
+         'free=n',# optional flags
+         par)
+
+# ------------------------------------------------------------
+# plot wavefield frames
+nframes = int((par['nt']-1)/par['jsnap'])
+
+f.wom('wfom','wfld','vbak',1.86,par)
+for i in range(nframes):
+    tag = '-%02d'%i
+    f.wframe('wfom'+tag,
+             'wfom',i,'pclip=99',par)
+    Plot(    'wfld'+tag,
+            ['wfom'+tag,'ss','rH'],'Overlay')
+Result('wfld',
+       map(lambda x: 'wfld-%02d' % x,range(nframes)),
+       'Movie')
+    
+# ------------------------------------------------------------
+# undo wavelet delay
+Flow('datH','tmpH',
+     '''
+     window squeeze=n f2=%(kt)d |
+     pad end2=%(kt)d |
+     put o2=%(ot)g
+     ''' %par)
+Result('datH','window j2=4 | transp |'
+       + f.dgrey('pclip=100',par))
+
+# ------------------------------------------------------------
+# run FD migration
+#f.zom('imgH',  # image
+#      'datH',  # data
+#      'vbak',   # velocity
+#      'dens',   # density
+#      'rH',    # receiver coordinates
+#      'free=n', # optional flags
+#      par)
+
+# plot images
+#Plot(  'imgH',
+#     'bandpass flo=5 | scale axis=123 |' + f.cgrey('',par))
+#Result('imgH',['imgH','ss','rH'],'Overlay')
+
+# ------------------------------------------------------------
+# pad data
+npad=250
+Flow('padH','datH','reverse which=2 opt=i verb=y | pad end2=%d'%npad)
+
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    # backpropagate 
+#    f.awefd('tdat'+tag,'twfl'+tag,
+#            'padH',
+#            'velo'+tag,'dens',
+#            'rH','rH',
+#            'jsnap=1 jdata=4',par)
+    
+#    Flow('imgH'+tag,'twfl'+tag,
+#         'window n3=1 f3=%d |'%par['nt'] +
+#          'bandpass flo=5 | scale axis=123')
+
+
+    f.zom('jnkH'+tag,  # image
+          'datH',      # data
+          'velo'+tag,  # velocity
+          'dens',      # density
+          'rH',        # receiver coordinates
+          'free=n',    # optional flags
+          par)
+    Flow('imgH'+tag,'jnkH'+tag,'bandpass flo=5')
+    Plot(  'imgH'+tag,f.cgrey('',par))
+    Result('imgH'+tag,['imgH'+tag,'rH'],'Overlay')
+    Flow('aimgH',map(lambda i: 'imgH-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+         '''
+         cat axis=3 space=n ${SOURCES[1:%d]} |
+         scale axis=12
+         '''%ns)
+
+    Flow('negS'+tag,['imgH'+tag,'negs.exe'],
+         '''
+          ./${SOURCES[1]} box1=50 box2=50
+         '''%par)
+    Plot('negS'+tag,f.cgrey('color=j wantscalebar=y',par))
+
+#    Flow('negL'+tag,['imgH'+tag,'negl.exe'],
+#         '''
+#          ./${SOURCES[1]} box1=20 box2=20
+#         '''%par)
+#    Plot('negL'+tag,f.cgrey('color=j',par))
+
+#    Flow('divNeg1'+tag,'negS'+tag,'math output="1/(input+0.01)"')
+#    Plot('divNeg1'+tag,f.cgrey('color=j',par))
+#    Flow('divNeg2'+tag,'negS'+tag,'math output="1/((input)+1)"')
+#    Plot('divNeg2'+tag,f.cgrey('color=j',par))
+
+    Flow('aNegS',map(lambda i: 'negS-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+         '''
+         cat axis=3 space=n ${SOURCES[1:%d]} |
+         scale axis=12
+         '''%ns)
+    Result('aNegS',f.wgrey('color=e wantscalebar=y',par))
+#    Flow('aNegL',map(lambda i: 'negL-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+
+    Flow('adivNeg1','aNegS',
+          '''
+          math output="1/(0.1+input)" |
+          scale axis=12
+          ''')
+
+#    Flow('adivNeg1',map(lambda i: 'divNeg1-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+#    Flow('adivNeg2',map(lambda i: 'divNeg2-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+#    Flow('ResS1'+tag,['imgH'+tag,'divNeg1'+tag],
+#         '''
+#         add mode=p ${SOURCES[1]}
+#         ''')
+    Flow('ResST',['aimgH','adivNeg1'],
+         '''
+         add mode=p ${SOURCES[1]}
+         ''')
+#    Flow('ResS2'+tag,['imgH'+tag,'divNeg2'+tag],
+#         '''
+#         math i=${SOURCES[0]} f=${SOURCES[1]} output="i*f"
+#        ''')
+#    Flow('aResS1',map(lambda i: 'ResS1-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+#    Flow('aResS2',map(lambda i: 'ResS2-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+#    Flow('MaxRes'+tag,['imgH'+tag,'negS'+tag],
+#         '''
+#         math i=${SOURCES[0]} f=${SOURCES[1]} output="i*f"
+#         ''')
+#    Flow('aMaxRes',map(lambda i: 'MaxRes-%03d' %((1+(i-hs)*ds)*100),range(ns)),
+#         '''
+#         cat axis=3 space=n ${SOURCES[1:%d]} |
+#         scale axis=12
+#         '''%ns)
+
+
+#Result('aResS1',f.wgrey('color=e wantscalebar=y',par))
+Result('aimgH',f.cgrey('',par))
+Result('ResST',f.wgrey('color=e ',par))
+#Result('aMaxRes',f.wgrey('color=e wantscalebar=y',par))
+Result('adivNeg1',f.wgrey('color=e',par))
+#Result('adivNeg2',f.wgrey('color=e wantscalebar=y',par))
+
+
+for m in ('aimgH','ResST','adivNeg1','velomig'):
+  for j in range(ns):
+      s=1+(j-hs)*ds # slowness scaling factor
+      tag = "-%03d"%(100*s)
+      Flow(m+'i'+tag,m,'window n3=1 f3=%d' %j)
+      Result(m+'i'+tag,f.wgrey('color=e',par))
+
+Flow('aNegSbyt'   ,'aNegS', 'byte gainpanel=a pclip=100')
+Result('aNegSbyt',f.cgrey('color=j',par))
+Flow('adivNeg1byt'   ,'adivNeg1', 'byte gainpanel=a pclip=100')
+Result('adivNeg1byt',f.cgrey('color=j',par))
+Flow('aPenS1byt'   ,'aPenS1', 'byte gainpanel=a pclip=100')
+Result('aPenS1byt',f.cgrey('color=j',par))
+
+Flow('OF3','ResST','math output=input*input | stack axis=2| stack axis=1')
+Result('OF3',
+       '''put d1=1 o1=-10 
+       label1="velocity profiles" unit1="" label2="OF" unit2=""| 
+       graph title="Focussing Error"
+       ''')
+Flow('OF2','aResS2','stack axis=2| stack axis=1')
+Result('OF2','put d1=1 o1=-10 | graph title="Focussing Error"')
+Flow('OFM','aMaxRes','stack axis=2| stack axis=1')
+Result('OFM','put d1=1 o1=-10 | graph title="Focussing Error"')
+
+    # extract wavefield
+#    Flow('wflH'+tag,'twfl'+tag,
+#         'window f3=%d j3=5 |'%(par['nt']-npad) +
+#         'bandpass flo=5 | scale axis=123')
+#    Result('wflH'+tag,f.cgrey('',par))
+    
+# ------------------------------------------------------------
+# focusing measure
+#zwin=150
+#xwin=150
+#nwin=100
+#fwin=50-(nwin)/2
+#
+#Flow('imgHfoc','imgH',
+#     'focus rect1=%d rect2=%d'%(zwin,xwin))
+#Plot(  'imgHfoc',f.cgrey('mean=y color=e',par))
+#Result('imgHfoc',['imgHfoc','ss','rH'],'Overlay')
+
+#Flow('wflHfoc','wflH',
+#     '''
+#	window n3=%d f3=%d | 
+#	focus rect1=%d rect2=%d rect3=%d
+#     '''%(nwin,fwin,50,50,1))
+#Flow('wflHfoc','wflH',
+#     'focus rect1=%d rect2=%d'%(zwin,xwin))
+#Result(  'wflHfoc',f.wgrey('mean=y color=e',par))
+#Result('wflHfoc',['wflHfoc','ss','rH'],'Overlay')
+
+End()

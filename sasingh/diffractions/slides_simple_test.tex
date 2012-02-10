@@ -1,0 +1,1003 @@
+
+
+\title[]{A measure of focusing using Diffractions}
+\subtitle{}
+\author[]{Satyan Singh}
+\institute{
+Center for Wave Phenomena \\
+Colorado School of Mines \\
+sasingh@mines.edu
+}
+\date{}
+\logo{}
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\inputdir{neg2d}
+
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee}
+     \plot{Side_dif_neg-100}{width=0.45\textwidth} {}
+     \plot{Side_dif_neg-120}{width=0.45\textwidth} {}
+\end{frame}
+
+%-----------------------------------------------------------------
+\begin{frame} \frametitle{Motivation}
+
+\begin{itemize}
+   \item To automate velocity picking for diffraction imaging
+\end{itemize}
+
+\end{frame}
+%---------------------------------------------------------
+\begin{frame} \frametitle{Negentropy}
+
+
+   \begin{equation} 
+      H =\frac{1}{N} \sum_{i=1}^{N} q_i log q_i
+   \end{equation}
+  \begin{equation}
+        H'= \frac{1}{N} \sum_{i=1}^{N} (Np_i) log(Np_i)
+  \end{equation}
+\begin{itemize}
+ \item where $N$ is the number of possible outcomes and $p_i$ is the probability of an outcome (Shannon 1948).
+\end{itemize}
+
+\end{frame}
+
+
+%____-------------------------------------
+\begin{frame} \frametitle{Negentropy}
+\begin{equation}
+        V= \frac{1}{N} \sum_{i=1}^{N} (Na'_i)log(Na'_i)
+\end{equation}
+where: $ a'_i= a/ \sum_{i=1} a_i $
+
+\begin{equation}
+        V= \frac{1}{N} \sum_{i=1}^{N_1} \sum_{j=1}^{N_2} (Na'_{ij})log(Na'_{ij})
+\end{equation}
+\begin{tabbing}
+ where: $ a'_{ij}= \frac{a_{ij}}{ \sum_{i,j} a_{ij}}$
+\end{tabbing}
+
+
+\end{frame}
+%--------------------------------------------------------------
+\inputdir{XFig}
+\begin{frame} \frametitle{Negentropy}
+  \plot{lowneg} {width=0.45\textwidth} {}
+  \plot{high} {width=0.45\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame} \frametitle{Velocity model}
+  \inputdir{tsigsbee}
+        \plot{vsmo}{width=0.7\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame} 
+\begin{center}
+ \Huge Results
+\end{center}
+
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-076} {width=0.45\textwidth} {}
+     \plot{aNeg2dsc-076} {width=0.45\textwidth} {}
+   \end{multicols}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-078}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-078}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-080}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-080}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-082}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-082}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-084}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-084}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-086}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-086}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-088}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-088}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-090}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-090}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-092}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-092}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-094}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-094}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-096}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-096}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-098}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-098}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-100}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-100}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-102}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-102}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-104}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-104}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-106}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-106}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-108}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-108}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-110}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-110}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-112}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-112}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-114}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-114}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-115}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-115}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-118}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-118}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-120}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-120}{width=0.45\textwidth} {}
+   \end{multicols}
+
+
+\end{frame}
+%--------------------------------------------	
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-122}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-122}{width=0.45\textwidth} {}
+   \end{multicols}
+
+%--------------------------------------------		
+\end{frame}
+\begin{frame}
+\inputdir{sigsbee}
+   \begin{multicols}{2}
+     \plot{ndif-124}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-124}{width=0.45\textwidth} {}
+   \end{multicols}
+
+%-------------------------------------------------------------	
+\end{frame}
+\begin{frame} \frametitle{Velocity model}
+  \inputdir{Diff_Neg_Test/sigsbee2h}
+        \plot{vsmo}{width=0.7\textwidth} {}
+\end{frame}
+
+% -------------------------------------------------------
+\begin{frame} 
+\begin{center}
+ \Huge Results
+\end{center}
+
+\end{frame}
+% ------------------------------------------------------------
+
+
+% ------------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-076} {width=0.45\textwidth} {}
+     \plot{neg12-076} {width=0.45\textwidth} {}
+   \end{multicols}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-078}{width=0.45\textwidth} {}
+     \plot{neg12-078}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-080}{width=0.45\textwidth} {}
+     \plot{neg12-080}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-082}{width=0.45\textwidth} {}
+     \plot{neg12-082}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-084}{width=0.45\textwidth} {}
+     \plot{neg12-084}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-086}{width=0.45\textwidth} {}
+     \plot{neg12-086}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-088}{width=0.45\textwidth} {}
+     \plot{neg12-088}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-090}{width=0.45\textwidth} {}
+     \plot{neg12-090}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-092}{width=0.45\textwidth} {}
+     \plot{neg12-092}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-094}{width=0.45\textwidth} {}
+     \plot{neg12-094}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-096}{width=0.45\textwidth} {}
+     \plot{neg12-096}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-098}{width=0.45\textwidth} {}
+     \plot{neg12-098}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-100}{width=0.45\textwidth} {}
+     \plot{neg12-100}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-102}{width=0.45\textwidth} {}
+     \plot{neg12-102}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-104}{width=0.45\textwidth} {}
+     \plot{neg12-104}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-106}{width=0.45\textwidth} {}
+     \plot{neg12-106}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-108}{width=0.45\textwidth} {}
+     \plot{neg12-108}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-110}{width=0.45\textwidth} {}
+     \plot{neg12-110}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-112}{width=0.45\textwidth} {}
+     \plot{neg12-112}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-114}{width=0.45\textwidth} {}
+     \plot{neg12-114}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-115}{width=0.45\textwidth} {}
+     \plot{neg12-115}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-118}{width=0.45\textwidth} {}
+     \plot{neg12-118}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-120}{width=0.45\textwidth} {}
+     \plot{neg12-120}{width=0.45\textwidth} {}
+   \end{multicols}
+
+
+\end{frame}
+%--------------------------------------------	
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-122}{width=0.45\textwidth} {}
+     \plot{neg12-122}{width=0.45\textwidth} {}
+   \end{multicols}
+
+%--------------------------------------------		
+\end{frame}
+\begin{frame}
+\inputdir{Diff_Neg_Test/sigsbee2h}
+   \begin{multicols}{2}
+     \plot{ndif-124}{width=0.45\textwidth} {}
+     \plot{neg12-124}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%---------------------------------------------------
+\begin{frame} 
+ 
+\end{frame}
+
+%------------------------------
+
+
+%-------------------------------------------------------------
+\begin{frame} \frametitle{Discussion of previous work}
+Previously a measure of focussing was developed using the varimax operator \textbf{(Fomel, 2007a)}
+
+\begin{itemize}
+   \item kurtosis of the zero-mean signal
+   \item High varimax means good focussing 
+\end{itemize}
+\begin{equation}
+  \label{eq:focus} \phi = \frac{\displaystyle N\,\sum_{i=1}^N
+  s_i^4}{\displaystyle \left(\sum_{i=1}^{N} s_i^2\right)^2}\;,
+\end{equation}
+
+\end{frame}
+\cwpnote{}
+%-------------------------------------------------------------
+
+%-------------------------------------------------------------	
+\begin{frame} \frametitle{Summarise}
+
+   \begin{itemize} 
+    \item Measure of focusing dependent on separations of diffractions
+    \item Good results for isolated diffractions 
+     \end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Recommendations}
+
+   \begin{itemize} 
+    \item Local attribute method
+    \item Apply measure in the wavenumber(\textbf{k}) domain
+     \end{itemize}
+\end{frame}
+
+\begin{frame} \frametitle{Acknowledgements}
+
+   \begin{itemize} 
+    \item Paul and migration class
+    \item Mention must be made to Esteban `toto' Diaz
+     \end{itemize}
+\end{frame}
+
+
+
+
+
+
+%-------------------------------------------------------------------
+
+
+
+
+% -----------------------------------------------------------
+%---------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-076} {width=0.45\textwidth} {}
+     \plot{aNeg2dsc-076} {width=0.45\textwidth} {}
+   \end{multicols}
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-078}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-078}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-080}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-080}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-082}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-082}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-084}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-084}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-086}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-086}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-088}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-088}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-090}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-090}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-092}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-092}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-094}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-094}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-096}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-096}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-098}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-098}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-100}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-100}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-102}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-102}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-104}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-104}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-106}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-106}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-108}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-108}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-110}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-110}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-112}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-112}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-114}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-114}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-115}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-115}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-118}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-118}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+% -------------------------------------------------------
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-120}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-120}{width=0.45\textwidth} {}
+   \end{multicols}
+
+
+\end{frame}
+%--------------------------------------------	
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-122}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-122}{width=0.45\textwidth} {}
+   \end{multicols}
+
+%--------------------------------------------		
+\end{frame}
+\begin{frame}
+\inputdir{tsigsbee3}
+   \begin{multicols}{2}
+     \plot{ndif-124}{width=0.45\textwidth} {}
+     \plot{aNeg2dsc-124}{width=0.45\textwidth} {}
+   \end{multicols}
+
+	
+\end{frame}
+%-------------------------------------------------------------
+\begin{frame}
+ 
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Discussion of previous work}
+  \begin{itemize}
+   \item Instead of using windows he used the technique of local attributes {Fomel, 2007b}
+   \item The correlation of two sequences \textit{$a_i$} and \textit{$b_i$} is given by
+	  \begin{equation}
+  c[a,b] = {\frac{\displaystyle \sum_{i=1}^N a_i\,b_i}{\displaystyle \sqrt{\sum_{i=1}^N a_i^2\,\sum_{i=1}^N b_i^2}}}
+  \label{eq:c}
+	  \end{equation}
+  \end{itemize}
+ 
+\end{frame}
+% ------------------------------------------------------------
+
+\begin{frame} \frametitle{Previous Work}
+  \begin{itemize}
+   \item $ c[s^2,1]^2 = \textit{pq}$ where 
+\begin{equation}
+\label{eq:pq}
+p=\frac{\displaystyle \sum_{i=1}^N s_i^2}{\displaystyle N}\;,\quad q=\frac{\displaystyle \sum_{i=1}^N s_i^2}{\displaystyle \sum_{i=1}^N s_i^4}\;.
+\end{equation}
+
+   \item $\phi = \frac{1}{c[s^2,1]^2}$
+  \end{itemize}
+
+\end{frame}
+% -------------------------------------------------------
+\inputdir{neg2d}
+\begin{frame} 
+  \plot{out3}{width=0.8\textwidth} {}
+\end{frame}
+% -------------------------------------------------------
+
+% ------------------------------------------------------------
+
+%\begin{frame} \frametitle{Probability Distribution}
+%  \inputdir{XFig}
+%  \plot{file}{width=\textwidth}{}
+%\end{frame}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Kurtosis}
+
+   \begin{equation} 
+      C_4 = E[x^4] - 3(E[x^2])^2 
+   \end{equation}
+  \begin{itemize} 
+    \item Measure of peakedness relative to normal distributions
+    \item Indicates heaviness of the tails of pdf 
+    \item Measure of non-gaussianity 
+    \item Sensitive to outliers 
+  \end{itemize}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Negentropy}
+
+   \begin{equation} 
+      H =(1/N) \sum_{i=1}^{N} q_i log q_i
+   \end{equation}
+  \begin{itemize} 
+    \item robust to outliers
+    \item Measure of non-gaussianity 
+  \end{itemize}
+\end{frame}
+% -------------------------------------------------------
+\inputdir{neg2d}
+\begin{frame} 
+  \plot{out12}{width=\textwidth} {}
+\end{frame}
+	
+
+% -------------------------------------------------------
+%\inputdir{neg2}
+%\begin{frame}
+%  \plot{test1}{width=\textwidth} {}
+%\end{frame}
+% -------------------------------------------------------
+\inputdir{neg2d}
+\begin{frame}
+  \plot{out1}{width=\textwidth} {}
+\end{frame}
+% ------------------------------------------------------------
+\begin{frame} \frametitle{Diffractions}
+Observe diffractions for different velocity models 
+\begin{itemize}
+   \item Gulf of mexico data scons 
+   \item Sigsbee data 
+\end{itemize}
+
+\end{frame}
+\cwpnote{}
+%-----------------------------

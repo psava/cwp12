@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+from rsf.proj import *
+
+Program('sneg','sneg.c',
+  CFLAGS='-fopenmp -O3 -std=c99 -pedantic -Wall')
+Flow   ('test1', None,
+        '''
+        spike nsp=1 mag=1
+          n1=2000 d1=0.004 k1=50 o1=0
+          n2=2000 d2=0.004 k2=50 o2=0 n3=1| 
+        ricker1 frequency=10 |
+        smooth rect2=3 repeat=3
+        ''')
+Flow('out1',['test1','sneg.exe'],
+     '''
+     ./${SOURCES[1]} box1=10 box2=10 
+     ''')
+Flow('test12',None,
+     '''
+     spike nsp=3 mag=0.2,0.2,0.2
+       n1=100 d1=0.004 k1=58,50,58 o1=0
+       n2=100 d2=0.004 k2=42,50,58 o2=0 |
+        ricker1 frequency=10 |
+       smooth rect2=3 repeat=3 
+     ''')
+Flow('out12','sneg.exe',
+     '''
+     spike nsp=3 mag=0.2,0.2,0.2
+       n1=100 d1=0.004 k1=58,50,58 o1=0
+      n2=100 d2=0.004 k2=42,,50,58 o2=0 |
+        ricker1 frequency=10 |
+        smooth rect2=3 repeat=3 |
+    ./$SOURCE box1=20 box2=20 
+    ''')
+Flow('test13',None,
+     '''
+     spike nsp=4 mag=1,0.33,0.33,0.33
+       n1=100 d1=0.004 k1=80,58,50,58 o1=0
+       n2=100 d2=0.004 k2=80,42,50,58 o2=0 |
+        ricker1 frequency=10 |
+        smooth rect2=3 repeat=3 
+    ''')
+Flow('out13','sneg.exe',
+     '''
+     spike nsp=4 mag=1,1.0,1.0,1.0
+       n1=100 d1=0.004 k1=80,58,50,58 o1=0
+       n2=100 d2=0.004 k2=80,42,,50,58 o2=0 |
+        ricker1 frequency=10 |
+        smooth rect2=3 repeat=3 |
+     ./$SOURCE box1=20 box2=20 
+     ''')
+Flow('out2','sneg.exe',
+     '''
+     spike nsp=2 mag=1.0,1.0
+       n1=100 d1=1 k1=40,70  o1=0
+       n2=100 d2=1 k2=40,70  o2=0 |
+     ./$SOURCE box1=10 box2=10 
+     ''')
+Flow('out3','sneg.exe',
+     '''
+     spike nsp=8 mag=0.2,0.2,0.2,0.2,0.2,0.2,1,1
+       n1=100 d1=0.01 k1=15,16,17,18,19,20,50,70  o1=0
+       n2=100 d2=0.01 k2=15,16,17,18,19,20,50,70  o2=0 |
+     ./$SOURCE box1=10 box2=10 
+     ''')
+
+#Flow(['out1','out2'],'negentropy.exe',
+#     '''
+#        spike nsp=1 mag=1
+#              n1=500 d1=1 k1=250 o1=0
+#              n2=500 d2=1 k2=250 |
+#        ricker1 frequency=10 |
+#        smooth rect2=3 repeat=6 | scale axis=123
+#     ./$SOURCE box1=10 box2=10 data=${TARGETS[1]} 
+#     ''')
+#
+Result('test1','window |  grey')
+Result('out1','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+Result('test12','window |  grey')
+Result('out12','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+Result('test13','window |  grey')
+Result('out13','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+Result('out2','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+Result('out3','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+
+#Flow('test1','negentropy.exe',
+#     '''
+#        spike nsp=1 mag=1
+#              n1=50 d1=1 k1=15 o1=0
+#              n2=50 d2=1 k2=15 |
+#        ricker1 frequency=10 |
+#        smooth rect2=3 repeat=6 |
+#     ./$SOURCE box1=10 box2=10 data=test1.rsf
+#     ''')
+
+#Result('test1','attr')
+
+
+#Result ('test2', None,
+#        '''
+#        spike nsp=1 mag=1
+#              n1=500 d1=1 k1=250 o1=0
+#              n2=500 d2=1 k2=250 |
+#        ricker1 frequency=10 |
+#        smooth rect2=3 repeat=3 |
+#        scale axis=123
+#        ''')
+
+End()        

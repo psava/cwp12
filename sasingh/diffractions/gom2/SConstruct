@@ -1,0 +1,234 @@
+#!/usr/bin/env python
+from rsf.proj import *
+import fdmod,zomig,encode
+Program('test','sneg.c')
+
+par = {
+    'nz':1000,'dz':0.00667, 'oz':0,      'lz':'z', 'uz':'km',
+    'nx':891, 'dx':0.02667, 'ox':2.9337, 'lx':'x', 'ux':'km',
+    'ny':1,   'dy':0.02667, 'oy':0,      'ly':'y', 'uy':'km',
+    'nt':1000,'dt':0.004,   'ot':0,      'lt':'t', 'ut':'s',
+    'nw':96,  'jw':1,       'ow':5,
+    'verb':'y','eps':0.01,'nrmax':5,'dtmax':0.00005,
+    'tmx':32,'tmy':0,'pmx':32,'pmy':0,'incore':'y'
+    }
+par['nz']=500
+#par['tmin']=1.25
+par['zmin']=1.0
+#par['zmax']=3.0
+par['ox']=4
+par['nx']=300
+par['rect1']=60
+par['rect2']=15
+fdmod.param(par)
+
+#par['ratio']=0.4
+par['height']=5.5
+
+# ------------------------------------------------------------
+# near offset data (use as "zero offset")
+# ------------------------------------------------------------
+Flow  ('zof','./data/gom/gom.noff.hh',
+       '''
+       window n1=%(nt)d |
+       bandpass fhi=20 |
+       window min2=%(ox)g n2=%(nx)d |
+       put label1=%(lt)s unit1=%(ut)s label2=%(lx)s unit2=%(ux)s
+       ''' % par)
+Result('zof',fdmod.dgrey('screenht=10 screenratio=0.65',par))
+
+# ------------------------------------------------------------
+# dominant dip
+# ------------------------------------------------------------
+Flow  ('dip','zof','dip verb=y rect1=60 rect2=20 liter=100')
+Result('dip',fdmod.dgrey('screenht=10 screenratio=0.65 color=j',par))
+
+# ------------------------------------------------------------
+# diffractions
+# ------------------------------------------------------------
+Flow  ('dif','zof dip','pwd order=3 dip=${SOURCES[1]} verb=n')
+Result('dif',fdmod.dgrey('screenht=10 screenratio=0.65 pclip=99',par))
+
+# ------------------------------------------------------------
+# velocity
+# ------------------------------------------------------------
+Flow('vel','./data/gom/gom.velo.hh',
+     '''
+     window n2=1 f2=0 n1=%(nz)d |
+     smooth rect1=50 | 
+     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+     put label1=%(lz)s unit1=%(uz)s label2=%(ux)s unit2=%(ux)s
+     ''' % par)
+Result('vel','window min1=%(zmin)g max1=%(zmax)g |'%par
+       +fdmod.cgrey('allpos=y color=j bias=1.5',par))
+
+# ------------------------------------------------------------
+# slowness
+# ------------------------------------------------------------
+zomig.slowness('slo','vel',par)
+
+# datuming slowness
+Flow('sdtm','slo','window squeeze=n n3=2 j3=150')
+# migration slowness
+Flow('smig','slo','window squeeze=n      f3=150 | window squeeze=n n3=300 ')
+
+Result('smig','window | transp |'+fdmod.cgrey('allpos=y color=j bias=0.21',par))
+
+# ------------------------------------------------------------
+# depth migration
+# ------------------------------------------------------------
+
+# data in the frequency domain
+for i in ('zof','dif'):
+    encode.time2freq(i,'f'+i,par)
+
+    # datuming
+    zomig.Adttwo3('d'+i,'f'+i,'sdtm',par)
+
+ds=0.01 # fractional change of the slowness
+ns=60
+hs=(ns-1)/2
+for j in range(ns):
+    s=1+(j-hs)*ds # slowness scaling factor
+    tag = "-%03d"%(100*s)
+
+    # scale slowness
+    Flow('slo'+tag,'slo','scale rscale=%g'%s)
+
+    # migration
+    for i in ('zof','dif'):
+        
+        zomig.image('i'+i+tag,'slo'+tag,'f'+i,par)
+        Result('i'+i+tag,'window | transp |' + fdmod.cgrey('pclip=99.9',par))
+
+# ---------------------------------------------------
+#Focus section
+# __________________________________________________
+
+#plot of kurtosis from migrated depth images
+    Flow('foc'+tag, 'idif'+tag, 
+    '''
+    window | transp |
+    focus rect1=%(rect1)d rect2=%(rect2)d | scale axis=12 
+    '''  %par)
+
+#Cube of migrated diffraction images
+Flow('adif',map(lambda j: 'idif-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+     '''
+     cat axis=2 space=n ${SOURCES[1:%d]} | 
+     transp plane=23 | 
+     transp plane=12 | 
+     scale axis=123
+     '''%ns)
+Result('adif',fdmod.wgrey('',par))
+
+#Cube of kurtosis from migrated diffracted images
+Flow('afoc','adif',
+  'focus rect1=40 rect2=10 rect3=9 | scale axis=123'%par)
+Result('afoc',fdmod.wgrey('color=j',par))
+
+#Velocity panels
+Flow('vafoc','afoc', 'transp plane=23')
+#Result('vafoc', fdmod.wgrey('color=j screenht=8 screenratio=0.45 title="Velocity Diff Cube"', par))
+Result('vafoc', 'window min1=1 max1=3.32833 | grey parallel2=n labelrot=n wantaxis=y title="" pclip=100 gainpanel=a label1="\F2 z\F3 " unit1=km label2="\F2 x\F3 " unit2=km screenratio=0.291978 screenht=3.79572 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 color=j screenht=8 screenratio=0.45 title="Velocity Diff Cube"')
+
+#Overlay of kurtosis on diffractions images 
+Flow('amix',['adif','afoc'],
+  'math i=${SOURCES[0]} f=${SOURCES[1]} output="i+2*(f-0.5)"') 
+Result('amix',fdmod.wgrey('color=j screenht=8 screenratio=0.45 title="Diffraction Cube"',par))
+
+#Cube of kurtosis from individual diffracted images
+#Flow('focbyt',map(lambda j: 'foc-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+#  'cat axis=3 space=n ${SOURCES[1:%d]} | byte gainpanel=a pclip=100 scale axis=123'%ns)
+
+Flow('focbyt',map(lambda j: 'foc-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+  'cat axis=3 space=n ${SOURCES[1:%d]} '%ns)
+
+
+#Overlay of diffraction images on Kurtosis cube
+Flow('kmix',['focbyt','adif'],
+  'math k=${SOURCES[0]} d=${SOURCES[1]} output="k+2*(d-0.5)"')
+Result('kmix',fdmod.wgrey('color=j screenht=8 screenratio=0.45 title="Kurtosis Cube"',par))
+
+#Cube of kurtosis from individual diffracted images
+Flow('nfocbyt',map(lambda j: 'foc-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+  'cat axis=3 space=n ${SOURCES[1:%d]} | byte gainpanel=a pclip=100'%ns)
+
+#to do / "depth 2 depth" conversion
+
+#Individual Kurtosis panels
+for j in range(ns):
+  s=1+(j-hs)*ds # slowness scaling factor
+  tag = "-%03d"%(100*s)
+
+  Result('nfoc'+tag,
+        'nfocbyt',
+        'window n3=1 f3=%d |'%j
+        + fdmod.cgrey('color=j screenht=8 screenratio=0.45',par))
+
+
+Flow('ndifbyt'   ,'adif', 'byte gainpanel=a pclip=100')
+
+for j in range(ns):
+    ve=1+(j-hs)*ds
+    tag = "-%03d"%(ve*100)
+    Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)
+    Result('ndif'+tag,
+           'ndifbyt',
+           'window n3=1 f3=%d |' %j
+           + fdmod.cgrey('labelsz=9 screenht=8 screenratio=0.45',par))
+
+    Flow('neg12'+tag,['ndif'+tag,'test.exe'],
+         '''
+         ./${SOURCES[1]} box1=30 box2=30
+         '''%par)
+    Result('neg12'+tag,fdmod.cgrey('color=j',par))
+
+    Flow('aNeg2d',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*ds)),range(ns)),
+         '''
+         cat axis=3 space=n ${SOURCES[1:%d]} |
+         scale axis=12
+         '''%ns)
+    Result('aNeg2d',fdmod.cgrey('allpos=y color=j',par))
+
+Flow('aNeg2dbyt'   ,'aNeg2d', 'byte gainpanel=a pclip=100')
+
+for j in range(ns):
+   ve=1+(j-hs)*ds
+   tag = "-%03d"%(ve*100)
+   Result('aNeg2dsc'+tag,
+          'aNeg2dbyt',
+          'window n3=1 f3=%d |' %j
+          + fdmod.cgrey('color=j labelsz=9 screenht=8 screenratio=0.45',par))
+
+
+
+
+#velocity profile cube
+#nx=('%(nx)d',%par)
+#for j in range(150,(par['nx']-100)): 
+#  tag= "-03d"%'nx'
+#  Flow('vfoc'+"-%03d" %j, 'nfocbyt',' window n2=1 f2=%d' %j)
+#  Result('vfoc'+"-%03d" %j,fdmod.wgrey('color=j',par))
+
+#Cube of kurtosis from migrated diffracted images
+Flow('bfoc','adif',
+  'focus rect1=40 rect2=0 rect3=9 | scale axis=123'%par)
+Result('bfoc',fdmod.wgrey('color=j',par))
+
+#Velocity panels
+Flow('vbfoc','bfoc', 'transp plane=23')
+#Result('vafoc', fdmod.wgrey('color=j screenht=8 screenratio=0.45 title="Velocity Diff Cube"', par))
+Result('vbfoc', 'window min1=1 max1=3.32833 | grey parallel2=n labelrot=n wantaxis=y title="" pclip=100 gainpanel=a label1="\F2 z\F3 " unit1=km label2="\F2 x\F3 " unit2=km screenratio=0.291978 screenht=3.79572 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 color=j screenht=8 screenratio=0.45 title="Velocity Diff Cube"')
+
+
+#Flow ('bfoc', map(lambda j: 'foc-%03d' % (100*(1+(j-hs)*ds)),range(ns)),
+#  '''
+#    cat axis=3 space=n ${SOURCE[1:%d]} |
+#    scale axis=123
+#    '''%ns)
+#Result('bfoc',fdmod.cgrey('color=j',par))
+
+
+# ------------------------------------------------------------
+End()

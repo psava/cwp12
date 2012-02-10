@@ -1,0 +1,379 @@
+#!/usr/bin/env python
+from rsf.proj import * #python modules
+import fdmod as f  #module with fdm paramters and modeling
+Program('neg2d','ent.c')
+Program('test','sneg.c')
+# ------------------------------------------------------------
+# Sigsbee 2A parameters
+f2m=0.3048     # convert ft to m
+par = dict( #parameter dictionary, we type the the symbol instead of the number in the program
+    nx=2001, ox=25.*f2m, dx=0.025*f2m, lx='x',ux='km',
+    nz=1001, oz=4.5*f2m, dz=0.025*f2m, lz='z',uz='km',
+    ny=1,    oy=25.*f2m, dy=0.025*f2m, ly='y', uy='km',
+    nt=3001, ot=0.0,     dt=0.0005,    lt='t',ut='s',
+    jsnap=200, # snapshot jump
+    kt=150,    # wavelet delay (samples) 
+    nb=100     # boundary (grid points)
+    )
+par['height']=10.5 
+par['nx']=500
+par['nz']=700
+par['nz']=500
+par['ompnth']=16
+
+# ------------------------------------------------------------
+# set plotting parameters
+f.param(par) #part of fdmod, computing other parameters for plots for the plot to fit on the page
+
+# ------------------------------------------------------------
+# source coordinates (exploding reflectors) this is to place the source and its parameters
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']+par['nz']/2*par['dz']
+f.point('ss',par['xsou'],par['zsou'],par)
+Plot('ss',f.ssplot('plotcol=5',par)) #makes a plot of all the source coordinates# 5 is the current plot color
+
+# ------------------------------------------------------------
+# horizontal array @ z=1.5km
+f.horizontal('rH',1.5,par) #want a horizontal array of numbers at 1.5 km
+Plot('rH',f.rrplot('',par))
+
+# ------------------------------------------------------------
+# get stratigraphic velocity
+strvelfile = 'data/sigsbee/sigsbee2a_stratigraphy.sgy' #SEGY file
+Flow('vstr-raw',None,'segyread read=data <%s'%strvelfile)
+
+Flow('vstr',
+     'vstr-raw',
+     '''
+     scale rscale=%g | 
+     put o1=%g d1=%g o2=%g d2=%g |
+     window n1=%d min1=%g n2=%d min2=%g
+     ''' % (0.001*f2m,
+            0     ,0.025*f2m,
+            10*f2m,0.025*f2m,
+            par['nz'],par['oz'],
+            par['nx'],par['ox']
+            ))  #transfomrs the segy file into useable data with proper units
+
+# ------------------------------------------------------------
+# make smooth velocity
+Flow('vsmo',
+     'vstr',
+     'smooth rect1=35 rect2=35 repeat=4') #under repeat the number indicates the amout of smoothing to be done
+
+# ------------------------------------------------------------
+# plot velocities
+for v in ('vstr','vsmo'):
+    Plot(  v,f.cgrey('allpos=y bias=1.43',par)) # plot the velocity file
+
+    # overlay sources and receivers
+    Result(v+'i',[v,'ss','rH'],'Overlay') #overlay velocity file 
+
+# ------------------------------------------------------------
+# make constant density
+Flow(  'dens','vsmo','math output=1') #
+Plot(  'dens',f.cgrey('allpos=y bias=1.43',par))
+Result('dens',['dens','ss','rH'],'Overlay')
+
+# ------------------------------------------------------------
+# construct wavelet
+f.wavelet('wav_',15,par) # 10 indicates the frequency
+
+# transpose wavelet
+Flow(  'wav','wav_','transp')      
+
+# plot wavelet
+Result('wav','window n2=1000 |'
+       + f.waveplot('',par)) 
+
+# ------------------------------------------------------------
+# run FD modeling
+f.awefd1('tmpH',  # data file (all receivers)
+         'wfld',  # wavefield snapshots
+         'wav',   # source wavelet
+         'vsmo',  # velocity
+         'dens',  # density
+         'ss',    # source coordinates
+         'rH',    # receiver coordinates
+         'free=n', # optional flags (free surface ) n is no, for no free surface
+         par)
+
+# ------------------------------------------------------------
+# plot wavefield frames
+for i in range( int((par['nt']-1)/par['jsnap']) ):
+    tag = '-%02d'%i
+    f.wframe('wfld'+tag,
+             'wfld',i,'pclip=99.9',par)
+#    Result(  'wfld'+tag,
+#            ['wfld'+tag,'ss','rH'],'Overlay') #overlay the source and reciever to to know where it is
+    
+# ------------------------------------------------------------
+# undo wavelet delay, remove the wavelet delay, because the wavelet had a delay in the begining
+Flow('datH',
+     'tmpH',
+     '''
+     window squeeze=n f2=%(kt)d |
+     pad end2=%(kt)d |
+     put o2=%(ot)g
+     ''' %par)
+#Result('datH',       'window j2=4 | transp|'
+#       + f.dgrey(''%par,par)) #dgrey is used to creat grey plots
+# ------------------------------------------------------------
+
+
+#-----------------------------------------------------------------
+#change in velocity model
+#-----------------------------------------------------------------
+ns=25
+hs=(ns-1)*0.5
+dve=0.02
+for i in range(ns):
+  ve=1+(i-hs)*dve
+  tag = "-%03d"%(ve*100)
+  Flow('vsmo'+tag,'vsmo', 'scale rscale=%g'%ve)
+
+  # run FD migration
+  f.zom('img'+tag,  # image
+        'datH',  # data
+        'vsmo'+tag,   # velocity
+        'dens',   # density
+        'rH',    # receiver coordinates
+        'free=n', # optional flags
+        par)
+
+  Flow('bps'+tag,
+       'img'+tag,
+       '''
+       bandpass flo=2 |
+       scale axis=123
+       '''%par)
+    
+
+#Cube of migrated diffraction images
+Flow('adif',map(lambda i: 'bps-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+     '''
+     cat axis=3 space=n ${SOURCES[1:%d]} | 
+     scale axis=123
+     '''%ns)
+#Result('adif',f.cgrey('',par))
+
+#Cube of kurtosis from migrated diffracted images
+Flow('3Dafoc',
+     'adif',
+     '''
+     focus rect1=100 rect2=100 rect3=5   
+     '''%par)
+#Result('3Dafoc',f.cgrey('color=j',par))
+#Cube of kurtosis from migrated diffracted images
+Flow('div3Dafoc',
+     'adif',
+     '''
+     focus rect1=100 rect2=100 rect3=5 |
+     math output="1/abs(input)"
+     '''%par)
+#Result('3Dafoc',f.cgrey('color=j',par))
+#Cube of kurtosis from migrated diffracted images using different windows
+Flow('ZVafoc',
+     'adif',
+     '''
+     focus rect1=100 rect3=3   
+     '''%par)
+#Result('ZVafoc',f.cgrey('color=j',par))
+#Cube of kurtosis from migrated diffracted images
+Flow('ZXafoc',
+     'adif',
+     '''
+     focus rect1=100 rect2=100 
+     '''%par)
+#Result('ZXafoc',f.cgrey('color=j',par))
+
+#Overlay of kurtosis on diffractions images 
+#Flow('amix',['adif','afoc'],
+#     'math i=${SOURCES[0]} f=${SOURCES[1]} output="i+2*(f-0.5)"')
+#Result('amix',f.cgrey('color=j',par))
+
+dz = par['zmax']-par['zmin']
+dx = par['xmax']-par['xmin']
+dv = 2
+cubr=1.0*(dz+dv)/(dx+dv)
+cubz=1.0*dz/(dz+dv)
+cubx=1.0*dx/(dx+dv)
+
+def cub3d(custom):
+  return '''
+        byte gainpanel=a pclip=100 %s |
+        grey3 title="" framelabel=n parallel2=n  
+        flat=y screenht=8 screenratio=%f point2=%f point1=%f
+        frame1=150 frame2=300 frame3=13
+        label1=z label2=x label3=v unit3=""
+        frame3=0 movie=3 dframe=1
+        %s
+        '''%(custom,cubr,cubx,cubz,custom+par['labelattr'])
+#Result('cubafoc' ,'3Dafoc' ,cub3d('allpos=y color=j'))
+#Result('cubafocZV','ZVafoc',cub3d('allpos=y color=j'))
+#Result('cubafocZX','ZXafoc',cub3d('allpos=y color=j'))
+#Result('cubadif' ,'adif', cub3d(''))
+#Result('cubeplot',['cubafoc','cubadif'],'SideBySideIso')
+
+
+#Images of 2D Kurtosis
+Flow('3Dnfocbyt','3Dafoc', 'byte gainpanel=a pclip=100') 
+Flow('div3Dnfocbyt','div3Dafoc', 'byte gainpanel=a pclip=100') 
+Flow('ZVnfocbyt','ZVafoc', 'byte gainpanel=a pclip=100') 
+Flow('ZXnfocbyt','ZXafoc', 'byte gainpanel=a pclip=100') 
+Flow('ndifbyt'   ,'adif', 'byte gainpanel=a pclip=100')
+for j in range(ns):
+  ve=1+(j-hs)*dve
+  tag = "-%03d"%(ve*100)
+#  Flow('ndif'+tag,'adif','window n3=1 f3=%d ' %j)  
+
+#  Result('ndif'+tag,
+#         'ndifbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('labelsz=9',par))
+  
+  Flow('neg12'+tag,['ndif'+tag,'test.exe'],
+       '''
+       ./${SOURCES[1]} box1=100 box2=100
+       '''%par)
+#  Result('neg12'+tag,f.cgrey('color=j',par))
+
+  Flow('neg2dn'+tag,['ndif'+tag,'neg2d.exe'],
+       '''
+       ./${SOURCES[1]} box1=100 box2=100
+       '''%par)
+#  Result('neg2d1'+tag,f.cgrey('color=j',par))
+
+  Flow('ZXSafoc'+tag, 
+       'ndif'+tag,
+       '''
+       focus rect1=100 rect2=100
+       '''%par)
+#  Result('ZXSafoc'+tag,f.cgrey('color=j',par))
+
+  Flow('aZXSafoc',map(lambda i: 'ZXSafoc-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+       '''
+       cat axis=3 space=n ${SOURCES[1:%d]} |
+       scale axis=12
+       '''%ns)
+#  Flow('aNeg',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+#       '''
+#       cat axis=3 space=n ${SOURCES[1:%d]} |
+#       scale axis=12
+#       '''%ns)
+#  Result('aNeg',f.cgrey('allpos=y color=j',par))
+
+  Flow('aNeg2d',map(lambda i: 'neg12-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+       '''
+       cat axis=3 space=n ${SOURCES[1:%d]} |
+       scale axis=12
+       '''%ns)
+#  Result('aNeg2d',f.cgrey('allpos=y color=j',par))
+  Flow('aNeg2dn',map(lambda i: 'neg2dn-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+       '''
+       cat axis=3 space=n ${SOURCES[1:%d]} |
+       scale axis=12
+       '''%ns)
+
+Flow('aNeg2dbyt'   ,'aNeg2d', 'byte gainpanel=a pclip=100')
+Flow('aNeg2dbytn'   ,'aNeg2dn', 'byte gainpanel=a pclip=100')
+
+for j in range(ns):
+  ve=1+(j-hs)*dve
+  tag = "-%03d"%(ve*100)
+  Plot('aNeg2dsc'+tag,
+         'aNeg2dbyt',
+         'window n3=1 f3=%d |' %j
+         + f.cgrey('color=j labelsz=9 title="Global"',par))
+#  Flow('aNeg2dscvel'+tag,
+#         'aNeg2dbyt',
+#        'window n1=1 f1=%d ' %j)
+#  Flow('VelNeg',map(lambda i: 'aNeg2dscvel-%03d' % (100*(1+(i-hs)*dve)),range(ns)),
+#       '''
+#       cat axis=1 space=n ${SOURCES[1:%d]} 
+#       '''%ns)
+#  Result('VelNeg',f.cgrey('allpos=y color=j',par))
+  Plot('aNeg2dscn'+tag,
+         'aNeg2dbytn',
+         'window n3=1 f3=%d |' %j
+         + f.cgrey('color=j labelsz=9 title="Local"',par))
+   
+  Plot('ndif'+tag,
+         'ndifbyt',
+         'window n3=1 f3=%d |' %j
+         + f.cgrey('labelsz=9',par))
+  Result('Side_dif_neg'+tag,['ndif'+tag,'aNeg2dsc'+tag],'SideBySideIso')
+  Result('Side_dif_negn'+tag,['ndif'+tag,'aNeg2dscn'+tag],'SideBySideIso')
+
+Result('VelNeg','aNeg2dbyt', 
+       'transp plane=23 | grey color=j labelsz=9')
+
+
+#  Result('aZXSafoc',f.cgrey('allpos=y color=j',par))
+
+
+#  Result('3Dnfoc'+tag,
+#         '3Dnfocbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('color=j',par))
+#  Result('div3Dnfoc'+tag,
+#         'div3Dnfocbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('color=j',par))
+#  Result('ZVnfoc'+tag,
+#         'ZVnfocbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('color=j',par))
+#  Result('ZXnfoc'+tag,
+#         'ZXnfocbyt',
+#         'window n3=1 f3=%d |' %j
+#         + f.cgrey('color=j',par))
+
+
+
+#Velocity panels:
+#Flow('vafoc', 'afoc' ,'transp plane=23')
+#Result('vafoc','window min1=1.3716 max1=6.69798 f3=150 n3=200 | grey parallel2=n labelrot=n wantaxis=y title="" pclip=100 gainpanel=a label1="\F2 z\F3 " unit1=km label2="\F2 x\F3 " unit2=km screenratio=0.291978 screenht=3.79572 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 color=j ')
+
+
+Flow('timg',None,
+  '''
+  spike nsp=1 mag=1 
+    n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=150 
+    n2=%(nx)d o2=%(ox)g d2=%(dx)g k2=300 |
+  ricker1 frequency=7 |
+  smooth rect2=3 repeat=6 |
+  scale axis=123
+  '''%par)
+#Result('timg',f.cgrey('',par))
+
+Flow('uimg','adif','window n3=1 f3=12 | scale axis=123')
+#Result('uimg',f.cgrey('',par))
+
+Flow('tfoc','timg','focus rect1=50 rect2=50 ')
+Flow('ufoc','uimg','focus rect1=100 rect2=100 ')
+#Result('foctest','tfoc ufoc',
+#  ''' 
+#  cat axis=3 space=n ${SOURCES[1]} |
+#  ''' + f.wgrey('allpos=y color=j',par))
+
+#Result('tfoc',f.cgrey('allpos=y color=j wantscalebar=y',par))
+#Result('ufoc',f.cgrey('allpos=y color=j wantscalebar=y',par))
+
+
+Flow   ('test1', None,
+        '''
+        spike nsp=1 mag=1
+          n1=100 d1=0.004 k1=25 o1=0
+          n2=100 d2=0.004 k2=25 o2=0 | 
+        ricker1 frequency=10 |
+        smooth rect2=3 repeat=3
+        ''')
+#Flow('out1',['test1','test.exe'],
+#     '''
+#     ./${SOURCES[1]} box1=10 box2=10 
+#     ''')
+#Result('out1','window |  grey color=j wantscalebar=y label1="depth" unit1="km"')
+
+# ------------------------------------------------------------
+End()

@@ -264,7 +264,7 @@ for i in range(nvels):
     tag=k
     # migration (RTM)
     vel='vel'+k
-    den='zer'
+    den='den'+k
     images=images+' img'+k+'.rsf'
     cits= cits +' cit'+k+'.rsf'
     cips= cips + ' cip'+k+'.rsf'
@@ -300,6 +300,7 @@ for i in range(nvels):
         wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
         if (k=='05'):
             wemig.eic('cigp'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,' nhx=0 ',par)
+            wemig.eic('cigptx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,' nhz=0 ',par)
             Flow('cip'+k+'_'+s+r,'cigp'+k+'_'+s+r,'sfstack axis=4 norm=n |sftransp plane=32')           
 
         Flow('citx'+k+'_'+s+r,
@@ -424,7 +425,7 @@ for j in range(nvels):
           if (k=='05'):
               Result('cip'+k+'_'+s+r,
                  'cip'+k+'_byt',
-                 'window n3=1 f3=%d |'%i + adcig.ztgrey('',par))
+                 'window n3=1 f3=%d |'%i + adcig.ztgrey('screenratio=1',par))
 
           i+=1 
 
@@ -466,7 +467,7 @@ for j in range(nvels):
      Flow('penal_cixv2'+k+'_back','citx'+k+'_back','window f2=25 n2=150 |math output="abs(x2)*input"|pad beg2=25 end2=25')
 
 
-     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)^2"| stack axis=2 norm=n|stack axis=1 norm=n ')
+     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
      Flow('OF_cixv2'+k+'_back','penal_cixv2'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n')
 
 COF=xx.split()
@@ -552,13 +553,5 @@ for k in ['05']:
 ##############################################################
 
 #Movie snapshots for article:
-
-tmp="awtr-b05-150 awtr-b05-275 awtr-b05-500 awts-b05-150 awts-b05-275 awts-b05-500 across_corrs-b_r-b05-150 across_corrs-b_r-b05-275 across_corrs-b_r-b05-500 aimgs-b_r-b05_-150 aimgs-b_r-b05_-275 aimgs-b_r-b05_-500"  
-
-allplots=tmp.split()
-allplots2=allplots
-
-print allplots
-pplot.multip('multipanel',allplots,4,3,0.21,0.21,-5,-12)
 
 End()

@@ -212,6 +212,7 @@ Flow('dmask',None,
 
 fdmod.param(plotpar)
 
+fdmod.point('ggcip',17.83,2.84226,par)
 
 for s in SHOTS:
     stag = "-%04d"%s
@@ -257,6 +258,7 @@ for s in SHOTS:
     # extended imaging condition:  time-lag gathers  and space-lag gathers    
     wemig.eic('cig'+stag,'wts'+stag,'wtr'+stag,'gg','nhx=0 nhz=0 ',par)
     wemig.eic('cigx'+stag,'wts'+stag,'wtr'+stag,'gg','nht=0 nhz=0 ',par)
+    wemig.eic('cip'+stag,'wts'+stag,'wtr'+stag,'ggcip','nhx=0 ',par)
 
     #delete binaries of the wavefields (scons should not know about it: 
  
@@ -279,7 +281,7 @@ Plot('rr',fdmod.rrplot('',plotpar))
 
 Flow('Image',map(lambda x:'Img-%04d'%x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3 norm=n'%len(SHOTS))
 
-Plot('Image','Image',fdmod.cgrey('pclip=99.8',plotpar))
+Plot('Image','Image',fdmod.cgrey('pclip=99.7',plotpar))
 
 Result ('Image',['Image','rr','ss','gg4'],'Overlay')
 
@@ -310,7 +312,7 @@ Flow('Cigx',map(lambda x:'cigx-%04d'%x,SHOTS),
 
 
 Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',plotpar))
-Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.9',plotpar))
+Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.5',plotpar))
 
 Result('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
 Result('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))

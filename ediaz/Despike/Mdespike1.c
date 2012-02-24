@@ -42,6 +42,7 @@ int main (int argc, char* argv[])
     int i3,i2,i1,k;
     int arr_size, t2loop;
     int m;
+    int klo, khi;
     float sigma;
     float *uo,*der,*der_tmp;
 
@@ -71,41 +72,35 @@ int main (int argc, char* argv[])
     
     if (!sf_histint(in,"n1",&n1)) sf_error("No n1= in input");
     arr_size=n1;
-    t2loop=sf_leftsize(in,2) ;
+    t2loop=sf_leftsize(in,1) ;
 
     uo  = sf_floatalloc(arr_size);
     der = sf_floatalloc(arr_size);
     der_tmp = sf_floatalloc(arr_size);
-    
+    fprintf(stderr,"%4d \n",t2loop);
+
     for (i3=0; i3<t2loop; i3++) {
         sf_floatread(uo,arr_size,in);
  
         for (i1=0; i1<arr_size; i1++){
             
             sum=0.0;
-            for (i2=i1-m ; i2<=i1+m ; i2++){
+            klo=i1-m ; if(klo<0) klo=0;
+            khi=i1+m ; if(khi>=arr_size) khi=arr_size;
+            for (i2=klo ; i2<=khi ; i2++){
                 k=i2;
-                if(i2<0) {
-                    k=fabsf(i2);
-                }else if (i2>=n1) {
-                    k=(n1-i2-1)+n1;
-                }
                 sum= sum+ uo[k];
             }
             sum *= 1.0/(2.0*m+1.0);
             der_tmp[i1]=sum;
         }
         
-        
         for (i1=0; i1<arr_size; i1++){
             sum=0.0;
-            for (i2=i1-m ; i2<=i1+m ; i2++){
-				k=i2;
-                if(i2<0) {
-                    k=fabsf(i2);
-                }else if (i2>=n1) {
-                    k=(n1-i2-1)+n1;
-                }
+            klo=i1-m ; if(klo<0) klo=0;
+            khi=i1+m ; if(khi>=arr_size) khi=arr_size;
+            for (i2=klo ; i2<=khi ; i2++){
+                k=i2;
                 sum= sum+ (uo[k]-der_tmp[k])*(uo[k]-der_tmp[k]);                
             }
             sum *= 1.0/(2.0*m+1.0);
@@ -114,7 +109,6 @@ int main (int argc, char* argv[])
             }else {
                 der[i1]=uo[i1];
             }                                                             
-    
             
         }
         sf_floatwrite(der,arr_size,out);
@@ -123,6 +117,5 @@ int main (int argc, char* argv[])
     free (der); 
     free(der_tmp); 
     free(uo);
-
     exit(0);
 }

@@ -1,6 +1,7 @@
 from rsf.proj import *
 
-Program('sfdespike','Mdespike.c')
+Program('sfdespike','Mdespike1.c')
+Program('sfdespike2','Mdespike2.c')
 
 
 

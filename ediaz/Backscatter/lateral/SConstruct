@@ -1,0 +1,291 @@
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,math
+import commands,pplot
+
+#
+#    RTM imaging experiment with lateral velocity gradient
+#    and hard interface
+# 
+
+
+def dummyf(out,name):
+   Flow(out,None,'./rm2 /var2/ediaz/Backscatter/lateral/%s.rsf@ ; echo "got rid of binary!" '%name,stdin=0)
+
+
+
+par = {
+    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':2000, 'dx':0.005,  'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
+    'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+
+# ------------------------------------------------------------
+# source
+fdmod.point('ss',par['xsou'],par['zsou'],par)
+fdmod.horizontal('ttall',par['oz'],par)
+Flow('ssall','ttall','window j2=%(jcx)d'%par)
+Plot('ss',   fdmod.ssplot('',par))
+Plot('ssall',fdmod.ssplot('',par))
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',0,par)
+Plot('rr',fdmod.rrplot('',par))
+
+# ------------------------------------------------------------
+# CIGs at uniformly-sampled locations
+fdmod.boxarray('gt',
+               par['nz'],par['oz'],par['dz'],
+               par['nx'],par['ox'],par['dx'],
+               par)
+Flow('gg','gt',
+     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+fdmod.vertical('ggone',5.0,par)
+Plot('ggone',fdmod.qqplot('',par))
+
+Flow('gg80','gg','put n2=%d n3=%d |window n3=1 f3=79'%(par['nz'],par['ncx']))
+Plot('gg80',fdmod.qqplot('',par))
+
+Flow('gg124','gg','put n2=%d n3=%d |window n3=1 f3=123'%(par['nz'],par['ncx']))
+Plot('gg124',fdmod.qqplot('',par))
+
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',12,par)
+Flow(  'wav', 'wav_','transp')
+
+Result('wav','window n2=500 |'+fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=350
+par['xl']=par['nx']-par['xk']
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=50 repeat=30
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
+
+# ------------------------------------------------------------
+# reflectors
+zo=300
+perc=0.85
+perc_inc=0.03
+
+par['perc']=perc
+par['perc_inc']=perc_inc
+
+nvels=11
+
+vels=''
+
+
+par['z0']=1.5
+
+def sign(x):
+    if x>-0.00000001:
+        s=1
+    else :
+        s=-1
+    return s
+
+# #########################################################
+#
+# Here I make the models with a lateral velocity gradient 
+# in the first layer. The correct model is vel05.
+# I apply a variable scaling such as the depth of interface
+# in the center of the model remains constant.
+#
+# #########################################################
+
+for i in range(nvels):
+
+    par['zi']=math.floor(zo*par['perc'])
+    tag='%02d'%i
+    par['slp']=par['z0']*(2.0 - par['perc'])-par['z0']*par['perc']
+    par['slp']=par['slp']/((par['nx']-1)*par['dx'])
+    par['vx0']=2.0*(2.0 - par['perc'])
+    par['vx1']=2.5*(par['perc'])
+   
+
+    Flow('layer'+tag,None,
+      '''
+      math n1=%(nz)d o1=%(oz)g d1=%(dz)g n2=%(nx)d o1=%(oz)g d2=%(dx)g output="1"|
+      math output="%(vx0)g + x2*(%(vx1)g-%(vx0)g)/((%(nx)d-1)*%(dx)g)"
+      '''%( par))
+
+    par['rev']=int(abs(1-sign(sign(par['slp'])-1))/2)
+
+     
+    Flow('interface'+tag,None,
+      '''
+      math n1=%(nz)d o1=%(oz)g d1=%(dz)g n2=%(nx)d o1=%(oz)g d2=%(dx)g output="1" |
+      math output="(%(slp)g*(x2-5.0) -(x1-%(z0)g))/(sqrt( %(slp)g*%(slp)g +1)) " |
+      mask min=0 |
+      dd type=float |
+      math output="abs(input -%(rev)g)"
+      '''%par)
+
+    Flow('vel'+tag,['layer'+tag,'interface'+tag],
+      '''
+      math mask=${SOURCES[1]} output="input*(mask) +(1-mask)*3.0"
+      '''%par)
+      
+    print par['perc'], par['rev']
+    par['perc'] = par['perc'] + par['perc_inc']
+
+
+
+
+
+
+Flow('zer','vel05','math output="1.0"')
+
+
+nshots=60
+for i in range(nvels):
+     tag='%02d'%i 
+     Plot('vel'+tag,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
+
+     for j in (['vel']):
+          Result(j+tag,[j+tag,'rr','ggone','ssall'],'Overlay')
+
+#
+# here I model the data with vel05
+#
+
+for s in range(nshots):
+    stag='_%03d'%s
+    xs= (par['nx']-1)*par['dx']/nshots
+    xs=par['ox']+xs*s
+     
+    fdmod.point('ss'+stag,xs,2*par['dz'],par)
+
+
+    fdmod.awefd2d('dd'+stag,'wd'+stag,'wav','vel05','zer','ss'+stag,'rr','',par)
+    fdmod.awefd2d('do'+stag,'wo'+stag,'wav','layer05','zer', 'ss'+stag,'rr','',par)
+
+    Flow('dat'+stag,['dd'+stag,'do'+stag,'dmask'],
+         '''
+         add scale=+1,-1 ${SOURCES[1]} |
+         add mode=p      ${SOURCES[2]} |
+         transp |
+         bandpass flo=0.5|
+         transp
+         ''')
+    dummyf('dums0.0'+stag,'wd'+stag)
+    dummyf('dums1.0'+stag,'wo'+stag)
+
+    Plot('ss'+stag,fdmod.ssplot('',par))
+
+
+
+
+
+
+Flow('dts','wav','window squeeze=n')
+
+fdmod.point('cc',5.0,1.5,par)
+Plot('cc',fdmod.rrplot('',par))
+
+
+nv=''
+for i in range(nvels):
+    k='%02d'%i
+    tag=k
+    # migration (RTM)
+    vel='vel'+k
+    den='zer'
+
+    sstags=''    
+    for s in range(nshots):
+        stag='_%03d'%s
+        wemig.fWRawe('dts','wts-b'+k+stag,vel,den,'ss'+stag,'jdata=4 jsnap=4 ',par)
+        wemig.bWRawe('dat'+stag,'wtr-b'+k+stag,vel,den,'rr','jdata=4 jsnap=4 ',par)
+        wemig.cic('img'+k+stag ,'wts-b'+k+stag,'wtr-b'+k+stag,'nbuf=100 ',par)
+        wemig.eic('cig'+k+stag ,'wts-b'+k+stag,'wtr-b'+k+stag,'ggone','nhx=0 nhz=0 ',par)
+        wemig.eic('cigx'+k+stag,'wts-b'+k+stag,'wtr-b'+k+stag,'ggone','nht=0 nhz=0 ',par)
+#        wemig.eic('cip'+k+stag,'wts-b'+k+stag,'wtr-b'+k+stag,'cc','nhx=0 ',par)
+ 
+        # here I get rid of the binaries of the wavefields, 
+        # SCons does not know about its existance
+        dummyf('dums0'+k+stag,'wts-b'+k+stag)
+        dummyf('dums1'+k+stag,'wtr-b'+k+stag)
+        dummyf('dums2'+k+stag,'wtr-b'+k+stag+'_rev')       
+
+        sstags=sstags+' '+stag
+
+    c=sstags.split()
+    nv=nv +' %s'%k
+
+    Flow('Img'+k ,map(lambda x:'img'+k+'%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+    Flow('Cig'+k ,map(lambda x:'cig'+k+'%s'%x, c),'cat axis=1 space=n  ${SOURCES[1:%d]}  |stack axis=1 norm=n |transp plane=13'%len(c))
+    Flow('Cigx'+k,map(lambda x:'cigx'+k+'%s'%x, c),'cat axis=1 space=n  ${SOURCES[1:%d]}  |stack axis=1 norm=n |transp plane=13 |transp plane=23'%len(c))
+#    Flow('Cip'+k ,map(lambda x:'cip'+k+'%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+
+n=nv.split()
+Flow('Img_byt',map(lambda x:'Img%s'%x, n),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%nvels)
+Flow('Cig_byt',map(lambda x:'Cig%s'%x, n),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%nvels)
+Flow('Cigx_byt',map(lambda x:'Cigx%s'%x, n),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%nvels)
+
+
+
+for i in range(nvels):
+    k='%02d'%i
+
+    Result('Img'+k+'_ref',['Img_byt'],'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=100',par))
+
+    Result('Cigt'+k+'_ref',
+           'Cig_byt',
+           'window n3=1 f3=%d |'%i + adcig.tgrey('',par))
+
+    Result('Cigx'+k+'_ref',
+           'Cigx_byt',
+           'window n3=1 f3=%d |'%i + adcig.xgrey('',par))    
+
+End()

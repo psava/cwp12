@@ -258,7 +258,7 @@ for s in SHOTS:
     # extended imaging condition:  time-lag gathers  and space-lag gathers    
     wemig.eic('cig'+stag,'wts'+stag,'wtr'+stag,'gg','nhx=0 nhz=0 ',par)
     wemig.eic('cigx'+stag,'wts'+stag,'wtr'+stag,'gg','nht=0 nhz=0 ',par)
-    wemig.eic('cip'+stag,'wts'+stag,'wtr'+stag,'ggcip','nhx=0 ',par)
+    wemig.eic('cip'+stag,'wts'+stag,'wtr'+stag,'ggcip',' ',par)
 
     #delete binaries of the wavefields (scons should not know about it: 
  

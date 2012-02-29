@@ -1,6 +1,6 @@
 from rsf.proj import *
 import fdmod,adcig,encode,wemig,math
-import commands,pplot
+import commands,pplot,filter2d
 
 #
 #    RTM imaging experiment with lateral velocity gradient
@@ -149,6 +149,9 @@ for i in range(nvels):
     tag='%02d'%i
     par['slp']=par['z0']*(2.0 - par['perc'])-par['z0']*par['perc']
     par['slp']=par['slp']/((par['nx']-1)*par['dx'])
+
+
+    par['slp']=(par['perc']*par['z0']-(2.0-par['perc'])*par['z0'])/((par['nx']-1)*par['dx'])
     par['vx0']=2.0*(2.0 - par['perc'])
     par['vx1']=2.5*(par['perc'])
    
@@ -187,7 +190,7 @@ for i in range(nvels):
 Flow('zer','vel05','math output="1.0"')
 
 
-nshots=60
+nshots=40
 for i in range(nvels):
      tag='%02d'%i 
      Plot('vel'+tag,fdmod.cgrey('allpos=y pclip=100 bias=1.8 color=j',par))
@@ -222,10 +225,6 @@ for s in range(nshots):
     dummyf('dums1.0'+stag,'wo'+stag)
 
     Plot('ss'+stag,fdmod.ssplot('',par))
-
-
-
-
 
 
 Flow('dts','wav','window squeeze=n')
@@ -275,6 +274,11 @@ Flow('Cigx_byt',map(lambda x:'Cigx%s'%x, n),'cat axis=3 space=n  ${SOURCES[1:%d]
 
 
 
+
+
+
+
+
 for i in range(nvels):
     k='%02d'%i
 
@@ -287,5 +291,77 @@ for i in range(nvels):
     Result('Cigx'+k+'_ref',
            'Cigx_byt',
            'window n3=1 f3=%d |'%i + adcig.xgrey('',par))    
+
+
+
+
+
+
+
+filter2d.fourier2d('CigKxKt','Cig10')
+filter2d.fourier2d('CigKxKz','Cigx10')
+filter2d.f2dv1v2('Filt','CigKxKt',-0.1,0.25,smooth="rect1=4 rect2=4 repeat=5",sym=0,reject=1)
+filter2d.f2dv1v2('Filtx','CigKxKz',-0.1,0.25,smooth="rect1=4 rect2=4 repeat=5",sym=0,reject=1)
+x=[1.0,0.9,0.8,0.7,0.7,0.4,0.4,0.5,0.7,0.8,0.90]
+
+
+for i in range(nvels):
+    k='%02d'%i
+    filter2d.fourier2d('Cig'+k+'KxKt','Cig'+k)
+    filter2d.fourier2d('Cigx'+k+'KxKz','Cigx'+k)
+    w=0.70+abs(5-i)*0.05
+
+    filter2d.f2dv1v2('Filt'+k,'CigKxKt',-0.1*x[i],0.2*x[i],smooth="rect1=4 rect2=4 repeat=5",sym=0,reject=1)
+    filter2d.f2dv1v2('Filtx'+k,'Cigx'+k+'KxKz',-0.1*x[i],0.2*x[i],smooth="rect1=4 rect2=4 repeat=5",sym=0,reject=1)
+
+    filter2d.filtinvert('Cig'+k+'_filt','Cig'+k+'KxKt','Filt'+k)
+    filter2d.filtinvert('Cigx'+k+'_filt','Cigx'+k+'KxKz','Filtx'+k)
+
+    Flow('Cigb'+k,['Cig'+k+'_filt','Cig'+k],
+        ''' 
+        add scale=-1,1 ${SOURCES[1]}|
+        scale axis=123
+        ''')
+
+    Flow('Cigxb'+k,['Cigx'+k+'_filt','Cigx'+k],
+        ''' 
+        add scale=-1,1 ${SOURCES[1]}|
+        scale axis=123
+        ''')
+
+
+    Result('Cigb'+k,'' + adcig.tgrey('',par))
+    Result('Cigxb'+k,'' + adcig.xgrey('',par))
+
+#Plot one spectra correct model:
+
+Result('Cig05KxKt','math output="sqrt(input*conj(input))"|real |grey color=j allpos=y max1=20 min1=-20 pclip=99.9')
+
+Result('Filt05','math output="sqrt(input*conj(input))"|real |grey color=j allpos=y max1=20 min1=-20 ')
+
+
+
+
+
+
+
+Flow('OFCigb',map(lambda x:'Cigb%s'%x, n),
+    '''
+    cat axis=3 space=n  ${SOURCES[1:%d]} |
+    math output="abs(abs(x2)*input)" |
+    stack norm=n axis=1 |
+    stack norm=n axis=1 |
+    put o1=0 d1=1
+    '''%nvels)
+
+
+
+Result('OFCigb','graph title="" label1="model(%)" label2="J(s)" plotfat=16')
+
+
+
+
+
+
 
 End()

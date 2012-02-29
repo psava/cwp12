@@ -461,7 +461,10 @@ for j in range(nvels):
      Flow('cit'+k+'_back',map(lambda x:'cit'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(back))
      Flow('citx'+k+'_back',map(lambda x:'citx'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3'%len(back))
 
+     Result('cit'+k+'_back','scale axis=123 |'+  adcig.tgrey('',par))
+     Result('citx'+k+'_back','scale axis=123 |'+  adcig.xgrey('',par))
 
+     
      Flow('penal_cit'+k+'_back','cit'+k+'_back','scale axis=123|math output="abs(x2)*input"')
      Flow('penal_cix'+k+'_back','citx'+k+'_back','scale axis=123|math output="abs(x2)*input"')
      Flow('penal_cixv2'+k+'_back','citx'+k+'_back','window f2=25 n2=150 |math output="abs(x2)*input"|pad beg2=25 end2=25')
@@ -470,12 +473,23 @@ for j in range(nvels):
      Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
      Flow('OF_cixv2'+k+'_back','penal_cixv2'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n')
 
+     Flow('OF_cit'+k+'_back','penal_cit'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
+
+
+
+
 COF=xx.split()
 
-Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}  '%nvels)
-Flow('OF_cixv2',map(lambda x:'OF_cixv2%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}  '%nvels)
+Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
+Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
 
-
+Result('OF_cix','graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
+Result('OF_cit','graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
+Result('OF_joint',['OF_cix','OF_cit'],
+    '''
+    add scale=1,1 ${SOURCES[1]} |
+    graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16
+    ''')
 
 
 

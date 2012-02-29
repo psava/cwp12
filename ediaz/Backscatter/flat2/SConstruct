@@ -134,7 +134,7 @@ for i in range(nvels):
          add add=1
          ''' % (par))
      Flow('vel'+tag,'den'+tag,'math output="%(perc)f*(input*0 +2.2) "'%( par))
-     Flow('den'+tag,'dentmp'+tag,'math output="%(perc)f*(2.2*(2-input) ) +(input-1)*(3.5) "'%( par))
+     Flow('den'+tag,'dentmp'+tag,'math output="%(perc)f*(0.5*(2-input) ) +(input-1)*(3.5) "'%( par))
      Flow('den-const'+tag,'zer','math output="%(perc)f*(2.2 +input*0)"'%( par))
 
      par['perc'] = par['perc'] + par['perc_inc']

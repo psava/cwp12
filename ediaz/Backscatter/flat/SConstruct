@@ -288,7 +288,8 @@ for i in range(nvels):
     Flow ('us_n'+tag, ['wts-b'+tag,'us_b'+tag],'add ${SOURCES[1]} scale=1,-1')   
 
 
-
+ 
+    Flow('cc2'+k,'cc'+k,'window j=2 ')
 
 
     for cases in ['b b','b n','n b','n n']:
@@ -298,10 +299,7 @@ for i in range(nvels):
         wemig.cic('img'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'nbuf=100 ',par)
         wemig.eic('cig'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
         wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
-        if (k=='05'):
-            wemig.eic('cigp'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,' nhx=0 ',par)
-            wemig.eic('cigptx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,' nhz=0 ',par)
-            Flow('cip'+k+'_'+s+r,'cigp'+k+'_'+s+r,'sfstack axis=4 norm=n |sftransp plane=32')           
+        wemig.eic('Cip'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc2'+k,'|stack norm=n axis=4',par)
 
         Flow('citx'+k+'_'+s+r,
            'cigx'+k+'_'+s+r,
@@ -340,7 +338,6 @@ for i in range(nvels):
          '''%(par['nz'],par['nx']/par['jcx'])
         )
 
-        
 
 wemig.cic('img05const','wts-n05','wtr-n05','nbuf=100 ',par)
 
@@ -393,10 +390,6 @@ for j in range(nvels):
      # CIG
      Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
 
-     if(k=='05'):
-          Flow('cip'+k+'_ref',map(lambda x:'cip'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
-          Flow('cip'+k+'_byt',map(lambda x:'cip'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))
-
      Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%len(c2))  
      Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}  |byte gainpanel=a pclip=99.8  '%len(c2))  
      Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))  
@@ -422,10 +415,6 @@ for j in range(nvels):
           Result('citx'+k+'_'+s+r,
                  'citx'+k+'_byt',
                  'window n3=1 f3=%d |'%i + adcig.xgrey('',par))
-          if (k=='05'):
-              Result('cip'+k+'_'+s+r,
-                 'cip'+k+'_byt',
-                 'window n3=1 f3=%d |'%i + adcig.ztgrey('screenratio=1',par))
 
           i+=1 
 
@@ -445,10 +434,6 @@ for j in range(nvels):
      Result('citx'+k+'_ref',
                 'citx'+k+'_byt',
                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.xgrey('',par))
-     if (k=='05'):
-          Result('cip'+k+'_ref',
-                 'cip'+k+'_byt',
-                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.ztgrey('',par))
 
 
 

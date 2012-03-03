@@ -14,7 +14,7 @@ def dummyf(out,name):
 
 
 par = {
-    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nt':4501, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':2000, 'dx':0.005,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
     'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',

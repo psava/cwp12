@@ -12,7 +12,7 @@
 \multiplot{3}{wts-b05-150,wts-b05-275,wts-b05-500,wtr-b05-150,wtr-b05-275,wtr-b05-500,cross_corrs-b_r-b05-150,cross_corrs-b_r-b05-275,cross_corrs-b_r-b05-500,imgs-b_r-b05-150,imgs-b_r-b05-275,imgs-b_r-b05-500}{width=0.3\textwidth}{RTM imaging exercise: columns 1, 2 and 3 correspond to three different snapshots. Rows 1 to 4 correspond to the source wavefield, the receiver wavefield, the cross-correlation and the accumulated image respectively.}
 
 %Image splitting:
-\multiplot{2}{img05_nn,img05_bn,img05_nb,img05_bb}{height=0.17\textheight}{Linearity of the imaging condition. We can split the conventional image (~\rfg{img05_ref}) in four cases: $R^{tt}(\xx)$ (a), $R^{rt}(\xx)$ (b), $R^{tr}(\xx)$ (c), $R^{rr}(\xx)$ (d)}
+\multiplot{2}{img05_nn,img05_bn,img05_nb,img05_bb}{height=0.17\textheight}{Linearity of the imaging condition. We can split the conventional image ~\rfg{img05_ref} in four cases: $R^{tt}(\xx)$ (a), $R^{rt}(\xx)$ (b), $R^{tr}(\xx)$ (c), $R^{rr}(\xx)$ (d)}
 
 %Time-lag splitting":
 \multiplot{2}{cit05_nn,cit05_bn,cit05_nb,cit05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (time-lags). We split ~\rfg{cit05_ref} in four cases: $R^{tt}(z,\tau)$ (a), $R^{rt}(z,\tau)$ (b), $R^{tr}(z,\tau)$ (c), $R^{rr}(z,\tau)$ (d)}
@@ -25,11 +25,12 @@
 
 
 
-
+\multiplot{3}{cit01_ref,cit02_ref,cit03_ref,cit04_ref,cit05_ref,cit06_ref,cit07_ref,cit08_ref,cit09_ref}{width=0.3\textwidth}{Model error sensitivity with time-lag gathers} 
+\multiplot{3}{citx01_ref,citx02_ref,citx03_ref,citx04_ref,citx05_ref,citx06_ref,citx07_ref,citx08_ref,citx09_ref}{width=0.3\textwidth}{Model error sensitivity with time-lag gathers} 
+\multiplot{1}{OF_cit,OF_cix}{height=0.4\textheight}{OF} 
 
 
 \inputdir{sigsbee}
-
 
 \multiplot{2}{Image,Cig4,Cigx4}{height=0.3\textheight}{Sigsbee experiment: image shown in (a), green dots show the source locations, a fixed spread was used at the surface. Yellow line in (a) show the location of the time-shift gather in (b) and the space-lag gather in (c).}
 

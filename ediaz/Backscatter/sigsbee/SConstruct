@@ -39,7 +39,7 @@ plotpar = {
 
 
 def dummyf(out,name):
-    Flow(out,None,'./rm2 /var2/ediaz/Backscatter/sigsbee/%s.rsf@'%name,stdin=0, stdout=0)
+    Flow(out,None,'\\rm /var2/ediaz/Backscatter/sigsbee/%s.rsf@'%name,stdin=0, stdout=0)
 
 
 
@@ -77,6 +77,14 @@ adcig.xparam(
              2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
                par['nz']   ,            par['oz'],par['dz'],
              par)
+
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+
 
 # ------------------------------------------------------------
 # CIGs at uniformly-sampled locations
@@ -220,7 +228,7 @@ for s in SHOTS:
     fdmod.point('ss'+stag,s*par['dx'],2*par['dz'],par)
     Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
 
-    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel_rtm','den_rtm','ss'+stag,'rr','jsnap=5 '+iwindow,par)
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','vel_rtm','den_rtm','ss'+stag,'rr','jsnap=10 '+iwindow,par)
 
     ori=(s)*par['dx']
     par['ori']=ori
@@ -237,7 +245,7 @@ for s in SHOTS:
 
 
     # back propagation of the receiver wavefield
-    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel_rtm','den_rtm','rr','jsnap=5 '+iwindow,par)
+    wemig.bWRawe('ds'+stag,'wtr'+stag,'vel_rtm','den_rtm','rr','jsnap=10 '+iwindow,par)
 
 
     # cross-correlations: conventional image, source illumination, receiver ilumination
@@ -317,6 +325,8 @@ Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.5',plotpar))
 Result('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
 Result('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))
  
+Flow('Cip04',map(lambda x:'cip-%04d'%x,SHOTS),'stack axis=4 norm=n')
 
+Result('Cip04','byte gainpanel=a pclip=100|'+ adcig.egrey('',par))
 
 End()

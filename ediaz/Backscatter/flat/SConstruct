@@ -89,7 +89,7 @@ Result('wav','window n2=500 |'+fdmod.waveplot('',par))
 
 # ------------------------------------------------------------
 # data mask
-par['xk']=200
+par['xk']=150
 par['xl']=par['nx']-par['xk']
 
 Flow('dmask',None,
@@ -97,7 +97,7 @@ Flow('dmask',None,
      spike nsp=1 mag=1
      n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
      n2=%(nt)d d2=%(dt)g o2=%(ot)g |
-     smooth rect1=100 repeat=2
+     smooth rect1=80  repeat=4
      ''' % par)
 Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
@@ -300,6 +300,7 @@ for i in range(nvels):
         wemig.eic('cig'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
         wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
         wemig.eic('Cip'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc2'+k,'|stack norm=n axis=4',par)
+        wemig.eic('Cipx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,'',par)
 
         Flow('citx'+k+'_'+s+r,
            'cigx'+k+'_'+s+r,
@@ -380,6 +381,9 @@ c=['bb','bn','nb','nn']
 c2=['bb','bn','nb','nn','ref']
 back=['bn','nb']
 xx=''
+
+par['perc'] = 0.75
+
 for j in range(nvels):
      k='%02d'%j
      xx=xx+' %s'%k
@@ -462,12 +466,14 @@ for j in range(nvels):
      Flow('penal_cix'+k+'_back','citx'+k+'_back','scale axis=123|math output="abs(x2)*input"')
      Flow('penal_cixv2'+k+'_back','citx'+k+'_back','window f2=25 n2=150 |math output="abs(x2)*input"|pad beg2=25 end2=25')
 
+     par['zi']=math.floor(zo*par['perc'])
 
-     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
+     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n| window n1=%(zi)d |stack axis=1 norm=y '%par)
      Flow('OF_cixv2'+k+'_back','penal_cixv2'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n')
 
      Flow('OF_cit'+k+'_back','penal_cit'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
 
+         
 
 
 

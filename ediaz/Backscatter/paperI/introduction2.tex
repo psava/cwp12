@@ -1,0 +1,80 @@
+\section{Introduction}
+
+Reverse time migration is not a new imaging technique ~\citep{baysal:1514, whitmore:382, GPR:GPR413}.
+However, it wasn't until the late 90's, and mainly the 00's that computational advances
+allowed the geophysical community to use this technology in practice. In general, and 
+especially in complex geological settings,  RTM produces better images than other 
+imaging methods. Imaging methods (as Kirchhoff migration, one-way equation migration, among others)
+are based on approximated solutions to the wave equation.
+Kirchhoff migration, a high frequency asymptotic solution to the wave equation, becomes
+ unstable with complex velocity models, also fails to handle in an easy way multipathing
+trajectories since creates the image based on a single criteria to build the travel time 
+(most energetic, or first arrival). Other methods
+based on approximations to the wave equation as phase shift migration ~\citep{gazdag:1342} 
+rely on a v(z) earth, further approximations are needed to account for lateral variations~\citep{gazdag:124}.
+ Besides earth model considerations, one-way wave equation migration propagate wavefields in 
+either upward or downward direction, this approximation is inexact as the waves are close
+to propagate horizontally, therefore fails to handle properly overturning
+waves and reflections from steep dips structures. RTM's propagation engine, the wave equation, 
+makes this imaging method very robust and rigorous because it honors the kinematics of 
+the wave phenomena by allowing waves to propagate in all directions without any supposition
+on the velocity model or the direction of propagation, therefore it takes into account, in a natural way,  
+multipathing and  reflections from steep dips.
+
+A striking characteristic of RTM images is the presence of low 
+wavenumber events in the image that are not correlated with the geology. The two-way
+wave equation simulates scattered waves in all directions, therefore in the imaging condition step
+we can see new events corresponding to the cross-correlation between diving waves, head waves
+and backscattered waves. The cross-correlation between the backscattered waves is more visible
+in presence of sharp boundaries (e.g. top of salt) producing strong events that mask
+the image of the earth reflectivity. The backscattered events are considered as noise and have to be
+filtered in order to get the earth image.
+
+The seismic industry has dedicated considerable attention to the RTM backscattering events by developing
+algorithms and strategies to filter them out of the image. We can classify the filtering approaches in 
+two general families: pre-imaging condition and post-imaging condition. The pre-imaging condition
+family modify the wavefields (either by modeling or wavefield decomposition) in such a way that
+the backscattered events do not form during the imaging process. In the post-imaging family
+the artifacts are attenuated by 2D filtering (Laplacian operator, slope filtering, least squares
+filtering).
+
+In the pre imaging condition family we can find wavefield decomposition approaches
+~\citep[]{liu:S29,fei:3130}. The purpose of wavefield decomposition is to honor the original
+assumptions of the imaging condition by cross-correlating downgoing energy with upgoing energy.
+We can also find modeling approaches to attenuate reflections in sharp velocity boundaries 
+~\citep{fletcher:2049}, or eliminate reflected energy in the modeled wavefields using 
+impedance matching ~\citep{baysal:132}. This last method only works with zero-offset (stacked) data.  
+
+The other family of noise attenuation techniques is applied after imaging, this is faster because
+it is done after stacking over shots. A common approach is to apply a Laplacian filter
+to the image ~\citep{youn:246}. A second strategy proposed by ~\cite{guitton:S19} is a signal-noise
+separation by least squares, where the signal is defined as the reflectivity and the noise is the low 
+wavenumber energy of the image. 
+
+The low wavenumber events have a special way of mapping into extended images. ~\cite{kaelin:3125} propose
+a filter that takes advantage of this feature. The filter is applied to the time-lag gathers, where the
+backscattered energy maps into vertical events (discussed later), and therefore is easy to remove.
+
+In this report we analyze the information carried by the backscattered energy. We examine as well 
+how it maps into the extended images. We show that by analyzing this piece of information we 
+can perform a quality control of sharp boundary placement in the model (e.g. sediment-salt interface). 
+We use a very simple 2 layers model to explain how the backscattered events are built in the imaging
+process. Then, we test these ideas with an example of the Sigsbee model.
+
+% Talk about Reverse Time Migration
+ 
+% Talk about different techniques to attenuate artifacts
+
+% Introduce the paper objective
+
+
+%~\cite{claerbout:467} 
+%~\cite{baysal:1514}
+%~\cite{whitmore:382} 
+%~\cite{guitton:S19} 
+%~\cite{kaelin:3125} 
+%~\cite{fletcher:2049} 
+%~\cite{sava:S209} 
+%~\cite{fei:3130} 
+%~\cite{GPR:GPR413} 
+%~\cite{baysal:132}

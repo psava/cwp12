@@ -1,7 +1,7 @@
 \section{Theory}
 
 \subsection{CIC}
-The conventional imaging condition (CIC) ~\citep{claerbout:467}
+The conventional imaging condition ~\citep{claerbout:467}
 is a zero lag cross-correlation between the downgoing source wavefield with the upgoing 
 receiver wavefield along the propagation time:
 
@@ -71,8 +71,9 @@ in the third row).
 We can see in figure~\ref{fig:imgs-b_r-b05-150} the interaction between the transmitted source wavefield $\USt$ with 
 the reflected receiver wavefield $\URr$, these two wavefields travels in perfect synchronization, therefore its product 
 shown in figure~\ref{fig:cross_corrs-b_r-b05-150} stacks coherently in the imaging process generating the $\Rc{tr}$ 
-contribution the image $\R$. In the $\Rc{tr}$ case the reflected receiver wavefield behaves as the transmitted
- source wavefield, this is the reason why the backscattered energy it is imaged toward the source location. 
+contribution the image $\R$ as shown in figure~\ref{fig:imgs-b_r-b05-150}. In the $\Rc{tr}$ case the reflected 
+receiver wavefield behaves as the transmitted source wavefield, this is the reason why the backscattered energy 
+it is imaged toward the source location. 
 In the snapshot at $t=0.275s$ (second column of figure 2) we see how we start building the reflector image,
  and the source wavefield (figure~\ref{fig:wts-b05-275}) reflects and generates new backscattering events
  corresponding to the  $\Rc{rt}$ case. In the snapshot at $t=0.500s$ the reflector has been imaged already and 
@@ -89,7 +90,7 @@ maps toward the source and the receivers respectively. The image corresponding t
 figure~\ref{fig:img05_bb}, we can see how also contributes with the picture of the reflectivity. \cite{fei:3130} takes 
 advantage of this analysis to define an image free from backscattered energy as $\R=\Rc{tt}+\Rc{rr}$.
 
-\subsection{Extended imaging condition}
+\subsection{EIC}
 
 The extended imaging condition ~\citep{sava:S209} is a cross-correlation of the lagged products between source
 and receiver wavefields:
@@ -99,26 +100,27 @@ and receiver wavefields:
 \eeq
 we can see that the conventional image is a special case of the extended image: $\R=R(\xx,\vec{0},0)$.
 
-By looking extended images we can measure the accuracy of the velocity model by analyzing its moveout \citep{yang:S151}, also
-we can also perform transformations from the extended domain to angle domain \citep{sava:S209,sava:S131}. The extended 
-images provides us a measurement of the similarity between the source and receiver wavefields along space and time.
+By looking extended images we can measure the accuracy of the velocity model by analyzing the moveout of the events
+ \citep{yang:S151}, also we can also perform transformations from the extended domain to angle domain 
+\citep{sava:S209,sava:S131}. The extended  images provides us a measurement of the similarity between the source
+ and receiver wavefields along space and time.
  We can exploit these images to analyze and understand the behaviour of the backscattered events in the extended domain.
 
 In equation~\ref{eq:eic} we observe an increase in the dimensionality of the image, we move from 2 dimensions to 5 dimensions
 if we decide to extend the image in all directions. Normally we often use one extension for common image gathers (cig) either
 in the time-lag axis $\tau$ or in the space-lag axis $\lambda_x$. We can also look into common image points (cip) where we 
-fix an observation point $\bf c=(x,z)$ and analyze its extensions $\hh,\tau$. Also the analysis of extended images is perform 
-in limited locations. All these strategies optimize the extended images analysis, making it feasible with large datasets.
+fix an observation point $\bf c=(x,z)$ and analyze its extensions $\hh,\tau$. Normally we the analysis of extended images 
+is perform  in limited locations. All these strategies optimize the extended images analysis, making it feasible with 
+large datasets.
 
-To understand the backscattered events in the EIC we can follow the same idea of equation~\ref{eq:cicsplit} by expanding it
-into lags:
+To understand the backscattered events in the EIC we can follow the same idea of equation~\ref{eq:cicsplit}::
 \beq
 \Re=\Rce{tt}+\Rce{tr}+\Rce{rt}+\Rce{rr}.
 \label{eq:eicsplit}
 \eeq
 
 In figures ~\ref{fig:cit05_ref},~\ref{fig:citx05_ref} and ~\ref{fig:cip05_ref} we show a time-lag gather, a space-lag gather
- and a common image point respectively. 
+ and a common image point respectively.
 
 \subsubsection{Time-lag gathers}
 
@@ -130,8 +132,8 @@ Above the reflector depth the slope is given by the medium velocity of layer 1, 
  event contributions $\Rct{tr}$ and $\Rct{rt}$ respectively, we can observe how the backscattered event maps towards $\tau=0$
 in the extended image, this means that we only get a contribution when we do not dislocate the wavefields, this re-enforces
 the idea of the wavefield synchronization. We see in the time-lag gathers that the slope of the primaries is very different
-from the backscattered slope, ~\cite{kaelin:3125} take advantage of this slope difference to filter the backscattered 
-events in this domain, and then extracting the conventional image from it $\R=\R(z,\tau=0)$. In figure~\ref{fig:cit05_bb} 
+from the backscattered slope, ~\cite{kaelin:3125} use the slope difference to filter the backscattered 
+events in this domain, and then extracting the conventional image from it $\R=R(\xx,\tau=0)$. In figure~\ref{fig:cit05_bb} 
 we show the $\Rct{rr}$ case, we observe that it maps with a slope similar to the primary slope but with opposite direction, 
 in this case we also see the contribution from the head-waves, this is why the slopes are not perfectly symmetrical.
 
@@ -147,4 +149,11 @@ In the space-lag gathers the criteria for correct velocity is shared to both pri
 
 \subsubsection{Common-image points}
 
-We extract a common image point in the center of the model at $\xx=(5,1.5)km$, 
+We extract a common image point in the center of the model at $\xx=(5,1.5)km$ shown in figure~\ref{fig:cip05_ref}, this figure 
+is an unfolded plot of the cip cube.. We splitthe cip to understand the mapping pattern of the backscattered image. Figure
+~\ref{fig:cip05_nn} shows the cip image of the transmitted wavefields $\Rce{tt}$, we see that the energy focus at zero lag 
+for the $\tau-\lambda_x$ panel, the $\lambda_z-\tau$ shows a kink produced by the change in velocity. In figure~\ref{fig:cip05_nb}
+ shows the $\Rce{tr}$ cip, we can see a change in the $\lambda_z-\tau$ panel, where the backscattered is mapped to positives lags. Figure
+~\ref{fig:cip05_bn} shows the complementary backscattered energy, we see that the energy is mapped to negative $\lambda_z$ and positive $\tau$ lags.
+The cip from the reflected wavefields shows a weak energy with the same pattern of figure~\ref{fig:cip05_nn}.
+  

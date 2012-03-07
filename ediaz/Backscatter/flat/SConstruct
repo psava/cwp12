@@ -480,8 +480,8 @@ COF=xx.split()
 Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
 Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
 
-Result('OF_cix','graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
-Result('OF_cit','graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
+Result('OF_cix','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
+Result('OF_cit','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J(s)" plotfat=16')
 Result('OF_joint',['OF_cix','OF_cit'],
     '''
     add scale=1,1 ${SOURCES[1]} |

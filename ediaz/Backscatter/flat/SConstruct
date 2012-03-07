@@ -300,7 +300,6 @@ for i in range(nvels):
         wemig.eic('cig'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
         wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
         wemig.eic('Cip'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc2'+k,'|stack norm=n axis=4',par)
-        wemig.eic('Cipx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'cc'+k,'',par)
 
         Flow('citx'+k+'_'+s+r,
            'cigx'+k+'_'+s+r,
@@ -466,14 +465,13 @@ for j in range(nvels):
      Flow('penal_cix'+k+'_back','citx'+k+'_back','scale axis=123|math output="abs(x2)*input"')
      Flow('penal_cixv2'+k+'_back','citx'+k+'_back','window f2=25 n2=150 |math output="abs(x2)*input"|pad beg2=25 end2=25')
 
-     par['zi']=math.floor(zo*par['perc'])
 
-     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n| window n1=%(zi)d |stack axis=1 norm=y '%par)
-     Flow('OF_cixv2'+k+'_back','penal_cixv2'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n')
+     par['zi']=math.floor(zo*par['perc'])
+     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n| window n1=%(zi)d |stack axis=1 norm=n '%par)
 
      Flow('OF_cit'+k+'_back','penal_cit'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
-
-         
+     par['perc'] = par['perc'] + par['perc_inc']
+     
 
 
 

@@ -289,7 +289,7 @@ Plot('rr',fdmod.rrplot('',plotpar))
 
 Flow('Image',map(lambda x:'Img-%04d'%x,SHOTS),'cat axis=3 space=n ${SOURCES[1:%d]} | stack axis=3 norm=n'%len(SHOTS))
 
-Plot('Image','Image',fdmod.cgrey('pclip=99.7',plotpar))
+Plot('Image','Image',fdmod.cgrey('pclip=99.',plotpar))
 
 Result ('Image',['Image','rr','ss','gg4'],'Overlay')
 
@@ -322,11 +322,53 @@ Flow('Cigx',map(lambda x:'cigx-%04d'%x,SHOTS),
 Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',plotpar))
 Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.5',plotpar))
 
-Result('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
-Result('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))
+Plot('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
+# annotation - uses image units
+Plot('t1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.8,7.25,"a",-0.5,0.5))
+
+Plot('t2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.8,6.0,"b",0.,-0.7))
+
+Plot('t3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.4,5.5,"c",0.,-0.7))
+
+Plot('t4',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.3,3.6,"c",-.9,1.2))
+
+
+Result('Cig4','Cig4 t1 t2 t3 t4','Overlay')
+
+
+
+
+Plot('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))
+
+Plot('x1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.8,7.25,"a",-0.5,0.5))
+
+Plot('x2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.4,5.7,"b",0.5,-0.5))
+
+Plot('x3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.2,5,"c?",0.,-0.5))
+
+
+
+
+
+Result('Cigx4','Cigx4 x1 x2 x3','Overlay')
  
 Flow('Cip04',map(lambda x:'cip-%04d'%x,SHOTS),'stack axis=4 norm=n')
 
-Result('Cip04','byte gainpanel=a pclip=100|'+ adcig.egrey('',par))
+Result('Cip04','byte gainpanel=a pclip=99|'+ adcig.egrey('',par))
+
 
 End()

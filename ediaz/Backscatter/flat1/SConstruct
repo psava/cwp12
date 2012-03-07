@@ -14,10 +14,10 @@ def dummyf(out,name):
 
 
 par = {
-    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nt':4001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
-    'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'nz':300,  'dz':0.01, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':150,
     'nb':150,
     'jsnap_gr':25
@@ -120,7 +120,7 @@ Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
 # ------------------------------------------------------------
 # reflectors
-zo=300
+zo=150
 perc=0.75
 perc_inc=0.05
 
@@ -237,8 +237,8 @@ for i in range(nvels):
 
 for i in range(3):
     stag='%d'%i
-    fdmod.awefd2d('dd'+stag,'wd'+stag,'wav','vel05','denZ05','ss','rr','',par)
-    fdmod.awefd2d('do'+stag,'wo'+stag,'wav','vc','denZ05', 'ss','rr','',par)
+    fdmod.awefd2d('dd'+stag,'wd'+stag,'wav','vel05','denZ05','ss'+stag,'rr','',par)
+    fdmod.awefd2d('do'+stag,'wo'+stag,'wav','vc','denZ05', 'ss'+stag,'rr','',par)
 
     Flow('dat'+stag,['dd'+stag,'do'+stag,'dmask'],
      '''
@@ -277,7 +277,7 @@ for i in [5]:
         wemig.bWRawe('dtr'+stag,'wtr-n'+stag+k,'vel-const'+k,'den-const'+k,'rr','jdata=4 jsnap=4 ',par)
 
 
-        Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=10 |spray axis=3 n=751 o=0 d=0.004')
+        Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=10 |spray axis=3 n=1001 o=0 d=0.004')
     
         Flow ('ur_b'+stag+k, ['wtr-b'+stag+k,'wtr-n'+stag+k,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
         Flow ('ur_n'+stag+k, ['wtr-b'+stag+k,'ur_b'+stag+k],'add ${SOURCES[1]} scale=1,-1')  
@@ -297,8 +297,7 @@ for i in [5]:
             wemig.cic('img'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'nbuf=100 ',par)
             wemig.eic('cig'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'gg','nhx=0 nhz=0 ',par)
             wemig.eic('cigx'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'gg','nht=0 nhz=0 ',par)
-            wemig.eic('Cip'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'cc2'+k,'',par)
-            wemig.eic('Cipx'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'cc'+k,'',par)
+            wemig.eic('Cipx'+stag+k+'_'+s+r,'us_'+s+stag+k,'ur_'+r+stag+k,'cc2'+k,'',par)
 
             Flow('citx'+stag+k+'_'+s+r,
                'cigx'+stag+k+'_'+s+r,
@@ -336,6 +335,8 @@ for i in [5]:
               transp
              '''%(par['nz'],par['nx']/par['jcx'])
             )
+
+            Flow('cip'+stag+k+'_'+s+r,'Cipx'+stag+k+'_'+s+r,'stack axis=4 norm=n')
 
 
         dummyf('log_us_b'+stag+k,'us_b'+stag+k)

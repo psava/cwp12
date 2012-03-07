@@ -1,9 +1,37 @@
 \section{Examples}
 
+In this section we identify the backscattered events on extended images extracted from the sigsbee model based on
+the criteria built in previous sections. Figure~\ref{fig:Image} shows an image obtained from  a modified
+version of the Sigsbee (a salt flooded model). By using our modified model we can pay attention to the top
+of salt boundary only. In this example we fixed the receiver array in the surface. We used 100 shots to build 
+the image. For the migration model we use the stratigraphic
+velocity which shows sharp interfaces in the sediment section besides the interface corresponding with the top of salt.
+
+In figure~\ref{fig:Cig4} we see a common image gather extracted at the vertical line shown in figure ~\ref{fig:Image}.
+We can see that the gather is very complex, nevertheless we can easily identify the backscattered energy. In this
+case it maps directly to $\tau=0$ because we use the correct velocity model \red{here I will point to annotations in the figure}.
+We can also identify the events corresponding to the cross-correlation between reflected waves $\Rct{rr}$, they have positive
+slope (given by the sediment velocity at the interface) and are visible for $\tau>0$. We can also observe a abrupt change
+in the slope corresponding the sediment-salt interface for the top of salt reflection.
+
+Figure~\ref{fig:Cigx4} shows a space-lag gather extracted at the same location. Even though we are using the correct model 
+we still see energy away from $\lambda_x=0$. Further analysis needs to be performed to use space-lag gathers for model update
+when we use a two-way wave equation. We see again the $\Rcl{rr}$ case, where the energy is mapped away from zero lag. 
+The backscattered energy mapped towards $\lambda_x=0$, this is consistent with the extended
+imaging condition theory because all the extended images share the trace at zero lag. We also see a flat event just in the
+top of salt (TOS) interface, this might be an extended image of a diffracted wave generated at the TOS interface.
+
+Figure~\ref{fig:Cip04} shows a common image point extracted at TOS interface. Despite of the complexity of this image, we can still
+identify similar patterns as shown in figure~\ref{fig:cip05_ref}. The backscattered events are mapped to $\tau>0$ in the
+$\tau-lambda_z$ plane, in this plane we can separate with the contribution from $\Re{tr}$ and $\Re{rt}$, whereas in other extended
+images we cannot differenciate the individual contributions (because both cases map to zero lag).
+
+
+
 
 
 \inputdir{flat}
-\multiplot{3}{cit05_ref,citx05_ref,cip05_ref,img05_ref}{height=0.2\textheight}{Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot (in x=5km,z=0km) with receivers in the surface} 
+\multiplot{2}{cit05_ref,citx05_ref,cip05_ref,img05_ref}{height=0.3\textheight}{Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot (in x=5km,z=0km) with receivers in the surface} 
 
 
 
@@ -12,27 +40,27 @@
 \multiplot{3}{wts-b05-150,wts-b05-275,wts-b05-500,wtr-b05-150,wtr-b05-275,wtr-b05-500,cross_corrs-b_r-b05-150,cross_corrs-b_r-b05-275,cross_corrs-b_r-b05-500,imgs-b_r-b05-150,imgs-b_r-b05-275,imgs-b_r-b05-500}{width=0.3\textwidth}{RTM imaging exercise: columns 1, 2 and 3 correspond to three different snapshots. Rows 1 to 4 correspond to the source wavefield, the receiver wavefield, the cross-correlation and the accumulated image respectively.}
 
 %Image splitting:
-\multiplot{2}{img05_nn,img05_bn,img05_nb,img05_bb}{height=0.17\textheight}{Linearity of the imaging condition. We can split the conventional image ~\rfg{img05_ref} in four cases: $R^{tt}(\xx)$ (a), $R^{rt}(\xx)$ (b), $R^{tr}(\xx)$ (c), $R^{rr}(\xx)$ (d)}
+\multiplot{2}{img05_nn,img05_bn,img05_nb,img05_bb}{height=0.17\textheight}{Linearity of the conventional imaging condition. We can split the conventional image ~\rfg{img05_ref} in four cases: $R^{tt}(\xx)$ (a), $R^{rt}(\xx)$ (b), $R^{tr}(\xx)$ (c), $R^{rr}(\xx)$ (d)}
 
 %Time-lag splitting":
-\multiplot{2}{cit05_nn,cit05_bn,cit05_nb,cit05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (time-lags). We split ~\rfg{cit05_ref} in four cases: $R^{tt}(z,\tau)$ (a), $R^{rt}(z,\tau)$ (b), $R^{tr}(z,\tau)$ (c), $R^{rr}(z,\tau)$ (d)}
+\multiplot{2}{cit05_nn,cit05_bn,cit05_nb,cit05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (time-lags). We split ~\rfg{cit05_ref} in four cases: $R^{tt}(z,\tau)$ (a), $R^{rt}(z,\tau)$ (b), $R^{tr}(z,\tau)$ (c) and $R^{rr}(z,\tau)$ (d)}
 
 %Space-lag splitting":
-\multiplot{2}{citx05_nn,citx05_bn,citx05_nb,citx05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (space-lags). We split \rfg{citx05_ref} in four cases: $R^{tt}(z,\lambda_x)$ (a), $R^{rt}(z,\lambda_x)$ (b), $R^{tr}(z,\lambda_x)$ (c), $R^{rr}(z,\lambda_x)$ (d)}
+\multiplot{2}{citx05_nn,citx05_bn,citx05_nb,citx05_bb}{height=0.25\textheight}{Linearity of the extended imaging condition (space-lags). We split \rfg{citx05_ref} in four cases: $R^{tt}(z,\lambda_x)$ (a), $R^{rt}(z,\lambda_x)$ (b), $R^{tr}(z,\lambda_x)$ (c) and $R^{rr}(z,\lambda_x)$ (d)}
 
 %Cip splitting":
 \multiplot{2}{cip05_nn,cip05_bn,cip05_nb,cip05_bb}{height=0.2\textheight}{ Split of ~\rfg{cip05_ref} in four cases: $R^{tt}(\lambda_x,\tau)$ (a), $R^{rt}(\lambda_x,\tau)$ (b), $R^{tr}(\lambda_x,\tau)$ (c), $R^{rr}(\lambda_x,\tau)$ (d)}
 
 
 
-\multiplot{3}{cit01_ref,cit02_ref,cit03_ref,cit04_ref,cit05_ref,cit06_ref,cit07_ref,cit08_ref,cit09_ref}{width=0.3\textwidth}{Model error sensitivity with time-lag gathers} 
-\multiplot{3}{citx01_ref,citx02_ref,citx03_ref,citx04_ref,citx05_ref,citx06_ref,citx07_ref,citx08_ref,citx09_ref}{width=0.3\textwidth}{Model error sensitivity with time-lag gathers} 
-\multiplot{1}{OF_cit,OF_cix}{height=0.4\textheight}{OF} 
+\multiplot{3}{cit01_ref,cit02_ref,cit03_ref,cit04_ref,cit05_ref,cit06_ref,cit07_ref,cit08_ref,cit09_ref}{width=0.3\textwidth}{Model error sensitivity with time-lag gathers: (a) -12\%, (b) -9\%, (c) -6\%, (d) -3\%, (e) 0\%, (f) 3\%, (g) 6\%, (h) 9\% and (i) 12\% velocity perturbation in the top layer.} 
+\multiplot{3}{citx01_ref,citx02_ref,citx03_ref,citx04_ref,citx05_ref,citx06_ref,citx07_ref,citx08_ref,citx09_ref}{width=0.3\textwidth}{Model error sensitivity with space-lag gathers: (a) -12\%, (b) -9\%, (c) -6\%, (d) -3\%, (e) 0\%, (f) 3\%, (g) 6\%, (h) 9\% and (i) 12\% velocity perturbation in the top layer.} 
+\multiplot{1}{OF_cit,OF_cix}{height=0.4\textheight}{Objective functions that maximize the backscattered energy at zero lag in the extended images: $ J_{\tau}({\bf s})$ (a) and $ J_{\lambda_x}({\bf s})$ (b).} 
+
 
 
 \inputdir{sigsbee}
-
-\multiplot{2}{Image,Cig4,Cigx4}{height=0.3\textheight}{Sigsbee experiment: image shown in (a), green dots show the source locations, a fixed spread was used at the surface. Yellow line in (a) show the location of the time-shift gather in (b) and the space-lag gather in (c).}
+\multiplot{2}{Image,Cig4,Cigx4,Cip04}{height=0.3\textheight}{Sigsbee analysis: RTM image (a), a time-shift gather extracted at $x=17.9$ (b), a space-lag gather (c) and a common image point at the top of salt (d).}
 
 
 

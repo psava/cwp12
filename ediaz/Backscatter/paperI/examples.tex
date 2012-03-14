@@ -8,36 +8,35 @@ the image. For the migration model we use the stratigraphic
 velocity which shows sharp interfaces in the sediment section besides the interface corresponding with the top of salt.
 
 In figure~\ref{fig:Cig4} we see a common image gather extracted at the vertical line shown in figure ~\ref{fig:Image}.
-We can see that the gather is very complex, nevertheless we can easily identify the backscattered energy. In this
-case it maps directly to $\tau=0$ because we use the correct velocity model \red{here I will point to annotations in the figure}.
-We can also identify the events corresponding to the cross-correlation between reflected waves $\Rct{rr}$, they have positive
-slope (given by the sediment velocity at the interface) and are visible for $\tau>0$. We can also observe a abrupt change
-in the slope corresponding the sediment-salt interface for the top of salt reflection.
+We can see that the gather is very complex; however, we can easily identify the backscattered energy. In this
+case it maps directly to $\tau=0$ because we use the correct velocity model (pointed with letter a in figure~\ref{fig:Cig4}).
+We can also identify the events corresponding to the cross-correlation between reflected waves $\Rct{rr}$ (pointed
+with letter b). The $\Rct{rr}$ events have positive slope (given by the sediment velocity at the interface) and are 
+visible for $\tau>0$. We can also observe a abrupt change
+in the slope of the primary reflection corresponding the sediment-salt interface for the top of salt reflection (shown with
+letter c in figure~\ref{fig:Cig4}).
 
 Figure~\ref{fig:Cigx4} shows a space-lag gather extracted at the same location. Even though we are using the correct model 
-we still see energy away from $\lambda_x=0$. Further analysis needs to be performed to use space-lag gathers for model update
-when we use a two-way wave equation. We see again the $\Rcl{rr}$ case, where the energy is mapped away from zero lag. 
-The backscattered energy mapped towards $\lambda_x=0$, this is consistent with the extended
-imaging condition theory because all the extended images share the trace at zero lag. We also see a flat event just in the
-top of salt (TOS) interface, this might be an extended image of a diffracted wave generated at the TOS interface.
+we still see energy away from $\lambda_x=0$. Further processing needs to be performed to use space-lag gathers for model update
+when we use a two-way wave equation. We see again the $\Rcl{rr}$ case (pointed in the figure with letter b), 
+where the energy is mapped away from zero lag.  We also see a flat event just in the
+top of salt (TOS) interface (pointed with letter d), this might be an extended image of a diffraction generated at the TOS interface.
 
 Figure~\ref{fig:Cip04} shows a common image point extracted at TOS interface. Despite of the complexity of this image, we can still
 identify similar patterns as shown in figure~\ref{fig:cip05_ref}. The backscattered events are mapped to $\tau>0$ in the
-$\tau-lambda_z$ plane, in this plane we can separate with the contribution from $\Re{tr}$ and $\Re{rt}$, whereas in other extended
-images we cannot differenciate the individual contributions (because both cases map to zero lag).
-
-
-
-
+$\tau-\lambda_z$ plane (pointed with letter b in figure~\ref{fig:Cip04}), in this plane we can separate with the contribution 
+from $\Rce{tr}$ and $\Rce{rt}$, whereas in the common image gathers discussed before  we cannot differentiate the individual
+contributions (because both cases map to zero lag).
 
 \inputdir{flat}
 \multiplot{2}{cit05_ref,citx05_ref,cip05_ref,img05_ref}{height=0.2\textheight}{Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot (in x=5km,z=0km) with receivers in the surface} 
 
-
-
-
 %Wavefield movie:
+
+
 \multiplot{3}{wts-b05-150,wts-b05-275,wts-b05-500,wtr-b05-150,wtr-b05-275,wtr-b05-500,cross_corrs-b_r-b05-150,cross_corrs-b_r-b05-275,cross_corrs-b_r-b05-500,imgs-b_r-b05-150,imgs-b_r-b05-275,imgs-b_r-b05-500}{width=0.3\textwidth}{RTM imaging exercise: columns 1, 2 and 3 correspond to three different snapshots. Rows 1 to 4 correspond to the source wavefield, the receiver wavefield, the cross-correlation and the accumulated image respectively.}
+
+
 
 %Image splitting:
 \multiplot{2}{img05_nn,img05_bn,img05_nb,img05_bb}{height=0.17\textheight}{Linearity of the conventional imaging condition. We can split the conventional image ~\rfg{img05_ref} in four cases: $R^{tt}(\xx)$ (a), $R^{rt}(\xx)$ (b), $R^{tr}(\xx)$ (c), $R^{rr}(\xx)$ (d)}
@@ -60,7 +59,8 @@ images we cannot differenciate the individual contributions (because both cases 
 
 
 \inputdir{sigsbee}
-\multiplot{2}{Image,Cig4,Cigx4,Cip04}{height=0.3\textheight}{Sigsbee analysis: RTM image (a), a time-shift gather extracted at $x=17.9$ (b), a space-lag gather (c) and a common image point at the top of salt (d).}
+\multiplot{2}{Image,Cig4,Cigx4,Cip04}{height=0.3\textheight}{Sigsbee analysis: RTM image (a), time-shift gather (b), space-lag gather (c) and common image
+point (d). The vertical line and circle shown in the RTM image shows the cig and cip locations respectively.}
 
 
 

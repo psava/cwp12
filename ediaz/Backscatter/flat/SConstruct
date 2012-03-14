@@ -7,7 +7,7 @@ par = {
     'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
     'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
     'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
-    'nz':600,  'dz':0.005, 'oz':0, 'lz':'z', 'uz':'km',
+    'nz':300,  'dz':0.01, 'oz':0, 'lz':'z', 'uz':'km',
     'kt':150,
     'nb':150,
     'jsnap_gr':25
@@ -103,7 +103,7 @@ Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
 # ------------------------------------------------------------
 # reflectors
-zo=300
+zo=150
 perc=0.75
 perc_inc=0.05
 
@@ -264,7 +264,7 @@ for i in range(nvels):
     tag=k
     # migration (RTM)
     vel='vel'+k
-    den='den'+k
+    den='zer'
     images=images+' img'+k+'.rsf'
     cits= cits +' cit'+k+'.rsf'
     cips= cips + ' cip'+k+'.rsf'
@@ -394,7 +394,7 @@ for j in range(nvels):
      Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
      Flow('cip'+k+'_ref',map(lambda x:'Cip'+k+'_%s'%x, c),'cat axis=4 space=n  ${SOURCES[1:%d]}  |stack axis=4 norm=n'%len(c))
 
-     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.7  '%len(c2))  
+     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.5  '%len(c2))  
      Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}  |byte gainpanel=a pclip=99.8  '%len(c2))  
      Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))  
      Flow('cip'+k+'_byt',map(lambda x:'cip'+k+'_%s'%x, c2),'cat axis=4 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=100 '%len(c2))  

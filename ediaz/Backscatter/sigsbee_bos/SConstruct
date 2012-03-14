@@ -1,0 +1,140 @@
+from rsf.proj import *
+import fdmod, adcig, encode, wemig, math
+import commands, sigsbee
+
+# ------------------------------------------------------------
+
+par=sigsbee.param()
+
+fdmod.param(par)
+
+
+
+plotpar=par
+
+
+plotpar = {
+    'nt':7000, 'dt':0.001,'ot':0,    'lt':'t','ut':'s',
+    'ox':16.00200, 'nx':800, 'dx':0.00762, 'lx':'x','ux':'km',
+    'nz':801, 'oz':0, 'dz':0.00762, 'lz':'z','uz':'km',
+    'nhz':0 , 'nhx':100, 'nhz':100, 'dht':0.001,'kt':100 
+    }
+
+
+
+
+def dummyf(out,name):
+    Flow(out,None,'\\rm /var2/ediaz/Backscatter/sigsbee/%s.rsf@; echo "successful delete "'%name,stdin=0)
+
+
+
+
+par['osou']=7
+par['fsou']=int((par['osou']-par['osall'])/par['dsall'])
+par['nsou']=90
+par['jsou']=3
+
+
+SHOTS=range(par['fsou'],
+            par['fsou']+par['nsou']*par['jsou'],
+            par['jsou'])
+
+
+print SHOTS
+
+
+
+
+
+
+sigsbee.getmigvel('migvel',par)
+sigsbee.getstrvel('strvel',par)
+sigsbee.getdata('data',par)
+sigsbee.makeshots('shot_data','data',par)
+sigsbee.makemask('migvel','smask','wmask','lmask',par)
+
+#Here I create a wrong bottom of salt.
+
+Flow('BOS','smask','sfmath output="exp(-((x1-3)^2 + (x2-10)^2)/2)" |sfmask min=0.5 |sfdd type=float ')
+
+
+
+Flow('den','migvel','math output="1"')
+
+
+
+par['kt']=13
+fdmod.wavelet('wav_tmp',10,par)
+
+Flow('wavx','wav_tmp','sinc d1=0.001 n1=9000 o1=0')
+Flow('wav','wavx','transp plane=12')
+
+
+
+iwindow='nqx=1000 oqx=7'
+
+par['nkx']=40
+par['nlx']=348-par['nkx']
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n2=348 d2=0.02286 o2=0 k2=%(nkx)d l2=%(nlx)d
+     n1=9000 d1=0.001 o1=0.0 |
+     smooth rect2=20 repeat=4 | 
+     transp
+     ''' % par)
+
+
+
+
+
+for s in SHOTS:
+    stag="-%03d"%s
+
+
+    # Get individual shot
+    Flow('data'+stag,['shot_data','wavx','dmask'],
+    '''
+    window n3=1 f3=%d |
+    sinc pattern=${SOURCES[1]} |
+    bandpass fhi=20|
+    transp |
+    reverse axis=1 opt=i |
+    add mode=p ${SOURCES[2]}
+    '''%s)
+
+    # Creat shot  coordinates
+    Flow('ss'+stag,'data'+stag,'transp plane=13 |rtoc |math output="imag(0.0)+real(x1)"|dd type=float |window n2=1 n3=1 |window squeeze=y ')
+    #Create receiver coordinates
+    Flow('rr'+stag,'data'+stag,'transp plane=23 |rtoc |math output="imag(0.0)+real(x1+x2)"|dd type=float |window n3=1 |put n1=2 n2=348 ')
+
+
+    fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','migvel','den','ss'+stag,'rr'+stag,'jsnap=10 '+iwindow,par)
+
+    fdmod.awefd2d('dr'+stag,'wtr_rev'+stag,'data'+stag,'migvel','den','rr'+stag,'rr'+stag,'jsnap=10 '+iwindow,par)
+
+    Flow('wtr'+stag,'wtr_rev'+stag,'reverse axis=3 opt=i')
+
+    wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+End()

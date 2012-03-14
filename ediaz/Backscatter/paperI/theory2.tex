@@ -12,12 +12,14 @@ receiver wavefield along the propagation time:
 
 Equation ~\ref{eq:cic} honors the single scattering or Born assumption. Under this assumption the transmitted
 source wavefield generates secondary sources (as interacts with the medium) which energy is recorded by the 
-receiver wavefield at the surface. This means that both wavefields carry only the transmitted energy. In general,
- most of the imaging methodologies (one-way equation migration, Kirchhoff migration, Beam migration, among others)
-follows the Born assumption, this implies that the waves in the source wavefield travels in the downgoing 
-direction and the waves in the receiver wavefield travels in the upgoing direction. In contrast, RTM wavefields
-can handle waves propagating in all directions, this characteristic is due to its extrapolation engine
-(a non factorized wave equation).
+receiver wavefield at the surface. This means that both wavefields carry only the transmitted energy. 
+
+%In general,
+% most of the imaging methodologies (one-way equation migration, Kirchhoff migration, Beam migration, among others)
+%follows the Born assumption, this implies that the waves in the source wavefield travels in the downgoing 
+%direction and the waves in the receiver wavefield travels in the upgoing direction. In contrast, RTM wavefields
+%can handle waves propagating in all directions, this characteristic is due to its extrapolation engine
+%(a non factorized wave equation).
 
 A wavefield extrapolated with RTM could show (depending on the complexity of the geology) waves traveling in both
 upgoing and downgoing directions such as: diving waves, head waves and backscattered waves. The interaction between
@@ -34,7 +36,7 @@ If a sharp boundary is present in the model, we can decompose the source wavefie
 \label{eq:ssplit}
 \eeq
 
-the superscripts $^t$ and $^r$ stands for reflected and transmitted wavefield respectively. 
+the superscripts $^t$ and $^r$ stands for transmitted and reflected wavefield respectively. 
 
 The same idea is applied to the receiver wavefield:
 
@@ -63,24 +65,24 @@ backscattered energy above the reflector at $z=1.5km$.
 
 In figure 2 we show the RTM imaging process from which we obtain figure~\ref{fig:img05_ref}. Row 1 
 (figures ~\ref{fig:wts-b05-150},~\ref{fig:wts-b05-275} and ~\ref{fig:wts-b05-500}) shows three different snapshots
-of the source wavefield. Row 2 (figures ~\ref{fig:wts-b05-150},~\ref{fig:wts-b05-275} and ~\ref{fig:wts-b05-500}) 
+of the source wavefield. Row 2 (figures ~\ref{fig:wtr-b05-150},~\ref{fig:wtr-b05-275} and ~\ref{fig:wtr-b05-500}) 
 shows the same snapshots for the receiver wavefield. In the third row we show the product between
 source and receiver wavefields. The fourth row shows the accumulated image (integration over time of the panels
 in the third row).
 
-We can see in figure~\ref{fig:imgs-b_r-b05-150} the interaction between the transmitted source wavefield $\USt$ with 
-the reflected receiver wavefield $\URr$, these two wavefields travels in perfect synchronization, therefore its product 
+We can see in figure~\ref{fig:imgs-b_r-b05-150} the interaction between the transmitted source wavefield $\USt$ (\ref{fig:wts-b05-150}) with 
+the reflected receiver wavefield $\URr$ (\ref{fig:wtr-b05-150}), these two wavefields travels in perfect synchronization, therefore its product 
 shown in figure~\ref{fig:cross_corrs-b_r-b05-150} stacks coherently in the imaging process generating the $\Rc{tr}$ 
-contribution the image $\R$ as shown in figure~\ref{fig:imgs-b_r-b05-150}. In the $\Rc{tr}$ case the reflected 
+contribution the image $\R$. In the $\Rc{tr}$ case the reflected 
 receiver wavefield behaves as the transmitted source wavefield, this is the reason why the backscattered energy 
 it is imaged toward the source location. 
 In the snapshot at $t=0.275s$ (second column of figure 2) we see how we start building the reflector image,
- and the source wavefield (figure~\ref{fig:wts-b05-275}) reflects and generates new backscattering events
+ and the source wavefield (figure~\ref{fig:wts-b05-275}) reflects and generates new backscattered events
  corresponding to the  $\Rc{rt}$ case. In the snapshot at $t=0.500s$ the reflector has been imaged already and 
 therefore we only add after certain time backscattered energy corresponding to the $\Rc{rt}$ image. In this case the 
-reflected source wavefield behaves as the receiver wavefield and its energy maps toward the receiver. We can see after
- the imaging process finish (figure~\ref{fig:img05_ref}) that the backscattered energy is maximum near the critical
- angle range.
+reflected source wavefield behaves as the receiver wavefield and its energy maps toward the receivers. We can see after
+ the imaging process finished (figure~\ref{fig:img05_ref}) that the backscattered energy is maximum near the critical
+ angle range (where the reflection coefficient is maximum).
 
 By doing wavefield decomposition we can extract exactly the individual contributions of equation~\ref{eq:cicsplit}. In 
 figure~\ref{fig:img05_nn} we show the cross-correlation between transmitted wavefields, this image is the main contribution
@@ -101,19 +103,19 @@ and receiver wavefields:
 we can see that the conventional image is a special case of the extended image: $\R=R(\xx,\vec{0},0)$.
 
 By looking extended images we can measure the accuracy of the velocity model by analyzing the moveout of the events
- \citep{yang:S151}, also we can also perform transformations from the extended domain to angle domain 
+ \citep{yang:S151}, we can also perform transformations from the extended domain to angle domain 
 \citep{sava:S209,sava:S131}. The extended  images provides us a measurement of the similarity between the source
  and receiver wavefields along space and time.
- We can exploit these images to analyze and understand the behaviour of the backscattered events in the extended domain.
+ We can exploit these images to analyze and better understand the RTM backscattered events.
 
 In equation~\ref{eq:eic} we observe an increase in the dimensionality of the image, we move from 2 dimensions to 5 dimensions
 if we decide to extend the image in all directions. Normally we often use one extension for common image gathers (cig) either
 in the time-lag axis $\tau$ or in the space-lag axis $\lambda_x$. We can also look into common image points (cip) where we 
-fix an observation point ${\bf c}=(x,z)$ and analyze its extensions $\hh,\tau$. Normally we the analysis of extended images 
-is perform  in limited locations. All these strategies optimize the extended images analysis, making it feasible with 
+fix an observation point ${\bf c}=(x,z)$ and analyze its extensions $\hh,\tau$. It is common to perform the analysis 
+of extended images in limited locations. All these strategies optimize the extended images analysis, making it feasible with 
 large datasets.
 
-To understand the backscattered events in the EIC we can follow the same idea of equation~\ref{eq:cicsplit}::
+In presence of sharp velocity interfaces we can follow the same idea of equation~\ref{eq:cicsplit}, and apply it to the EIC:
 \beq
 \Re=\Rce{tt}+\Rce{tr}+\Rce{rt}+\Rce{rr}.
 \label{eq:eicsplit}
@@ -126,7 +128,7 @@ In figures ~\ref{fig:cit05_ref},~\ref{fig:citx05_ref} and ~\ref{fig:cip05_ref} w
 
 We apply the equation~\ref{eq:eicsplit} to analyze the individual contributions
 for the time-lag gather shown in figure~\ref{fig:cit05_ref}. In figure~\ref{fig:cit05_nn} we show the contribution between
-the transmitted wavefields ($\Rct{tt}$, we can observe a change in the slope of the events given by the abrupt velocity variation of the model. 
+the transmitted wavefields $\Rct{tt}$, we can observe a change in the slope of the events given by the abrupt velocity variation of the model. 
 Above the reflector depth the slope is given by the medium velocity of layer 1, and the slope bellow the interface depth is given
  by the velocity of the layer 2. In figures~\ref{fig:cit05_nb} and \ref{fig:cit05_bn} we see the backscattered
  event contributions $\Rct{tr}$ and $\Rct{rt}$ respectively, we can observe how the backscattered event maps towards $\tau=0$
@@ -134,8 +136,9 @@ in the extended image, this means that we only get a contribution when we do not
 the idea of the wavefield synchronization. We see in the time-lag gathers that the slope of the primaries is very different
 from the backscattered slope, ~\cite{kaelin:3125} use the slope difference to filter the backscattered 
 events in this domain, and then extracting the conventional image from it $\R=R(\xx,\tau=0)$. In figure~\ref{fig:cit05_bb} 
-we show the $\Rct{rr}$ case, we observe that it maps with a slope similar to the $\Rct{tt}$ case with opposite direction, 
-in this case we also see the contribution from the head-waves, this is why the slopes are not perfectly symmetrical.
+we show the $\Rct{rr}$ contribution, we observe that it maps with a slope similar to the $\Rct{tt}$ case with opposite direction, 
+in this case we see the interaction between the geometrical reflections and between the head waves as well. The geometrical reflection
+maps with an exact opposite slope as the one observed with the primaries, whereas the head wave maps with a greater slope.
 
 \subsubsection{Space-lag gathers}
 
@@ -149,26 +152,27 @@ is correct. In the space-lag gathers the criteria for correct velocity is shared
 
 \subsubsection{Common-image points}
 
-We extract a common image point in the center of the model at $\xx=(5,1.5)km$ shown in figure~\ref{fig:cip05_ref}, this figure 
-is an unfolded plot of the cip cube.. We splitthe cip to understand the mapping pattern of the backscattered image. Figure
+We extract a common image point in the center of the model at ${\bf c}=(5,1.5)km$ shown in figure~\ref{fig:cip05_ref}, this figure 
+is an unfolded plot of the cip cube. We split the cip to understand the mapping pattern of the backscattered image. Figure
 ~\ref{fig:cip05_nn} shows the cip image of the transmitted wavefields $\Rce{tt}$, we see that the energy focus at zero lag 
 for the $\tau-\lambda_x$ panel, the $\lambda_z-\tau$ shows a kink produced by the change in velocity. In figure~\ref{fig:cip05_nb}
  shows the $\Rce{tr}$ cip, we can see a change in the $\lambda_z-\tau$ panel, where the backscattered is mapped to positives lags. Figure
 ~\ref{fig:cip05_bn} shows the complementary backscattered energy, we see that the energy is mapped to negative $\lambda_z$ and positive $\tau$ lags.
 The cip from the reflected wavefields shows a weak energy with the same pattern of figure~\ref{fig:cip05_nn}.
 
-\subsection{Sensitivity of backscattered events to velocity errors}
+\section{Sensitivity of backscattered events to velocity errors}
 
 We introduce a constant error (from -12\% to +12\%) in the layer 1 to test the sensitivity of the backscattered event, in order to generate
-reflections in the right position we move the interface accordantly the velocity error. In figures ~\ref{fig:cit02_ref} to \ref{fig:cit09_ref}
+reflections in the right position we move the interface accordantly the velocity error. Due to the simplicity of the model the 
+depth of the interface also changes linearly. In figures ~\ref{fig:cit02_ref} to \ref{fig:cit09_ref}
  we see the time-lag gathers as a function of the velocity error. We can see that the backscattered energy is still mapped vertically, but
 away from $\tau=0$. Figures ~\ref{fig:citx02_ref} to ~\ref{fig:citx09_ref} shows the space-lag gathers as  function of the velocity error, 
-in this case we can see how both backscattered and primaries energy is away from $\lambda_x=0$. 
+in this case we can see how both backscattered and primaries energy is maps away from $\lambda_x=0$. 
 
-We could design a objective function that maximizes the presence of the backscattered events in the image, therefore its model update
-would optimize the sharp interface positioning (e.g. top of salt) and the velocity above the interface (sediment velocity). An straight 
-forward approach based on differential semblance optimization ~\citep{shen:2132} is found by minimizing the backscattered energy
- away from zero lags, we can define an objective function in terms of the slowness model $\bf s$ for time-lag gathers:
+We could design a objective function that maximizes the presence of the backscattered events in the image (or minimizes the energy away
+zero lag), therefore its model update would optimize the sharp interface positioning (e.g. top of salt) and the velocity above the interface
+ (sediment velocity). An straight forward approach based on differential semblance optimization ~\citep{shen:2132} is found by minimizing
+ the backscattered energy away from zero lags, we can define an objective function in terms of the slowness model $\bf s$ for time-lag gathers:
 \beq
  J_{\tau}({\bf s})= \frac{1}{2} \lnorm{P_{\tau}\left [R^{tr}(\xx,\tau)+R^{rt}(\xx,\tau)\right ]}^2_2,
 \label{eq:of1}

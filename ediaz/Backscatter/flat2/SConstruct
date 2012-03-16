@@ -231,9 +231,9 @@ citxs=''
 
 for i in range(nvels):
     k='%02d'%i
+    tag=k
     # migration (RTM)
     vel='vel'+k
-    print k	
     images=images+' img'+k+'.rsf'
     cits= cits +' cit'+k+'.rsf'
     cips= cips + ' cip'+k+'.rsf'
@@ -250,20 +250,33 @@ for i in range(nvels):
 
 
 
-    for cases in  ['s-b r-n','s-b r-b','s-n r-n','s-n r-b']:
+    Flow('mask'+k,'den'+k,'clip2 lower=2.5 | math output="abs(2.5-input)"|smooth rect1=10 |spray axis=3 n=626 o=0 d=0.004')
+
+
+
+
+
+    Flow ('ur_b'+tag, ['wtr-b'+tag,'wtr-n'+tag,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
+    Flow ('ur_n'+tag, ['wtr-b'+tag,'ur_b'+tag],'add ${SOURCES[1]} scale=1,-1')  
+
+    Flow ('us_b'+tag, ['wts-b'+tag,'wts-n'+tag,'mask'+tag],'add ${SOURCES[1]} scale=1,-1|math m=${SOURCES[2]} output="(1-m)*input"' )  
+    Flow ('us_n'+tag, ['wts-b'+tag,'us_b'+tag],'add ${SOURCES[1]} scale=1,-1')   
+
+
+
+
+
+    for cases in ['b b','b n','n b','n n']:
         words=cases.split()
         s=words[0]
         r=words[1]
+        wemig.cic('imgs-'+s+'_r-'+r+k,'us_'+s+k,'ur_'+r+k,'nbuf=100 ',par)
+        wemig.eic('cig'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nhx=0 nhz=0 ',par)
+        wemig.eic('cigx'+k+'_'+s+r,'us_'+s+k,'ur_'+r+k,'gg','nht=0 nhz=0 ',par)
 
 
-        wemig.cic('img'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'nbuf=100 ',par)
-
-        wemig.eic('cig'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'gg'  ,'nhx=0 nhz=0 ',par)
-        wemig.eic('cigx'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'gg'  ,'nht=0 nhz=0 ',par)
-#        wemig.eic('cips'+s+'_'+r+k,'wt'+s+k,'wt'+r+k,'cc'+k,'           ',par)
-
-        Flow('citx'+s+'_'+r+k,
-            'cigx'+s+'_'+r+k,
+        Flow('citxs-'+s+'_r-'+r+k,
+            'cigx'+k+'_'+s+r,
             '''
             put n4=%d n5=%d label4=z label5=c |
             window |
@@ -272,8 +285,8 @@ for i in range(nvels):
             )
 
 
-        Flow('cit'+s+'_'+r+k,
-            'cig'+s+'_'+r+k,
+        Flow('cits-'+s+'_r-'+r+k,
+            'cig'+k+'_'+s+r,
             '''
             put n4=%d n5=%d label4=z label5=c |
             window |
@@ -289,33 +302,6 @@ for i in range(nvels):
 #            )
 
 
-        Flow('citx124-'+s+'_'+r+k,
-            'cigx'+s+'_'+r+k,
-            '''
-            put n4=%d n5=%d label4=z label5=c |
-            window |
-            window f3=123 n3=1 |
-            transp
-            '''%(par['nz'],par['nx']/par['jcx'])
-            )
-        
-
-        Flow('cit124-'+s+'_'+r+k,
-            'cig'+s+'_'+r+k,
-            '''
-            put n4=%d n5=%d label4=z label5=c |
-            window |
-            window f3=123 n3=1 |
-            transp
-            '''%(par['nz'],par['nx']/par['jcx'])
-            )
-
-#        Flow('cip124-'+s+'_'+r+k,
-#            'cips'+s+'_'+r+k,
-#            '''
-#            window n4=1 f4=123  
-#            '''
-#            ) 
 
 
 

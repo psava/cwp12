@@ -1,0 +1,318 @@
+# 
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,math
+import commands,pplot
+
+par = {
+    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':1000, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
+    'nz':300,  'dz':0.01, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+
+# ------------------------------------------------------------
+# source
+fdmod.point('ss',par['xsou'],par['zsou'],par)
+fdmod.horizontal('ttall',par['oz'],par)
+Flow('ssall','ttall','window j2=%(jcx)d'%par)
+Plot('ss',   fdmod.ssplot('',par))
+Plot('ssall',fdmod.ssplot('',par))
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',0,par)
+Plot('rr',fdmod.rrplot('',par))
+
+# ------------------------------------------------------------
+# CIGs at uniformly-sampled locations
+fdmod.boxarray('gt',
+               par['nz'],par['oz'],par['dz'],
+               par['nx'],par['ox'],par['dx'],
+               par)
+Flow('gg','gt',
+     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+fdmod.vertical('ggone',par['xsou'],par)
+Plot('ggone',fdmod.qqplot('',par))
+
+Flow('gg80','gg','put n2=%d n3=%d |window n3=1 f3=79'%(par['nz'],par['ncx']))
+Plot('gg80',fdmod.qqplot('',par))
+
+Flow('gg124','gg','put n2=%d n3=%d |window n3=1 f3=123'%(par['nz'],par['ncx']))
+Plot('gg124',fdmod.qqplot('',par))
+
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+
+# ------------------------------------------------------------
+# reflectors
+zo=150
+perc=0.85
+perc_inc=0.03
+
+par['perc']=perc
+par['perc_inc']=perc_inc
+
+nvels=11
+
+vels=''
+for i in range(nvels):
+# ------------------------------------------------------------
+# CIPs
+     par['zi']=math.floor(zo*par['perc'])
+     tag='%02d'%i
+     
+     vels=vels+'vel'+tag+'.rsf '
+
+
+
+for i in range(nvels):
+# ------------------------------------------------------------
+# CIPs
+     par['zi']=math.floor(zo*par['perc'])
+     tag='%02d'%i
+     
+
+     par['perc'] = par['perc'] + par['perc_inc']
+
+
+
+for i in range(nvels):
+     tag='%02d'%i 
+
+
+
+# 1D plot of the velocity model:
+par['vels']=vels
+
+for i in range(nvels):
+     tag='%02d'%i 
+
+# ------------------------------------------------------------
+# FD modeling to get data
+
+images=''
+cits=''
+cips=''
+citxs=''
+
+for i in range(nvels):
+    k='%02d'%i
+    tag=k
+    # migration (RTM)
+    vel='vel'+k
+    den='zer'
+    images=images+' img'+k+'.rsf'
+    cits= cits +' cit'+k+'.rsf'
+    cips= cips + ' cip'+k+'.rsf'
+    citxs= citxs +' citx'+k+'.rsf' 
+
+
+
+    for cases in ['b b','b n','n b','n n']:
+        words=cases.split()
+        s=words[0]
+        r=words[1]
+
+
+#-----------------------------------------------------------------------------
+#      example of wavefield separation.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+
+
+
+
+
+c=['bb','bn','nb','nn']
+c2=['bb','bn','nb','nn','ref']
+back=['bn','nb']
+xx=''
+
+par['perc'] = 0.85
+
+for j in range(nvels):
+     k='%02d'%j
+     xx=xx+' %s'%k
+
+
+     Flow('img'+k+'_ref',map(lambda x:'img'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+     Flow('cit'+k+'_ref',map(lambda x:'cit'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+     # CIG
+     Flow('citx'+k+'_ref',map(lambda x:'citx'+k+'_%s'%x, c),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(c))
+     Flow('cip'+k+'_ref',map(lambda x:'Cip'+k+'_%s'%x, c),'cat axis=4 space=n  ${SOURCES[1:%d]}  |stack axis=4 norm=n'%len(c))
+
+     Flow('img'+k+'_byt',map(lambda x:'img'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]} |byte gainpanel=a pclip=99.5  '%len(c2))  
+     Flow('cit'+k+'_byt',map(lambda x:'cit'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}  |byte gainpanel=a pclip=99.8  '%len(c2))  
+     Flow('citx'+k+'_byt',map(lambda x:'citx'+k+'_%s'%x, c2),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%len(c2))  
+     Flow('cip'+k+'_byt',map(lambda x:'cip'+k+'_%s'%x, c2),'cat axis=4 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.3 '%len(c2))  
+     Flow('cip'+k+'b_byt',map(lambda x:'cip'+k+'_%s'%x, back),'cat axis=4 space=n  ${SOURCES[1:%d]}|stack axis=4 norm=n|byte gainpanel=a pclip=100 '%len(back))  
+     i=0
+     for cases in ['b b','b n','n b','n n']:
+          words=cases.split()
+          s=words[0]
+          r=words[1]
+          
+          # image
+          Plot(  'img'+k+'_'+s+r,
+               'img'+k+'_byt',
+               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=100',par))
+#          fdmod.wframe('img'+k+'_'+s+r, 'img'+k+'_byt',i,' ',par)
+
+          Result('img'+k+'_'+s+r,['img'+k+'_'+s +r,'rr','ssall','ggone'],'Overlay')
+     
+          # CIG
+          Result('cit'+k+'_'+s+r,
+                 'cit'+k+'_byt',
+                 'window n3=1 f3=%d |'%i + adcig.tgrey('',par))
+          
+          Result('citx'+k+'_'+s+r,
+                 'citx'+k+'_byt',
+                 'window n3=1 f3=%d |'%i + adcig.xgrey('',par))
+
+          Result('cip'+k+'_'+s+r,
+                 'cip'+k+'_byt',
+                 'window n4=1 f4=%d |'%i + adcig.egrey('',par))
+
+          i+=1 
+
+
+
+     Plot(  'img'+k+'_ref',
+          'img'+k+'_byt',
+          'window n3=1 f3=%d |'%(len(c2)-1) + fdmod.cgrey('pclip=99.8',par))
+ #    fdmod.wframe('img'+k+'_ref','img'+k+'_byt',len(c2)-1,' ',par)
+
+     Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall','ggone'],'Overlay')
+
+     Result('cit'+k+'_ref',
+                 'cit'+k+'_byt',
+                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.tgrey('',par))
+
+
+     Result('cip'+k+'_ref',
+                 'cip'+k+'_byt',
+                 'window n4=1 f4=%d |'%(len(c2)-1) + adcig.egrey('',par))
+
+
+    #################################################################################
+    ###################### Let us build the "pure" artifacts ########################
+    #################################################################################
+
+
+     Flow('img'+k+'_back',map(lambda x:'img'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(back))
+     Flow('cit'+k+'_back',map(lambda x:'cit'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(back))
+     Flow('citx'+k+'_back',map(lambda x:'citx'+k+'_%s'%x,back),'cat axis=3 space=n  ${SOURCES[1:%d]}  |stack axis=3 norm=n'%len(back))
+     Flow('cip'+k+'_back',map(lambda x:'cip'+k+'_%s'%x,back),'cat axis=4 space=n  ${SOURCES[1:%d]}  |stack axis=4 norm=n'%len(back))
+
+     Result('cit'+k+'_back','scale axis=123 |'+  adcig.tgrey('',par))
+     Result('citx'+k+'_back','scale axis=123 |'+  adcig.xgrey('',par))
+     Result('cip'+k+'_back','cip'+k+'_back','scale axis=12 | byte gainpanel=a pclip=99.9|'+ adcig.egrey('',par))
+
+     Flow('penal_cit'+k+'_back','cit'+k+'_back','scale axis=123|math output="abs(x2)*input"')
+     Flow('penal_cix'+k+'_back','citx'+k+'_back','scale axis=123|math output="abs(x2)*input"')
+#     Flow('penal_cip'+k+'_back','cip'+k+'_back','scale axis=3 %g|math output="sqrt((x1^2) +0.5*(1+sign(x3))*(%g*x1)^2 +0.5*(1-sign(x1))*(3.5*x3)^2   )*input"'%(1/par['perc'],par['perc']*2.2))
+#     eps=0.00000000000000
+#     Flow('penal_cip'+k+'_back',['cip05_back','cip'+k+'_back'],'scale|envelope sfmath output="1/(input+%g)"|sfscale axis=123 |math y=${SOURCES[1]} output="y*input"'%eps)
+
+
+     eps=1e-15
+     Flow('penal_cip'+k+'_back',['cip05_back','cip'+k+'_back'],'scale|envelope  |math y=${SOURCES[1]} output="y/(input+%g)"'%eps)
+
+
+#     Flow('penal_cip'+k+'_back','cip'+k+'_back','scale axis=3 %g|math output="sqrt((x1^2) +0.5*(1+sign(x3))*(%g*x1)^2 +0.5*(1-sign(x1))*(3.5*x3)^2   )*input"'%(1/par['perc'],par['perc']*2.2))
+#     Flow('penal_cip'+k+'_back','cip'+k+'_back','agc rect2=100 repeat=3|math output="sqrt((x1)^2 +(%g*x3)^2+0.0001)*input"'%(3.5))
+
+     # Penalized CIP:
+#     Flow('penal_cip'+k+'_back',['cip04_back','cip'+k+'_back'],
+#        '''
+#        envelope |
+#        math x=${SOURCES[1]} output="x/(input+0.00001)"
+#        ''')
+     # penalized CIP plot
+     Result('penal_cip'+k+'_back','penal_cip'+k+'_back',' byte gainpanel=a |'+ adcig.egrey('',par))
+
+
+#     Flow('penal_cip'+k+'_back','cip'+k+'_back','scale axis=3|math output="sqrt(x1^2+x2^2 +(%g*x3)^2 )*input"'%(3.5))
+
+
+     par['zi']=math.floor(zo*par['perc'])
+     Flow('OF_cix'+k+'_back','penal_cix'+k+'_back','math output="abs(input)"| stack axis=2 norm=n| window n1=%(zi)d |stack axis=1 norm=n '%par)
+     Flow('OF_cit'+k+'_back','penal_cit'+k+'_back','math output="abs(input)"| stack axis=2 norm=n|stack axis=1 norm=n ')
+     Flow('OF_cip'+k+'_back','penal_cip'+k+'_back','math output="abs(input)"| stack axis=1 norm=n|stack axis=1 norm=n |stack axis=1 norm=n')
+
+
+
+
+     par['perc'] = par['perc'] + par['perc_inc']
+     
+
+
+
+COF=xx.split()
+
+Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1 '%nvels)
+Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1 '%nvels)
+Flow('OF_cip',map(lambda x:'OF_cip%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 |math output="input"'%nvels)
+
+Result('OF_cix','window n1=9 f1=1 |scale axis=1|graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16')
+Result('OF_cit','window n1=9 f1=1 |scale axis=1|graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16')
+Result('OF_cip','window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1 |math output="1-input"|graph d2num=1 min2=0 max2=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16')
+
+
+Flow('citx_ref_byt',map(lambda x:'citx%s_ref'%x, COF),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%nvels)
+
+i=0
+
+for j in range(nvels):
+     k='%02d'%j
+     xx=xx+' %s'%k
+
+     Result('citx'+k+'_ref',
+            'citx_ref_byt',
+            'window n3=1 f3=%d |'%i + adcig.xgrey('',par))
+     i+=1
+
+
+##############################################################
+
+#Movie snapshots for article:
+
+End()

@@ -104,8 +104,8 @@ Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 # ------------------------------------------------------------
 # reflectors
 zo=150
-perc=0.75
-perc_inc=0.05
+perc=0.85
+perc_inc=0.03
 
 par['perc']=perc
 par['perc_inc']=perc_inc
@@ -136,7 +136,6 @@ for i in range(nvels):
      vels=vels+'vel'+tag+'.rsf '
 
 
-perc_inc=0.05
 
 for i in range(nvels):
 # ------------------------------------------------------------
@@ -273,10 +272,10 @@ for i in range(nvels):
 
 
     wemig.fWRawe('dts','wts-b'+k,vel,den,'ss','jdata=4 jsnap=4 ',par)
-    wemig.fWRawe('dts','wts-n'+k,'vel-const'+k,'den-const'+k,'ss','jdata=4 jsnap=4 ',par)
+    wemig.fWRawe('dts','wts-n'+k,'vel-const'+k,den,'ss','jdata=4 jsnap=4 ',par)
 
     wemig.bWRawe('dtr','wtr-b'+k,vel,den,'rr','jdata=4 jsnap=4 ',par)
-    wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,'den-const'+k,'rr','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,den,'rr','jdata=4 jsnap=4 ',par)
 
 
     Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=10 |spray axis=3 n=751 o=0 d=0.004')
@@ -381,7 +380,7 @@ c2=['bb','bn','nb','nn','ref']
 back=['bn','nb']
 xx=''
 
-par['perc'] = 0.75
+par['perc'] = 0.85
 
 for j in range(nvels):
      k='%02d'%j
@@ -480,8 +479,8 @@ COF=xx.split()
 Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
 Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 '%nvels)
 
-Result('OF_cix','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J" labelsz=6 labelfat=3 plotfat=16')
-Result('OF_cit','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J" labelsz=6 labelfat=3 plotfat=16')
+Result('OF_cix','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16')
+Result('OF_cit','window n1=9 f1=1 |graph title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16')
 Result('OF_joint',['OF_cix','OF_cit'],
     '''
     add scale=1,1 ${SOURCES[1]} |

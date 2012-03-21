@@ -7,9 +7,9 @@ However, it was not until the late 1990’s, and mainly the 2000’s that comput
 images than other methods. Imaging methods such as Kirchhoff migration, one-way equation
  migration, among others, are based on approximate solutions to the wave equation. Kirchhoff migration,
  a high frequency asymptotic solution to the wave equation, becomes unstable for complex velocity models,
-this technique also fails to handle in an easy way multipathing and typically creates the images based on a 
+ and this technique also fails to handle in an easy way multipathing and typically creates the images based on a 
 single travel time arrival (e.g most energetic, or first arrival). Other methods based on approximations to the wave
- equation as phase shift migration ~\citep{gazdag:1342} rely on a v(z) earth model and further
+ equation, such as phase shift migration ~\citep{gazdag:1342}, rely on a v(z) earth model and further
  approximations are needed to account for lateral variations~\citep{gazdag:124}.
  Besides earth model considerations, one-way wave equation migration propagate wavefields in 
 either upward or downward direction; this approximation becomes inexact when the waves 
@@ -22,12 +22,12 @@ on the velocity model or the direction of propagation. This method also takes in
 
 A striking characteristic of RTM is the presence of low wavenumber events in the image that
  are not correlated with the geology. The two-way wave equation simulates scattered waves in all 
-directions, therefore the imaging condition produces new events (that cannot be observed in 
-other imaging methods) that correspond to cross-correlation between diving waves, head waves 
+directions, therefore the imaging condition produces new events not cannot be observed in 
+other imaging methods, that correspond to the cross-correlation between diving waves, head waves 
 and backscattered waves. The cross-correlation between the backscattered waves is more visible in
 presence of sharp boundaries (e.g. top of salt) which produces strong events that mask the image of the 
-earth reflectivity. The backscattered events are considered as noise and are normally filtered in order
-to get the earth image.
+earth reflectivity above the salt. The backscattered events are considered as noise and are normally filtered in order
+to get the image of earth reflectivity.
 
 The seismic industry has dedicated considerable attention to the RTM backscattered events by 
 developing algorithms and strategies to filter them out of the image. We can classify the filtering
@@ -36,26 +36,26 @@ developing algorithms and strategies to filter them out of the image. We can cla
 
 The pre-imaging condition family modify the wavefields (either by modeling or wavefield decomposition)
  in such a way that the backscattered events do not form during the imaging process.
-A common strategy in the pre-imaging condition approaches is wavefield decomposition
+One strategy in the pre-imaging condition category is wavefield decomposition
 ~\citep[]{liu:S29,fei:3130}. In this method we decompose the source and receiver wavefields in upgoing
-and downgoing directions then, in the imaging step we cross-correlate only the wavefields that propagate
-in opposite directions, corresponding to the geology, and discard the wavefield traveling in the same direction
-which include backscattered events. Other pre-imaging 
+and downgoing directions and, in the imaging step we cross-correlate only the wavefields that propagate
+in opposite directions, which correspond to the geology, and discard the wavefields traveling in the same direction,
+ which include backscattered events. Other pre-imaging 
 condition approaches are performed by modifying  the wave equation to attenuate the reflections coming from 
 sharp interfaces~\citep{fletcher:2049}. A similar method applicable to post-stack migration 
-uses impedance matching in the sharp interfaces~\citep{baysal:132}. 
+uses impedance matching at sharp interfaces~\citep{baysal:132}. 
 
-In the post-imaging family, the artifacts are attenuated by filtering, these filtering approaches
- are considerable cheaper because it works on the image space and not on the wavefields. A straight forward
- approach is to apply a Laplacian filter to the image~\citep{youn:246}. The Laplacian
- filter acts as a high pass filter which is effective because the backscattered events have a strong low wavenumber
-component. A second strategy is a signal to noise separation by least squares filtering. In
+In the post-imaging family, the artifacts are attenuated by filtering. These filtering approaches
+ are considerable cheaper because they operate in the image space and not on the wavefields. A straightforward
+ approach is to apply a Laplacian operator to the image~\citep{youn:246}, which
+ acts as a high pass filter and is effective because the backscattered events have a strong low wavenumber
+component. A second strategy is a signal/noise  separation by least squares filtering. In
  this case the signal is defined as the reflectivity and the noise is the backscattered energy
 ~\citep{guitton:S19}. Finally, extended imaging conditions~\citep{sava:S209} provide information
  about the wavefield similarity for different space and/or time lags and can also be used to discriminate
-the backscattered energy.~\cite{kaelin:3125} take advantage of the way backscattered events maps into 
-time-lag gathers. The backscattered events map toward zero time-lag with a correct velocity model, whereas the primary 
-reflections maps within a limited slopes range (constrained by the velocity model). This difference in
+the backscattered energy.~\cite{kaelin:3125} take advantage of the way backscattered events appear in 
+time-lag gathers. The backscattered events map toward zero time-lag when a correct velocity model is used for imaging,
+ whereas the primary reflections map within a limited slopes range constrained by the velocity model. This difference in
  the slopes allows us to design 2D filters that preserve events within the primaries reflections range, and
 attenuate the backscattered energy.
 
@@ -63,10 +63,12 @@ In this report we analyze in detail the information carried by the backscattered
  images. We show that the backscattered waves provide important information about the 
 synchronization between the reconstructed wavefields in the subsurface, i.e an image obtained with a correct velocity model shows maximum backscattered
 energy. The presence of backscattered energy in the image does not only depend on the interpretation
-of the sharp interface, but also on the velocity above it. We show and analyze the mapping patterns of the backscattered
-events in the extended images using wavefield decomposition approaches. Backscattered energy
-exhibit sensitivity to the velocity model accuracy, therefore should be included as a source
-of information to migration velocity analysis (MVA).
+of the sharp interface, but also on the velocity above it. We analyze the mapping patterns of the backscattered
+events in the extended images using wavefield decomposition approaches and conclude that backscattered energy
+is sensitive to the velocity model accuracy, and therefore should be included as a source
+of information to migration velocity analysis (MVA). Counter to common practice, we assert that
+backscattering artifacts should be enhanced during RTM to constrain the velocity models,
+and they should only be removed in the last stage of imaging.
 
 
 

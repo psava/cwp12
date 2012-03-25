@@ -34,7 +34,7 @@ decomposition can be very costly, specially in 3D models. In practice we could u
 the backscattered energy.
 
 \inputdir{flat}
-\multiplot{2}{cit05_ref1,citx05_ref1,cip05_ref1,img05_ref}{height=0.2\textheight}{%
+\multiplot{2}{cit05_ref1,citx05_ref1,cip05_ref1,img05_ref1}{height=0.2\textheight}{%
 Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, 
 (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot (in x=5km,z=0km) with receivers in the surface} 
 
@@ -44,25 +44,25 @@ Pictorial explanation of RTM imaging: columns 1, 2 and 3 correspond to three dif
  Rows 1 to 4 correspond to the source wavefield, the receiver wavefield, the multiplication of the source and receiver wavefields,  and the accumulated image over time, respectively.}
 
 %Image splitting:
-\multiplot{2}{img05_nn,img05_nb,img05_bn,img05_bb}{height=0.17\textheight}{%
+\multiplot{2}{img05_nn1,img05_nb1,img05_bn1,img05_bb1}{height=0.17\textheight}{%
 Illustration of the linearity of the conventional imaging condition. We can split the conventional image, figure~\ref{fig:img05_ref} in four %
 separate images, $R^{tt}(\xx)$ (a), $R^{tr}(\xx)$ (b), $R^{tr}(\xx)$ (c), and $R^{rr}(\xx)$ (d), corresponding to the correlation of the %
 transmitted and/or reflected components of the source and receiver wavefields}
 
 %Time-lag splitting":
-\multiplot{2}{cit05_nn,cit05_bn,cit05_nb,cit05_bb}{height=0.28\textheight}{%
+\multiplot{2}{cit05_nn1,cit05_bn1,cit05_nb1,cit05_bb1}{height=0.28\textheight}{%
 Illustration of the linearity of the time-lag extended imaging condition. We can split a time-lag gather, figure~\ref{fig:cit05_ref} in four separate images
 , $R^{tt}(z,\tau)$ (a), $R^{rt}(z,\tau)$ (b), $R^{tr}(z,\tau)$ (c) and $R^{rr}(z,\tau)$ (d), corresponding to the correlation of the transmitted %
 and/or reflected components of the source and receiver wavefields}
 
 %Space-lag splitting":
-\multiplot{2}{citx05_nn,citx05_bn,citx05_nb,citx05_bb}{height=0.28\textheight}{%
+\multiplot{2}{citx05_nn1,citx05_bn1,citx05_nb1,citx05_bb1}{height=0.28\textheight}{%
 Illustration of the linearity of the space-lag extended imaging condition. We can divide figure~\ref{fig:citx05_ref} in four images, %
  $R^{tt}(z,\lambda_x)$ (a), $R^{rt}(z,\lambda_x)$ (b), $R^{tr}(z,\lambda_x)$ (c) and $R^{rr}(z,\lambda_x)$ (d), corresponding to the correlation of %
 the transmitted and/or reflected components of the source and receiver wavefields}
 
 %Cip splitting":
-\multiplot{2}{cip05_nn,cip05_bn,cip05_nb,cip05_bb}{height=0.2\textheight}{ %
+\multiplot{2}{cip05_nn1,cip05_bn1,cip05_nb1,cip05_bb1}{height=0.2\textheight}{ %
 Illustration of the linearity of the extended imaging condition for a common image point. We can decompose a CIP, figure~\ref{fig:cip05_ref}, in four images %
 $R^{tt}(\hh,\tau)$ (a), $R^{rt}(\hh,\tau)$ (b), $R^{tr}(\hh,\tau)$ (c), $R^{rr}(\hh,\tau)$ (d) corresponding to the correlation
 between transmitted and/or reflected components of the source and receiver wavefields}

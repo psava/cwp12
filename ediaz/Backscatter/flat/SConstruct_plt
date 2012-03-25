@@ -315,4 +315,127 @@ for j in range(nvels):
 
 #Movie snapshots for article:
 
+
+
+'''
+I need to plot:
+citx05_ref
+cit05_ref
+cip05_ref
+'''
+
+
+
+### CIT
+
+Plot('t1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.4,6.7,"a",-0.5,0.))
+
+Plot('t2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (5.8,6.5,"b",0.,0.7))
+
+
+Plot('t3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (5.1,3.9,"c",-0.8,0.4))
+
+Plot('t4',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.9,5.1,"c",0.4,-0.8))
+
+Result('cit05_ref1','Fig/cit05_ref t1 t2 t3 t4','Overlay')
+Result('cit05_nn1','Fig/cit05_nn  t3 t4','Overlay')
+Result('cit05_bn1','Fig/cit05_bn t1 ','Overlay')
+Result('cit05_nb1','Fig/cit05_nb t1','Overlay')
+Result('cit05_bb1','Fig/cit05_bb t2 ','Overlay')
+
+### CIX
+
+Plot('x1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.4,6.7,"a",-0.5,0.))
+
+Plot('x2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.6,4.3,"c",0.0,-0.7))
+
+
+Plot('x3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.9,5.3,"b",-0.5,-0.5))
+
+Plot('x4',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (5.1,5.3,"b",0.5,-0.5))
+
+Result('citx05_ref1','Fig/citx05_ref x1 x2 x3 x4','Overlay')
+Result('citx05_nn1','Fig/citx05_nn  x2','Overlay')
+Result('citx05_bn1','Fig/citx05_bn x1 ','Overlay')
+Result('citx05_nb1','Fig/citx05_nb x1','Overlay')
+Result('citx05_bb1','Fig/citx05_bb x3 x4 ','Overlay')
+
+
+### CIP
+
+Plot('c1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (3.7,6.6,"c",-0.5,0.))
+
+Plot('c2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (4.3,6.6,"b",0.5,0.))
+
+
+Plot('c3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (8,2.5,"a",0.4,0.4))
+
+Plot('c4',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (8,3.3,"a",0.4,-0.4))
+
+Result('cip05_ref1','Fig/cip05_ref c1 c2 c3 c4','Overlay')
+Result('cip05_nn1','Fig/cip05_nn c1 ','Overlay')
+Result('cip05_bn1','Fig/cip05_bn c3 c4 ','Overlay')
+Result('cip05_nb1','Fig/cip05_nb c3 c4','Overlay')
+Result('cip05_bb1','Fig/cip05_bb ','Overlay')
+
+
+
+#### Image
+
+
+
+Plot('i1',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (7.4,2.0,"c",0.,-0.5))
+
+Plot('i2',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (8.4,2.0,"b",0.0,-0.5))
+
+
+Plot('i3',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (8,2.9,"a",0.4,-0.4))
+
+Plot('i4',None,
+     'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
+     (10,2.8,"a",0.4,-0.4))
+
+Result('img05_ref1','Fig/img05_ref i1 i2 i3 i4','Overlay')
+Result('img05_nn1','Fig/img05_nn i1 ','Overlay')
+Result('img05_bn1','Fig/img05_bn i4  ','Overlay')
+Result('img05_nb1','Fig/img05_nb  i3','Overlay')
+Result('img05_bb1','Fig/img05_bb i2','Overlay')
+
+
+
+
+
+
+
+
 End()

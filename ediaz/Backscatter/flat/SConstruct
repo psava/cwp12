@@ -97,7 +97,7 @@ Flow('dmask',None,
      spike nsp=1 mag=1
      n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
      n2=%(nt)d d2=%(dt)g o2=%(ot)g |
-     smooth rect1=80  repeat=4
+     smooth rect1=50  repeat=10
      ''' % par)
 Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
@@ -229,8 +229,8 @@ for i in range(nvels):
 
 
 
-fdmod.awefd2d('dd','wd','wav','vel05','denZ05','ss','rr','',par)
-fdmod.awefd2d('do','wo','wav','vc','denZ05', 'ss','rr','',par)
+fdmod.awefd2d('dd','wd','wav','vel05','den-const05','ss','rr','',par)
+fdmod.awefd2d('do','wo','wav','vc','den-const05', 'ss','rr','',par)
 
 Flow('dat',['dd','do','dmask'],
      '''
@@ -263,7 +263,7 @@ for i in range(nvels):
     tag=k
     # migration (RTM)
     vel='vel'+k
-    den='zer'
+    den='den'+k
     images=images+' img'+k+'.rsf'
     cits= cits +' cit'+k+'.rsf'
     cips= cips + ' cip'+k+'.rsf'
@@ -272,10 +272,10 @@ for i in range(nvels):
 
 
     wemig.fWRawe('dts','wts-b'+k,vel,den,'ss','jdata=4 jsnap=4 ',par)
-    wemig.fWRawe('dts','wts-n'+k,'vel-const'+k,den,'ss','jdata=4 jsnap=4 ',par)
+    wemig.fWRawe('dts','wts-n'+k,'vel-const'+k,'den-const'+k,'ss','jdata=4 jsnap=4 ',par)
 
     wemig.bWRawe('dtr','wtr-b'+k,vel,den,'rr','jdata=4 jsnap=4 ',par)
-    wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,den,'rr','jdata=4 jsnap=4 ',par)
+    wemig.bWRawe('dtr','wtr-n'+k,'vel-const'+k,'den-const'+k,'rr','jdata=4 jsnap=4 ',par)
 
 
     Flow('mask'+tag,'vel'+tag,'clip2 lower=3 | math output="(input-3)*2"|smooth rect1=10 |spray axis=3 n=751 o=0 d=0.004')

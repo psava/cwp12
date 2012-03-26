@@ -1,6 +1,6 @@
 from rsf.proj import *
 import fdmod, adcig, encode, wemig, math
-import commands, sigsbee
+import commands, sigsbee, sfutil
 
 # ------------------------------------------------------------
 
@@ -40,7 +40,6 @@ SHOTS=range(par['fsou'],
             par['jsou'])
 
 
-print SHOTS
 
 
 

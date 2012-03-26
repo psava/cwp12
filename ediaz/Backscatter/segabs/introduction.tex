@@ -1,0 +1,64 @@
+\section{Introduction}
+
+Almost 30 years ago  ~\cite{baysal:1514}, ~\cite{whitmore:382}
+ and ~\cite{GPR:GPR413} introduced the concept of reverse time migration (RTM). 
+It wasn't until the late 90's and mainly last decade that the computational advances
+allowed the geophysical community to use this technology in practice. In general, and 
+especially in complex geological settings,  RTM produces better images. This 
+characteristic is due to its ability to image without dip limitations. The
+reason for the RTM success in complex settings is the two-way nature of its 
+engine, a non-factorized wave equation. Basically, a wavefield used in RTM
+has the freedom to move everywhere, whereas other methods are limited to one
+direction as in one-wave equation migration, or use only one specific arrival 
+as in Kirchoff migration.
+
+Another characteristic of RTM images is the presence of low 
+wavenumber events or ``artifacts" that are not correlated with the geology. The two-way
+wave equation allow us to cross-correlate energy traveling in both directions as diving waves,
+head waves and backscattered waves, thus producing low wavenumber events. These
+``artifacts" are specially more evidents in the presence of sharp velocity boundaries (e.g. salt 
+models). 
+
+In the past decade, several strategies to attenuate these events have been presented. 
+We can classify them in two main families: pre imaging condition and post imaging condition. 
+
+In the pre imaging condition family we can find wavefield decomposition approaches
+~\citep[]{liu:S29,fei:3130}. The purpose of wavefield decomposition is to honor the original
+assumptions of the imaging condition by cross-correlating downgoing energy with upgoing energy.
+We can also find modeling approaches to attenuate reflections in sharp velocity boundaries 
+~\citep{fletcher:2049}, or eliminate reflected energy in the modeled wavefields using 
+impedance matching ~\citep{baysal:132}. This last method only works with zero-offset (stacked) data.  
+
+The other family of noise attenuation techniques is applied after imaging, this is faster because
+it is done after stacking over shots. A common approach is to apply a Laplacian filter
+to the image ~\citep{youn:246}. A second strategy proposed by ~\cite{guitton:S19} is a signal-noise
+separation by least squares, where the signal is defined as the reflectivity and the noise is the low 
+wavenumber energy of the image. 
+
+The low wavenumber events have a special way of mapping into extended images. ~\cite{kaelin:3125} propose
+a filter that takes advantage of this feature. The filter is applied to the time-lag gathers, where the
+backscattered energy maps into vertical events (discussed later), and therefore is easy to remove.
+
+In this report we analyze the information carried by the backscattered energy. We examine as well 
+how it maps into the extended images. We show that by analyzing this piece of information we 
+can perform a quality control of sharp boundary placement in the model (e.g. sediment-salt interface). 
+We use a very simple 2 layers model to explain how the backscattered events are built in the imaging
+process. Then, we test these ideas with an example of the Sigsbee model.
+
+% Talk about Reverse Time Migration
+ 
+% Talk about different techniques to attenuate artifacts
+
+% Introduce the paper objective
+
+
+%~\cite{claerbout:467} 
+%~\cite{baysal:1514}
+%~\cite{whitmore:382} 
+%~\cite{guitton:S19} 
+%~\cite{kaelin:3125} 
+%~\cite{fletcher:2049} 
+%~\cite{sava:S209} 
+%~\cite{fei:3130} 
+%~\cite{GPR:GPR413} 
+%~\cite{baysal:132}

@@ -116,7 +116,9 @@ for s in SHOTS:
 
     wemig.cic('Img'+stag,'wts'+stag,'wtr'+stag,'nbuf=100 ',par)
 
-
+    dummyf('del_wtr'+stag,'wtr'+stag)
+    dummyf('del_wtr_rev'+stag,'wtr_rev'+stag)
+    dummyf('del_wts'+stag,'wtr'+stag)
 
 
 

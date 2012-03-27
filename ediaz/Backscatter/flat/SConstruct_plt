@@ -270,6 +270,12 @@ for j in range(nvels):
      Result('penal_cip'+k+'_back','penal_cip'+k+'_back',' byte gainpanel=a |'+ adcig.egrey('',par))
 
 
+
+
+
+
+
+
 #     Flow('penal_cip'+k+'_back','cip'+k+'_back','scale axis=3|math output="sqrt(x1^2+x2^2 +(%g*x3)^2 )*input"'%(3.5))
 
 
@@ -284,7 +290,9 @@ for j in range(nvels):
      par['perc'] = par['perc'] + par['perc_inc']
      
 
-
+Result('Penalty_cip','cip05_back','scale|envelope  |math output="1/(input+%g)" |byte gainpanel=a |'%1e-14 + adcig.egrey(' allpos=y',par))
+Result('Penalty_cit','cit05_back','math output="abs(x2)" |byte gainpanel=a |' + adcig.tgrey(' allpos=y',par))
+Result('Penalty_cix','citx05_back','math output="abs(x2)" |byte gainpanel=a |' + adcig.xgrey('allpos=y',par))
 
 COF=xx.split()
 

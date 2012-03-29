@@ -47,9 +47,6 @@ def dummyf(out,name):
 
 
 
-
-
-
 # source
 par['xsou']=par['orec']+par['nrec']/2*par['dx']
 
@@ -196,20 +193,25 @@ iwindow='nqx=1050 oqx=%g'%(par['orec']-1.0)
 
 fdmod.param(plotpar)
 
-Plot('gg',fdmod.qqplot('',plotpar))
+Plot('gg',fdmod.qqplot('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 fdmod.point('ggcip',17.83,2.84226,par)
-Plot('ggcip',fdmod.qqplot('plotfat=1 plotcol=5 symbol=o symbolsz=10',plotpar))
+Plot('ggcip',fdmod.qqplot('plotfat=1 plotcol=5 symbol=o symbolsz=10 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 
 
 
 
+Plot('ss',fdmod.ssplot('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Plot('gg4','gg','window f2=%d n2=%d | '%(par['nz']*3,par['nz'])+fdmod.qqplot('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Plot('rr',fdmod.rrplot('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 
-Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99',plotpar))
-Result('Cig6','Cig','window n3=1 f3=5 |' + adcig.tgrey('pclip=99',plotpar))
-Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.5',plotpar))
-Result('Cigx6','Cigx','window n3=1 f3=5 |' + adcig.xgrey('pclip=99.5',plotpar))
+
+
+Result('Cig5','Cig','window n3=1 f3=4 |' + adcig.tgrey('pclip=99 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Result('Cig6','Cig','window n3=1 f3=5 |' + adcig.tgrey('pclip=99 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Result('Cigx5','Cigx','window n3=1 f3=4 |' + adcig.xgrey('pclip=99.5 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Result('Cigx6','Cigx','window n3=1 f3=5 |' + adcig.xgrey('pclip=99.5 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 Plot('Cig4','Cig','window n3=1 f3=3 |' + adcig.tgrey('pclip=99',plotpar))
 # annotation - uses image units
@@ -235,7 +237,7 @@ Result('Cig4','Cig4 t1 t2 t3 t4','Overlay')
 
 
 
-Plot('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9',plotpar))
+Plot('Cigx4','Cigx','window n3=1 f3=3 |' + adcig.xgrey('pclip=99.9 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 Plot('x1',None,
      'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
@@ -250,7 +252,7 @@ Plot('x3',None,
      (3.2,5,"d?",0.,-0.5))
 
 
-Plot('Image','Image',fdmod.cgrey('pclip=99.',plotpar))
+Plot('Image','Image',fdmod.cgrey('pclip=99. labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 Result ('Image',['Image','rr','ss','gg4','ggcip'],'Overlay')
 
@@ -259,7 +261,7 @@ Result('Cigx4','Cigx4 x1 x2 x3','Overlay')
  
 Flow('Cip04',map(lambda x:'cip-%04d'%x,SHOTS),'stack axis=4 norm=n')
 
-Plot('Cip04','window min3=-0.5 max3=0.5 |byte gainpanel=a pclip=99|'+ adcig.egrey(' frame3=50',par))
+Plot('Cip04','window min3=-0.5 max3=0.5 |byte gainpanel=a pclip=99|'+ adcig.egrey('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b frame3=50',par))
 
 
 Plot('c1',None,

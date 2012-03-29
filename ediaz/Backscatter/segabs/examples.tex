@@ -1,22 +1,22 @@
-
 \inputdir{sigsbee}
-\multiplot{3}{Cig6,Cigx6,Cip06,Image}{height=0.23\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
+\multiplot{4}{Cig6,Cigx6,Cip06,Image}{height=0.23\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
 point (c) and RTM image (d). The vertical line and thick point shown in the RTM image shows the CIG and CIP locations respectively.}
 
 
 \section{Examples}
 
-In this section we illustrate the backscattered events visible on extended images constructed from the Sigsbee 2A model.
- Figure~\ref{fig:Image} shows an image obtained from  a modified
-version of the Sigsbee 2A (SMAART JV consortium, 2001). We modify the model by salt flooding (extending the salt to the bottom
+In this section we illustrate the backscattered events visible on extended images constructed from the Sigsbee 2A model~\cite{Sigsbee}. 
+We modify the model by salt flooding (extending the salt to the bottom
 of the model) to avoid backscattering from the base 
 of salt, therefore we focus on the reflections from the top of salt only. For this example we fix the receiver array on 
 the surface, and we use 100 shots evenly sampled on the surface to build 
 the image. For the migration model we use the stratigraphic
-velocity which shows sharp interfaces in the sediment section, in addition the interface corresponding with the top of salt.
+velocity which shows sharp interfaces in the sediment section, in addition the interface corresponding with the top of salt. 
+~\ref{fig:Image} shows the conventional image for our modifed Sigsbee model, note the strong backscattered
+energy above the salt.
 
 Figure~\ref{fig:Cig6} shows a time-lag gather calculated at $x$=$19.05km$.
-We can see that the gather is very complex, but we can easily identify the backscattered energy indicated with letter ``a" in figure~\ref{fig:Cig6}.
+We can see that the gather is very complex, but we can easily identify the backscattered energy indicated with letter ``a" in Figure~\ref{fig:Cig6}.
  In this case, the backscattered energy maps directly to $\tau=0$ because we use the correct velocity model.
 We can also identify the events corresponding to the cross-correlation between reflected waves from the source and receiver side $\Rct{rr}$, indicated
 with letter ``b". The $\Rct{rr}$ events have positive slope (given by the sediment velocity at the interface) and are 
@@ -25,28 +25,18 @@ in the slope of the primary reflection corresponding the sediment-salt interface
 
 Figure~\ref{fig:Cigx6} shows a space-lag common image gather extracted at the same location. The backscattered energy maps toward $\lambda_x=0$, indicated with 
 letter ``a". We see again the $\Rcl{rr}$ case, indicated with letter ``b", where the energy is mapped away from zero lag.  
-Even though we are using the correct model we still see energy away from $\lambda_x=0$. This indicates that additional processing is needed before 
+Even though we are using the correct model, we still see energy away from $\lambda_x=0$. This indicates that additional processing is needed before 
 we can use space-lag gathers for model update with wave equation tomography.
 
-Figure~\ref{fig:Cip06} shows a common image point extracted at the top of salt interface at $(x,z)=(19.05,3.4)km$. Despite of the complexity of this image, we can still
+Figure~\ref{fig:Cip06} shows a common image point extracted at the top of salt interface at $(x,z)=(19.05,3.4)km$. Despite the complexity of this image, we can still
 identify similar patterns as shown in Figure~\ref{fig:cip05_ref}. The backscattered events are mapped to $\tau>0$ in the
 $\tau-\lambda_z$ plane, indicated with letter ``a". In this plane we can separate with the individual contributions 
-from $\Rce{tr}$ (maps to $\lambda_z<0$ and $\tau>0$), and $\Rce{rt}$ (maps to $\lambda_z>0$ and $\tau>0$), because they map to two different events, 
+from $\Rce{tr}$ (which maps to $\lambda_z<0$ and $\tau>0$), and $\Rce{rt}$ (which maps to $\lambda_z>0$ and $\tau>0$), because they are imaged into two different events, 
 whereas in the common image gathers discussed before we cannot differentiate the individual
-contributions, because both cases map to zero lag. The reflection maps as a point to zero lag in the $\tau-\lambda_x$ plane (shown with letter ``c"). 
+contributions, because both cases map to zero lag. The reflection maps as a point to zero lag in the $\tau-\lambda_x$ plane (indicated with letter ``c"). 
 
 Understanding the backscattered energy in the extended images for complex scenarios is the first step in using these events for 
-migration velocity analysis. In this report, used wavefield decomposition to analyze the mapping patterns of the backscattered energy. Although effective, wavefield
-decomposition can be very costly, specially in 3D models. In practice we need to use filtering of the extended images to isolate the events corresponding to 
-the backscattered energy. How we can effectively  implement this operation remains subject to future research
-
-\inputdir{flat}
-
-%%Wavefield movie:
-%\multiplot{4}{wts-b05-150,wts-b05-275,wts-b05-500,wtr-b05-150,wtr-b05-275,wtr-b05-500,cross_corrs-b_r-b05-150,cross_corrs-b_r-b05-275,cross_corrs-b_r-b05-500,imgs-b_r-b05-150,imgs-b_r-b05-275,imgs-b_r-b05-500}{angle=90,width=0.16\textwidth}{%
-%Pictorial explanation of RTM imaging: columns 1, 2 and 3 correspond to three different snapshots at times $t_1=0.150s$, $t_2=0.275s$ and $t_3=0.500s$.
-% Rows 1 to 4 correspond to the source wavefield, the receiver wavefield, the multiplication of the source and receiver wavefields,  and the accumulated image over time, respectively.}
-%Wavefield movie:
-
-
+migration velocity analysis. In this report, we used wavefield decomposition to analyze the patterns of the backscattered energy in conventional and extended images.
+ Although effective, wavefield decomposition can be very costly, specially for 3D models. In practice we need to use filtering of the extended images to isolate the events corresponding to 
+the backscattered energy. How we can effectively  implement this operation remains subject to future research.
 

@@ -1,18 +1,18 @@
 \inputdir{sigsbee}
-\multiplot{4}{Cig6,Cigx6,Cip06,Image}{height=0.23\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
+\multiplot*{4}{Cig6,Cigx6,Cip06,Image}{height=0.17\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
 point (c) and RTM image (d). The vertical line and thick point shown in the RTM image shows the CIG and CIP locations respectively.}
 
 
 \section{Examples}
 
-In this section we illustrate the backscattered events visible on extended images constructed from the Sigsbee 2A model~\cite{Sigsbee}. 
+In this section we illustrate the backscattered events visible on extended images constructed from a modified Sigsbee 2A model~\citep{Sigsbee}. 
 We modify the model by salt flooding (extending the salt to the bottom
 of the model) to avoid backscattering from the base 
 of salt, therefore we focus on the reflections from the top of salt only. For this example we fix the receiver array on 
 the surface, and we use 100 shots evenly sampled on the surface to build 
 the image. For the migration model we use the stratigraphic
 velocity which shows sharp interfaces in the sediment section, in addition the interface corresponding with the top of salt. 
-~\ref{fig:Image} shows the conventional image for our modifed Sigsbee model, note the strong backscattered
+~\ref{fig:Image} shows the conventional image for our modified Sigsbee model, note the strong backscattered
 energy above the salt.
 
 Figure~\ref{fig:Cig6} shows a time-lag gather calculated at $x$=$19.05km$.
@@ -34,9 +34,4 @@ $\tau-\lambda_z$ plane, indicated with letter ``a". In this plane we can separat
 from $\Rce{tr}$ (which maps to $\lambda_z<0$ and $\tau>0$), and $\Rce{rt}$ (which maps to $\lambda_z>0$ and $\tau>0$), because they are imaged into two different events, 
 whereas in the common image gathers discussed before we cannot differentiate the individual
 contributions, because both cases map to zero lag. The reflection maps as a point to zero lag in the $\tau-\lambda_x$ plane (indicated with letter ``c"). 
-
-Understanding the backscattered energy in the extended images for complex scenarios is the first step in using these events for 
-migration velocity analysis. In this report, we used wavefield decomposition to analyze the patterns of the backscattered energy in conventional and extended images.
- Although effective, wavefield decomposition can be very costly, specially for 3D models. In practice we need to use filtering of the extended images to isolate the events corresponding to 
-the backscattered energy. How we can effectively  implement this operation remains subject to future research.
 

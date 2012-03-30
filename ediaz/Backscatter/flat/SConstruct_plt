@@ -296,13 +296,27 @@ Result('Penalty_cix','citx05_back','math output="abs(x2)" |byte gainpanel=a |' +
 
 COF=xx.split()
 
-Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1 '%nvels)
-Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1 '%nvels)
-Flow('OF_cip',map(lambda x:'OF_cip%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 |math output="input"'%nvels)
+Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1|window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1|math output="1-input"'%nvels)
+Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1|window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1|math output="1-input" '%nvels)
+Flow('OF_cip',map(lambda x:'OF_cip%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 |math output="input" | window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1 |math output="1-input"'%nvels)
 
-Result('OF_cix','window n1=9 f1=1 |scale axis=1|graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
-Result('OF_cit','window n1=9 f1=1 |scale axis=1|graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
-Result('OF_cip','window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1 |math output="1-input"|graph d2num=1 min2=0 max2=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
+Result('OF_cix','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
+Result('OF_cit','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
+Result('OF_cip','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
+
+
+
+Result('OF_join',['OF_cix','OF_cit','OF_cip'],'cat ${SOURCES[1]} ${SOURCES[2]} axis=2| graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n labelfat=3 plotfat=16 screenratio=0.5 screenht=6 yll=1')
+
+
+
+
+
+
+
+
+
+
 
 
 Flow('citx_ref_byt',map(lambda x:'citx%s_ref'%x, COF),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%nvels)

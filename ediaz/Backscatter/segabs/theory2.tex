@@ -3,7 +3,7 @@
 
 
 
-\multiplot{3}{cit05_ref1,citx05_ref1,cip05_ref1,img05_ref1}{height=0.12\textheight}{%
+\multiplot{3}{cit05_ref1,citx05_ref1,cip05_ref1,img05_ref1}{height=0.11\textheight}{%
 Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, 
 (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot} 
 
@@ -93,6 +93,13 @@ extended images:
  \Re= \Rce{tt}+\Rce{rr}+\Rce{tr}+\Rce{rt}.
 \label{eq:eicsplit}
 \eeq
+
+%Time-lag splitting":
+\multiplot{2}{cit05_nn1,cit05_bn1,cit05_nb1,cit05_bb1}{height=0.12\textheight}{%
+Illustration of the linearity of the time-lag extended imaging condition. We can split a time-lag gather, Figure~\ref{fig:cit05_ref1}, in four separate images,
+ $R^{tt}(z,\tau)$ (a), $R^{rt}(z,\tau)$ (b), $R^{tr}(z,\tau)$ (c) and $R^{rr}(z,\tau)$ (d), corresponding to the correlation of the transmitted %
+and/or reflected components of the source and receiver wavefields}
+
 
 
 \section{Sensitivity to velocity errors}

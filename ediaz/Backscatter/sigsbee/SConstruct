@@ -204,14 +204,14 @@ Flow('vel_water','vel','math output="1.5"')
 
 iwindow='nqx=1050 oqx=%g'%(par['orec']-1.0)
 
-par['nkx']=170
+par['nkx']=100
 par['nlx']=par['nrec']-par['nkx']
 Flow('dmask',None,
      '''
      spike nsp=1 mag=1
      n2=%(nrec)d d2=%(dx)g o2=%(orec)g k2=%(nkx)d l2=%(nlx)d
      n1=%(nt)d d1=%(dt)g o1=%(ot)g |
-     smooth rect2=80 repeat=4 | 
+     smooth rect2=50 repeat=4 | 
      transp
      ''' % par)
 

@@ -1,37 +1,40 @@
 \inputdir{sigsbee}
-\multiplot*{4}{Cig6,Cigx6,Cip06,Image}{height=0.17\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
-point (c) and RTM image (d). The vertical line and thick point shown in the RTM image shows the CIG and CIP locations respectively.}
+%\multiplot*{4}{Cig6,Cigx6,Cip06,Image}{height=0.14\textheight}{Sigsbee analysis: time-shift gather (a), space-lag gather (b), common image
+%point (c) and RTM image (d). The vertical line and thick point shown in the RTM image shows the CIG and CIP locations respectively.}
 
+\multiplot{2}{Cig6,Cigx6,Cip06}{height=0.18\textheight}{Sigsbee analysis: time-shift CIG (a) and space-lag CIG (b) at $x=19.1km$, and a common image
+point gather at $(x,z)=(19.1,3.45)$km (c).}
 
-\section{Examples}
+\plot{Image}{height=0.19\textheight}{Sigsbee RTM image (d). The vertical line and blue dot show the CIG and CIP locations, respectively.}
+\section{Example}
 
-In this section we illustrate the backscattered events visible on extended images constructed from a modified Sigsbee 2A model~\citep{Sigsbee}. 
+In this section, we illustrate the backscattered events visible on extended images constructed with the Sigsbee 2A model~\citep{Sigsbee}. 
 We modify the model by salt flooding (extending the salt to the bottom
 of the model) to avoid backscattering from the base 
-of salt, therefore we focus on the reflections from the top of salt only. For this example we fix the receiver array on 
-the surface, and we use 100 shots evenly sampled on the surface to build 
-the image. For the migration model we use the stratigraphic
-velocity which shows sharp interfaces in the sediment section, in addition the interface corresponding with the top of salt. 
-~\ref{fig:Image} shows the conventional image for our modified Sigsbee model, note the strong backscattered
+of salt; therefore we focus on the reflections from the top of salt only. For this example we fix the receiver array on 
+the surface, and we use 100 shots evenly distributed on the surface to build 
+the image. For the migration model, we use the stratigraphic
+velocity which has sharp interfaces in the sediment section, in addition to the interface corresponding with the top of salt. 
+~\rfg{Image} shows the conventional image for our modified Sigsbee model; note the strong backscattered
 energy above the salt.
 
-Figure~\ref{fig:Cig6} shows a time-lag gather calculated at $x$=$19.05km$.
-We can see that the gather is very complex, but we can easily identify the backscattered energy indicated with letter ``a" in Figure~\ref{fig:Cig6}.
+Figure~\ref{fig:Cig6} shows a time-lag gather calculated at $x=19km$.
+We can see that the gather is very complex, but we can easily identify the backscattered energy (indicated with letter ``a") in Figure~\ref{fig:Cig6}.
  In this case, the backscattered energy maps directly to $\tau=0$ because we use the correct velocity model.
-We can also identify the events corresponding to the cross-correlation between reflected waves from the source and receiver side $\Rct{rr}$, indicated
-with letter ``b". The $\Rct{rr}$ events have positive slope (given by the sediment velocity at the interface) and are 
-visible for $\tau>0$. We can also observe a abrupt change
-in the slope of the primary reflection corresponding the sediment-salt interfaces at the top of salt indicated with letter ``c".
+We can also identify the events corresponding to the cross-correlation between reflected waves from the source and receiver side $\Rct{rr}$, (indicated
+with letter ``b"). The $\Rct{rr}$ events have positive slope (given by the sediment velocity at the interface) and are 
+visible for $\tau>0$. We can also observe an abrupt change
+in the slope of the primary reflection corresponding to the sediment-salt interfaces at the top of salt, (indicated with letter ``c").
 
-Figure~\ref{fig:Cigx6} shows a space-lag common image gather extracted at the same location. The backscattered energy maps toward $\lambda_x=0$, indicated with 
-letter ``a". We see again the $\Rcl{rr}$ case, indicated with letter ``b", where the energy is mapped away from zero lag.  
+Figure~\ref{fig:Cigx6} shows a space-lag common image gather extracted at the same location. The backscattered energy maps toward $\lambda_x=0$ (indicated with 
+letter ``a"). We see again the $\Rcl{rr}$ case (indicated with letter ``b") where the energy is mapped away from zero lag.  
 Even though we are using the correct model, we still see energy away from $\lambda_x=0$. This indicates that additional processing is needed before 
 we can use space-lag gathers for model update with wave equation tomography.
 
-Figure~\ref{fig:Cip06} shows a common image point extracted at the top of salt interface at $(x,z)=(19.05,3.4)km$. Despite the complexity of this image, we can still
-identify similar patterns as shown in Figure~\ref{fig:cip05_ref}. The backscattered events are mapped to $\tau>0$ in the
-$\tau-\lambda_z$ plane, indicated with letter ``a". In this plane we can separate with the individual contributions 
-from $\Rce{tr}$ (which maps to $\lambda_z<0$ and $\tau>0$), and $\Rce{rt}$ (which maps to $\lambda_z>0$ and $\tau>0$), because they are imaged into two different events, 
-whereas in the common image gathers discussed before we cannot differentiate the individual
-contributions, because both cases map to zero lag. The reflection maps as a point to zero lag in the $\tau-\lambda_x$ plane (indicated with letter ``c"). 
+Figure~\ref{fig:Cip06} shows a common image point extracted at the top of the salt interface at $(x,z)=(19.05,3.4)km$. Despite the complexity of this image, we can still
+identify similar patterns to the ones seen in the synthetic example, shown in Figure~\ref{fig:cip05_ref1}. The backscattered events are mapped to $\tau>0$ in the
+$\tau-\lambda_z$ plane (indicated with letter ``a"). In this plane, we can separate the individual contributions 
+from $\Rce{tr}$ (which maps to $\lambda_z<0$ and $\tau>0$) and $\Rce{rt}$ (which maps to $\lambda_z>0$ and $\tau>0$) because they are imaged into two different events.
+In the common image gathers discussed before, we cannot differentiate the individual
+contributions because both events map to zero lag. The reflection maps as a point to zero lag in the $\tau-\lambda_x$ plane (indicated with letter ``c"). 
 

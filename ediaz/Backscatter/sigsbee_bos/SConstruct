@@ -24,7 +24,7 @@ plotpar = {
 
 
 def dummyf(out,name):
-    Flow(out,None,'\\rm /var2/ediaz/Backscatter/sigsbee/%s.rsf@; echo "successful delete "'%name,stdin=0)
+    Flow(out+'.log',None,'\\rm /var2/ediaz/Backscatter/sigsbee_bos/%s.rsf@; echo "successful delete "'%name,stdin=0)
 
 
 
@@ -99,8 +99,9 @@ for s in SHOTS:
     bandpass fhi=20|
     transp |
     reverse axis=1 opt=i |
-    add mode=p ${SOURCES[2]}
-    '''%s)
+    add mode=p ${SOURCES[2]}|
+    pad beg2=%d |window n2=9000
+    '''%(s,par['kt']*8))
 
     # Creat shot  coordinates
     Flow('ss'+stag,'data'+stag,'transp plane=13 |rtoc |math output="imag(0.0)+real(x1)"|dd type=float |window n2=1 n3=1 |window squeeze=y ')

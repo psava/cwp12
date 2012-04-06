@@ -52,8 +52,10 @@ for geo in glob.glob('geo*.tex'):
 for report in glob.glob('report*.tex'):
     name = os.path.splitext(report)[0]
     Paper(name,lclass='cwpreport',
+          options='doubleside',
           use='times,color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment',
           include=r'''
+          \setcounter{page}{111}
           \setlength{\paperwidth}{8.5in}
           \setlength{\paperheight}{11.0in}
           \setlength{\topmargin}{-0.25in}

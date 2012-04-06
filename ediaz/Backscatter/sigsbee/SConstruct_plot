@@ -233,7 +233,7 @@ Result('Cig6','Cig6 t1 t2 t3 t4','Overlay')
 
 
 
-Plot('Cigx6','Cigx','window n3=1 f3=5 |' + adcig.xgrey('pclip=99.9 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Plot('Cigx6','Cigx','window n3=1 f3=5 |' + adcig.xgrey('pclip=98 labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 Plot('x1',None,
      'box lab_fat=3 boxit=y   x0=%g y0=%g label="%s" xt=%g yt=%g lab_fat=1'%
@@ -266,7 +266,7 @@ Plot('gg6','gg','window f2=%d n2=%d | '%(par['nz']*5,par['nz'])+fdmod.qqplot('pc
 
 Plot('ggcip',fdmod.qqplot('plotfat=30 plotcol=6 symbol=. symbolsz=30 ',plotpar))
 
-Plot('Image','Image',fdmod.cgrey('pclip=99. labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
+Plot('Image','Image',fdmod.cgrey('pclip=98. labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 
 Result ('Image',['Image','rr','ss','gg6','ccip'],'Overlay')
 

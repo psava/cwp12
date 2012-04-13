@@ -60,12 +60,8 @@ With. From ~\cite{fletcher:2049}
 
 
 \inputdir{flat}
-\begin{frame} \big{Slow velocity (-20\% error) movie} \end{frame}
-\include{movie_imaging01}
 \begin{frame} \big{Correct velocity movie} \end{frame}
 \include{movie_imaging05}
-\begin{frame} \big{Fast velocity (+20\% error) movie} \end{frame}
-\include{movie_imaging09}
 
 
 
@@ -350,6 +346,21 @@ R(\bf{x_a},\bf{\lambda},\tau) = R(\bf{x_a},\bf{\lambda},\tau)^{nn} +R(\bf{x_a},\
     \item The backscattered energy  in the extended images demonstrated to be sensitive to velocity
     errors.
 \end{itemize}
+\end{frame}
+
+
+
+%-----------------------
+ \begin{frame} 
+ \plot{Cig6}{height=0.45\textheight}{}
+ \begin{columns} 
+    \column{0.4\textwidth}
+      \plot{Cigx6}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{Cip06}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{Image}{height=0.45\textheight}{}
+   \end{columns}
 \end{frame}
 
 

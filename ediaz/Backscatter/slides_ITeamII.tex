@@ -1,15 +1,15 @@
 \bibliographystyle{seg}
 \input{./Share/pcsmacros}
-
+\pgfdeclareimage[height=0.75in]{mypic}{esteban}
 \bibliography{SEG}
 
-\title[]{Sensitivity analysis of RTM backscattered energy for MVA}
+\title[]{Understanding the reverse time migration backscattering:
+Noise or signal?}
 \subtitle{}
-\author[]{Esteban  D\'{i}az}
+\author[]{Esteban  D\'{i}az$^{*}$ and Paul Sava}
 \institute{Center for Wave Phenomena \\
-Colorado School of Mines \\
-ediazpan@mines.edu
-}
+Colorado School of Mines 
+\vspace{0.0in} \\ \pgfuseimage{mypic}}
 \date{}
 \logo{}
 
@@ -41,6 +41,12 @@ What are we going to see now:
 \end{frame}
 
 \inputdir{flat}
+\begin{frame}\plot{img05_ref}{width=1\textwidth}{}\end{frame}
+\begin{frame}\plot{img05_nn}{width=1\textwidth}{}\end{frame}
+
+
+
+
 \begin{frame} \big{Correct velocity movie} \end{frame}
 \include{movie_imaging05}
 
@@ -191,6 +197,28 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
 \end{columns}
 \end{frame}
 
+\begin{frame}
+      \plot{cip05_ref}{height=0.45\textheight}{
+       \klabellarge{-50}{50}{$R(\bf{x},\bf{\tau})$} }
+
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{cip05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{nn}$} }
+    \column{0.25\textwidth}
+      \plot{cip05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{tr}$} }
+    \column{0.25\textwidth}
+      \plot{cip05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{rt}$} }
+
+    \column{0.25\textwidth}
+      \plot{cip05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$R(\bf{x},\bf{\tau})^{bb}$} }
+
+\end{columns}
+\end{frame}
+
 
 
 \begin{frame} \frametitle{Test experiments}
@@ -213,11 +241,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img00_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx00_back}{height=0.45\textheight}{}
+      \plot{citx00_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit00_back}{height=0.45\textheight}{}
+      \plot{cit00_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel00-fat}{height=0.45\textheight}{}
+      \plot{cip00_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -225,11 +253,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img01_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx01_back}{height=0.45\textheight}{}
+      \plot{citx01_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit01_back}{height=0.45\textheight}{}
+      \plot{cit01_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel01-fat}{height=0.45\textheight}{}
+      \plot{cip01_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -237,11 +265,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img02_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx02_back}{height=0.45\textheight}{}
+      \plot{citx02_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit02_back}{height=0.45\textheight}{}
+      \plot{cit02_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel02-fat}{height=0.45\textheight}{}
+      \plot{cip02_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -249,11 +277,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img03_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx03_back}{height=0.45\textheight}{}
+      \plot{citx03_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit03_back}{height=0.45\textheight}{}
+      \plot{cit03_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel03-fat}{height=0.45\textheight}{}
+      \plot{cip03_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -261,11 +289,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img04_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx04_back}{height=0.45\textheight}{}
+      \plot{citx04_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit04_back}{height=0.45\textheight}{}
+      \plot{cit04_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel04-fat}{height=0.45\textheight}{}
+      \plot{cip04_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -273,11 +301,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img05_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx05_back}{height=0.45\textheight}{}
+      \plot{citx05_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit05_back}{height=0.45\textheight}{}
+      \plot{cit05_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel05-fat}{height=0.45\textheight}{}
+      \plot{cip05_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -285,11 +313,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img06_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx06_back}{height=0.45\textheight}{}
+      \plot{citx06_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit06_back}{height=0.45\textheight}{}
+      \plot{cit06_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel06-fat}{height=0.45\textheight}{}
+      \plot{cip06_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -297,11 +325,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img07_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx07_back}{height=0.45\textheight}{}
+      \plot{citx07_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit07_back}{height=0.45\textheight}{}
+      \plot{cit07_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel07-fat}{height=0.45\textheight}{}
+      \plot{cip07_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -309,11 +337,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img08_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx08_back}{height=0.45\textheight}{}
+      \plot{citx08_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit08_back}{height=0.45\textheight}{}
+      \plot{cit08_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel08-fat}{height=0.45\textheight}{}
+      \plot{cip08_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -321,11 +349,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img09_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx09_back}{height=0.45\textheight}{}
+      \plot{citx09_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit09_back}{height=0.45\textheight}{}
+      \plot{cit09_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel09-fat}{height=0.45\textheight}{}
+      \plot{cip09_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 %-----------------------
@@ -333,11 +361,11 @@ R({\bf c},\hh,\tau) = R^{tt}({\bf c},\hh,\tau) +R^{tr}({\bf c},\hh,\tau) +R^{rt}
  \plot{img10_ref}{height=0.45\textheight}{}
  \begin{columns} 
     \column{0.4\textwidth}
-      \plot{citx10_back}{height=0.45\textheight}{}
+      \plot{citx10_ref}{height=0.45\textheight}{}
     \column{0.4\textwidth}
-      \plot{cit10_back}{height=0.45\textheight}{}
+      \plot{cit10_ref}{height=0.45\textheight}{}
    \column{0.2\textwidth}
-      \plot{vel10-fat}{height=0.45\textheight}{}
+      \plot{cip10_ref}{height=0.45\textheight}{}
    \end{columns}
 \end{frame}
 
@@ -351,15 +379,24 @@ or with space-lag gathers:
 \beq
     J_{\hh}(s)= \frac{1}{2} \lnorm{P_{\hh}[R^{tr}(\xx,\hh)+R^{rt}(\xx,\hh)]}^2_2,
 \eeq
-or a joint OF:
-
-\beq
-    J(s)= J_{\tau}(s) + J_{\hh}(s) 
-\eeq
 
 where $P_\hh = |\hh|$, and $P_\tau=|\tau|$.
 
 \end{frame}
+
+
+
+\begin{frame}
+    \begin{columns}
+      \column{0.3\textwidth}
+      \plot{Penalty_cit}{height=0.45\textheight}{}
+      \column{0.3\textwidth}
+      \plot{Penalty_cix}{height=0.45\textheight}{}
+      \column{0.3\textwidth}
+      \plot{Penalty_cip}{height=0.45\textheight}{}
+    \end{columns}
+\end{frame}
+
 
 \begin{frame}\frametitle{Time-lags OF}
 \plot{OF_cit}{width=0.7\textwidth}{}
@@ -369,9 +406,10 @@ where $P_\hh = |\hh|$, and $P_\tau=|\tau|$.
 \plot{OF_cix}{width=0.7\textwidth}{}
 \end{frame}
 
-\begin{frame}\frametitle{Joint OF}
-\plot{OF_joint}{width=0.7\textwidth}{}
+\begin{frame}\frametitle{Cip OF}
+\plot{OF_cip}{width=0.7\textwidth}{}
 \end{frame}
+
 
 \begin{frame}\frametitle{Lateral gradient model}
 \begin{itemize}
@@ -385,181 +423,21 @@ where $P_\hh = |\hh|$, and $P_\tau=|\tau|$.
 \end{itemize}
 
 \end{frame}
+%-----------------------
 
-
-\inputdir{lateral}
-
-
-\begin{frame} 
+\inputdir{sigsbee}
+ \begin{frame} 
+ \plot{Cig6}{height=0.45\textheight}{}
  \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img01_ref}{width=1\textwidth}{}
-      \plot{Cigx01_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel01}{width=1\textwidth}{}
-      \plot{Cigt01_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img02_ref}{width=1\textwidth}{}
-      \plot{Cigx02_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel02}{width=1\textwidth}{}
-      \plot{Cigt02_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img03_ref}{width=1\textwidth}{}
-      \plot{Cigx03_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel03}{width=1\textwidth}{}
-      \plot{Cigt03_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img04_ref}{width=1\textwidth}{}
-      \plot{Cigx04_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel04}{width=1\textwidth}{}
-      \plot{Cigt04_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img05_ref}{width=1\textwidth}{}
-      \plot{Cigx05_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel05}{width=1\textwidth}{}
-      \plot{Cigt05_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img06_ref}{width=1\textwidth}{}
-      \plot{Cigx06_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel06}{width=1\textwidth}{}
-      \plot{Cigt06_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img07_ref}{width=1\textwidth}{}
-      \plot{Cigx07_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel07}{width=1\textwidth}{}
-      \plot{Cigt07_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img08_ref}{width=1\textwidth}{}
-      \plot{Cigx08_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel08}{width=1\textwidth}{}
-      \plot{Cigt08_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img09_ref}{width=1\textwidth}{}
-      \plot{Cigx09_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel09}{width=1\textwidth}{}
-      \plot{Cigt09_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-
-\begin{frame} 
- \begin{columns} 
-    \column{0.5\textwidth}
-      \plot{Img10_ref}{width=1\textwidth}{}
-      \plot{Cigx10_ref}{height=0.6\textheight}{}
-    \column{0.5\textwidth}
-      \plot{vel10}{width=1\textwidth}{}
-      \plot{Cigt10_ref}{height=0.6\textheight}{}
- \end{columns}
-\end{frame}
-
-\begin{frame}
-Separating backscattered energy from primaries, what can we do?
-\end{frame}
-
-
-\begin{frame}
-    \plot{Cigt05_ref}{height=0.8\textheight}{} 
-\end{frame}
-
-\begin{frame}
-    \plot{Cig05KxKt}{height=0.8\textheight}{} 
-\end{frame}
-
-\begin{frame}
-    \plot{Filt05}{height=0.8\textheight}{} 
-\end{frame}
-
-\begin{frame}
-    \plot{Cigb05}{height=0.8\textheight}{} 
-\end{frame}
-
-\begin{frame}
-    \plot{OFCigb}{height=0.8\textheight}{} 
-\end{frame}
-
-
-\begin{frame}
-Why the minimum is not at model 5? 
-    \begin{itemize}
-        \item I realized yesterday that I did not record enough time
-        \item This introduces edge effects.
-        \item After correcting this ``acquisition" problem, EIC should be cleaner.
-    \end{itemize}
+    \column{0.4\textwidth}
+      \plot{Cigx6}{height=0.45\textheight}{}
+    \column{0.4\textwidth}
+      \plot{Cip06}{height=0.45\textheight}{}
+   \column{0.2\textwidth}
+      \plot{Image}{height=0.45\textheight}{}
+   \end{columns}
 \end{frame}
 
 
 
-\begin{frame} \frametitle{Summary}
-    \begin{itemize}
-        \item The hard part is done. 
-        \item Now comes the easy part.
-        \item Tony's MVA framework could be adapted.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    What is next?
-    \begin{itemize}
-        \item Test on Sigsbee model.
-        \item Theoretical framework for MVA.
-        \item Suggestions are greatly appreciated!
-    \end{itemize}
-\end{frame}
 \bibliography{SEG}

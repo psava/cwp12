@@ -442,6 +442,76 @@ Result('OF_join',['OF_cix','OF_cit','OF_cip'],'cat ${SOURCES[1]} ${SOURCES[2]} a
 
 
 
+frames= range(0, 625 , par['jsnap_gr'] )
+
+# cases to test in a movie!
+for k in ['05']:
+
+#     Result('cip'+k, 'cipbyt', 'window n4=1 f4=%d |'%j + adcig.egrey(' titlesz=12',par))
+     cases='s-b_r-b'    
+     Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
+     Flow('cross_corr'+cases+k,['wts-b'+k,'wtr-b'+k],'math r=${SOURCES[1]} output="r*input " ')
+     ## ------------------------------------------------------------ 
+     ## plot wavefield frames
+
+     for i in range(0, 625 , par['jsnap_gr'] ):
+         tag = '-%03d'%i
+         t= i*par['dt']
+         rarray='rr'
+		   
+         #Source wavefield frame
+    	 fdmod.wframe('wts-b'+k+tag,
+	     'wts-b'+k,i,'wheretitle=t labelsz=4 titlesz=4 labelsz=12  label1="" unit1="" label2="" unit2="" xll=3 yll=2 yll=.01 wantaxis=n pclip=96.5',par)
+    	 fdmod.wframe('awts-b'+k+tag,
+    	 'wts-b'+k,i,' wheretitle=t  labelsz=4  titlesz=4  label1="" unit1="" label2="" unit2="" labelsz=12 xll=3 yll=2 yll=.01',par)
+         Result( 'wts-b'+k+tag,
+	     ['wts-b'+k+tag,rarray],'Overlay')
+
+         #Receiver wavefield frame
+    	 fdmod.wframe('wtr-b'+k+tag,
+	     'wtr-b'+k,i,'wheretitle=t  labelsz=4  titlesz=4  pclip=98.5  label1="" unit1="" label2="" unit2=""  labelsz=12 xll=3 wantaxis=n  yll=2 yll=.01',par)
+    	 fdmod.wframe('awtr-b'+k+tag,
+	     'wtr-b'+k,i,'  labelfat=1 titlesz=12',par)
+    	 Result( 'wtr-b'+k+tag,
+	     ['wtr-b'+k+tag,rarray],'Overlay')
+
+    	 #Cross-corr wavefield frame
+         fdmod.wframe('cross_corr'+cases+k+tag,
+    	 'cross_corr'+cases+k,i,'wheretitle=t  labelsz=4  titlesz=4   pclip=98.5  label1="" unit1="" label2="" unit2="" labelsz=12  wantaxis=n xll=3 yll=2 yll=.01',par)
+         fdmod.wframe('across_corr'+cases+k+tag,
+    	 'cross_corr'+cases+k,i,' wheretitle=t pclip=99  labelfat=1 titlesz=12',par)
+         Result( 'cross_corr'+cases+k+tag,
+         ['cross_corr'+cases+k+tag,rarray],'Overlay')
+
+         #Image so far:
+         Flow('img'+cases+k+tag,'cross_corr'+cases+k,
+         'window n3=%d| stack axis=3 norm=n '%(i+1))
+
+     Flow('imgsfbyt'+'s-b_r-b'+k,map(lambda x:'img'+'s-b_r-b'+k+'-'+'%03d'%x, frames),'cat axis=3 space=n  ${SOURCES[1:%d]}'%len(frames)) 
+
+     
+
+     j=0
+     for i in range(0, 625 , par['jsnap_gr'] ):
+         tag = '-%03d'%i
+         t= i*par['dt']
+         rarray='rr'
+         cases='s-b_r-b'
+
+#         fdmod.wframe('img'+cases+k+'_'+tag,
+#         'imgsfbyt'+cases+k,j,' wheretitle=t title="Ws*Wr(0-->%4.3f)" pclip=99'%t,par)
+
+         #Plot('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k, 'window f3=%d n3=1|'%(i)+ fdmod.cgrey('pclip=100 titlesz=12',par))
+         fdmod.wframe('img'+cases+k+'_'+tag, 'imgsfbyt'+cases+k,j,'wheretitle=t  label1="" unit1="" label2="" unit2="" labelsz=4  titlesz=4   wantaxis=n pclip=98.5   labelsz=12 xll=3 yll=2 yll=.01 ',par)
+         fdmod.wframe('aimg'+cases+k+'_'+tag, 'imgsfbyt'+cases+k,j,' wheretitle=t  pclip=99.8 labelfat=1 titlesz=12',par)
+         Result( 'img'+cases+k+tag,
+         ['img'+cases+k+'_'+tag,'rr'],'Overlay')
+
+         j = j +1
+# ------------------------------------------------------------
+
+##############################################################
+
 
 
 

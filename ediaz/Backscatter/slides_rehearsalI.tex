@@ -1,0 +1,472 @@
+\bibliography{SEG}
+\bibliographystyle{seg}
+\input{./Share/pcsmacros}
+\pgfdeclareimage[height=0.75in]{mypic}{esteban}
+
+\title[]{Understanding the reverse time migration backscattering:
+noise or signal?}
+\subtitle{}
+\author[]{Esteban  D\'{i}az$^{*}$ and Paul Sava}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines 
+\vspace{0.0in} \\ \pgfuseimage{mypic}}
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+
+
+\begin{frame}  \frametitle{Motivation}
+	\begin{itemize}
+		\item understand the RTM backscattering
+		\item salt models interpretation
+		\item noise or signal? 
+		\item migration velocity analysis (MVA)
+	\end{itemize}
+\end{frame}
+
+
+\inputdir{flat}
+
+
+\begin{frame} \frametitle{Image with backscattering}    \plot{img05_ref}{width=1\textwidth}{}\end{frame}
+\begin{frame} \frametitle{Image without backscattering} \plot{img05_nn}{width=1\textwidth}{}\end{frame}
+
+\begin{frame} \frametitle{RTM imaging process}    \plot{img05_ref}{width=1\textwidth}{}\end{frame}
+
+
+%\begin{frame} \big{Correct velocity movie} \end{frame}
+\include{movie_imaging05}
+
+
+
+\begin{frame} \frametitle{Defining the backscattered energy.}
+
+Given a model with a sharp interface:
+\begin{columns}
+\column{0.5\textwidth}
+
+\[
+\US= \USr + \USt
+\]
+\vspace{0.8in}
+\[
+\UR= \URr + \URt
+\]
+\column{0.5\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{}
+\plot{wtr-b05-250}{width=\textwidth}{}
+\end{columns}
+
+\end{frame}
+
+\begin{frame} 
+Using the conventional imaging condition~\cite{claerbout:467}:
+\[
+R(\xx)= \sum_{shots} \sum_t \US(\xx,t) \UR(\xx,t),
+\]
+
+Then,
+
+\[
+R(\xx) = \Rc{tt} +\Rc{rr}+ \Rc{tr}+ \Rc{rt}
+\label{eq:cases}
+\]
+\cite{liu:S29}
+\end{frame}
+
+
+
+\begin{frame}
+We can generalize it using the extended imaging condition, i.e. ~\cite{sava:S209}:
+\[
+R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau),
+\]
+
+and,
+
+\[
+R(\xx,\hh,\tau) = \Rce{tt} +\Rce{rr}+ \Rce{tr}+ \Rce{rt}
+\]
+\end{frame}
+
+
+\inputdir{flat}
+
+ \begin{frame} 
+
+ \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img05_ref}{height=0.30\textheight}{
+      \klabellarge{47}{-5}{$R(\bf{x})$} }
+      \vspace{.4in}
+      \plot{citx05_ref}{height=0.45\textheight}{
+      \klabellarge{-40}{20}{$R(\bf{x},\bf{\lambda})$} }
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip05_ref}{height=0.35\textheight}{
+       \klabellarge{10}{105}{$R(\bf{x},\hh,\bf{\tau})$} }
+      \vspace{-.1in}
+      \plot{cit05_ref}{height=0.45\textheight}{
+      \klabellarge{-40}{20}{$R(\bf{x},\bf{\tau})$} }
+ 
+   \end{columns}
+\end{frame}
+
+\begin{frame}
+ \plot{img05_ref}{height=0.3\textheight}{
+ \wlabellarge{75}{3}{$\Rc{}$}}
+\begin{columns}
+    \column{0.5\textwidth}
+      \plot{img05_nn}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$\Rc{tt}$}}
+      \plot{img05_bn}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$\Rc{rt}$}}
+
+    \column{0.5\textwidth}
+      \plot{img05_nb}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$\Rc{tr}$}}
+
+      \plot{img05_bb}{width=1\textwidth}{
+      \wlabellarge{70}{3}{$\Rc{rr}$}}
+
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+      \plot{citx05_ref}{height=0.45\textheight}{
+       \klabellarge{-50}{50}{$\Rcl{}$} }
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{citx05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rcl{tt}$} } 
+    \column{0.25\textwidth}
+      \plot{citx05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rcl{tr}$} }
+    \column{0.25\textwidth}
+      \plot{citx05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rcl{rt}$} }
+    \column{0.25\textwidth}
+      \plot{citx05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rcl{rr}$} }
+
+\end{columns}
+\end{frame}
+
+\begin{frame}
+      \plot{cit05_ref}{height=0.45\textheight}{
+       \klabellarge{-50}{50}{$\Rct{}$} }
+
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{cit05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rct{tt}$} }
+    \column{0.25\textwidth}
+      \plot{cit05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rct{tr}$} }
+    \column{0.25\textwidth}
+      \plot{cit05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rct{rt}$} }
+
+    \column{0.25\textwidth}
+      \plot{cit05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rct{rr}$} }
+
+\end{columns}
+\end{frame}
+
+\begin{frame}
+
+\begin{columns}
+    \column{0.25\textwidth}
+      \plot{cip05_ref}{height=0.35\textheight}{
+       \klabellarge{10}{105}{$\Rce{}$} }
+    \column{0.25\textwidth}
+      \plot{cip05_nn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rce{tt}$} }
+      \plot{cip05_bn}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rce{rt}$} }
+    \column{0.25\textwidth}
+      \plot{cip05_nb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rce{tr}$} }
+      \plot{cip05_bb}{height=0.35\textheight}{
+      \klabellarge{10}{105}{$\Rce{rr}$} }
+
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame} \frametitle{Velocity sensitivity}
+\begin{itemize}
+   \item 11 velocity models: errors from -12\% to +12\%
+\end{itemize}
+\end{frame}
+\cwpnote{}
+
+
+\begin{frame} \frametitle{1D velocity profiles} \plot{vel1d}{height=0.8\textheight}{} \end{frame}
+
+
+
+
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img00_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx00_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip00_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit00_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img01_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx01_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip01_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit01_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img02_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx02_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip02_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit02_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img03_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx03_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip03_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit03_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img04_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx04_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip04_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit04_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img05_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx05_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip05_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit05_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img06_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx06_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip06_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit06_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img07_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx07_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip07_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit07_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img08_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx08_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip08_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit08_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img09_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx09_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip09_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit09_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+%-----------------------
+ \begin{frame} 
+  \begin{columns} 
+    \column{0.5\textwidth} 
+      \vspace{-.2in}
+      \plot{img10_ref}{height=0.30\textheight}{}
+      \vspace{.4in}
+      \plot{citx10_ref}{height=0.45\textheight}{}
+    \column{0.5\textwidth}
+      \vspace{.2in}
+     \plot{cip10_ref}{height=0.35\textheight}{}
+      \vspace{-.1in}
+      \plot{cit10_ref}{height=0.45\textheight}{} 
+   \end{columns}
+\end{frame}
+
+\begin{frame}
+We can define an DSO type objective function (OF) for time-lag gathers:
+\[
+    J_{\tau}= \frac{1}{2} \lnorm{P({\tau})[R^{tr}(\xx,\tau)+R^{rt}(\xx,\tau)]}^2_2,
+\]
+\end{frame}
+\begin{frame}
+ for space-lag gathers:
+\[
+    J_{\hh}= \frac{1}{2} \lnorm{P({\hh})[R^{tr}(\xx,\hh)+R^{rt}(\xx,\hh)]}^2_2,
+\]
+\end{frame}
+\begin{frame}
+ and CIP gathers
+\[
+    J_{{\cc}}= \frac{1}{2} \lnorm{P({\hh,\tau})[R^{tr}(\xx,\hh,\tau)+R^{rt}(\xx,\hh,\tau)]}^2_2,
+\]
+
+\end{frame}
+
+
+
+\begin{frame}\frametitle{Time-lags gathers penalty}
+      
+      \plot{Penalty_cit}{height=0.8\textheight}{
+      \klabellarge{0}{135}{$P(\tau)=|\tau|$} }
+\end{frame}
+\begin{frame}\frametitle{Space-lags gathers penalty}
+      \plot{Penalty_cix}{height=0.8\textheight}{ 
+      \klabellarge{0}{135}{$P(\hh)=|\hh|$} }
+\end{frame}
+\begin{frame}\frametitle{CIP gathers penalty}
+      \plot{Penalty_cip}{height=0.8\textheight}{ 
+      \klabellarge{0}{135}{$P(\hh,\tau)$} }
+\end{frame}
+
+
+\begin{frame}\frametitle{Time-lags OF}
+\plot{OF_cit}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}\frametitle{Space-lags OF}
+\plot{OF_cix}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}\frametitle{CIP OF}
+\plot{OF_cip}{width=0.7\textwidth}{}
+\end{frame}
+
+
+%-----------------------
+
+\inputdir{sigsbee}
+\begin{frame}\big{Sigsbee model example}\end{frame}
+
+\begin{frame}\plot{Image}{height=\textheight}{}\end{frame}
+
+\begin{frame} 
+ \plot{Cig6}{height=0.8\textheight}{}
+\end{frame}
+\begin{frame} 
+ \plot{Cigx6}{height=0.8\textheight}{}
+\end{frame}
+\begin{frame} 
+ \plot{Cip06}{height=0.8\textheight}{}
+\end{frame}
+
+\begin{frame} \frametitle{Summary}
+\begin{itemize}
+    \item wavefield synchronization
+    \item RTM backscattering should be maximized
+    \item salt geometry constraining 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame} \frametitle{Acknowledgments}
+    \begin{itemize}
+    \item I-Team and CWP
+    \item CWP sponsors
+    \end{itemize}
+\end{frame}
+
+\begin{frame}\big{Thank you, \\ any questions?}\end{frame}
+
+\bibliography{SEG}

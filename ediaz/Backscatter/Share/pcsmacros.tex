@@ -415,6 +415,20 @@ a_x \; a_y \; a_z
 
 
 
+
+
+
+
+\def\axes{\put(-0,0){\vector(1,0){10}}
+\klabellarge{10.5}{-1}{\bf{x}}
+\put(-0,0){\vector(0,-1){10}}
+\klabellarge{-1.2}{-14.5}{\bf{z}}}
+
+
+
+\def\putaxes#1#2{\put(#1,#2){\axes}}
+
+
 \def\wlabel#1#2#3{ \white{ \biglabel{#1}{#2}{#3} }}
 \def\klabel#1#2#3{ \black{ \biglabel{#1}{#2}{#3} }}
 \def\rlabel#1#2#3{ \red{   \biglabel{#1}{#2}{#3} }}

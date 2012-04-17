@@ -323,10 +323,10 @@ for j in range(nvels):
           # image
           Plot(  'img'+k+'_'+s+r,
                'img'+k+'_byt',
-               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=12 xll=3 yll=2 yll=.01',par))
+               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
 #          fdmod.wframe('img'+k+'_'+s+r, 'img'+k+'_byt',i,'  labelsz=12 xll=3 yll=2',par)
 
-          Result('img'+k+'_'+s+r,['img'+k+'_'+s +r,'rr','ssall','ggone'],'Overlay')
+          Result('img'+k+'_'+s+r,['img'+k+'_'+s +r,'rr','ssall'],'Overlay')
      
           # CIG
           Result('cit'+k+'_'+s+r,
@@ -347,10 +347,10 @@ for j in range(nvels):
 
      Plot(  'img'+k+'_ref',
           'img'+k+'_byt',
-          'window n3=1 f3=%d |'%(len(c2)-1) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=12 xll=3 yll=2 yll=.01',par))
+          'window n3=1 f3=%d |'%(len(c2)-1) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
  #    fdmod.wframe('img'+k+'_ref','img'+k+'_byt',len(c2)-1,'  labelsz=12 xll=3 yll=2',par)
 
-     Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall','ggone'],'Overlay')
+     Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall'],'Overlay')
 
      Result('cit'+k+'_ref',
                  'cit'+k+'_byt',

@@ -2,6 +2,7 @@
 \input{./Share/pcsmacros}
 \Large
 \pgfdeclareimage[height=0.75in]{mypic}{esteban}
+\linethickness{0.2mm}
 
 \title[]{Reverse time migration backscattering}
 \subtitle{noise or signal?}
@@ -30,84 +31,117 @@ Colorado School of Mines
 \inputdir{flat}
 
 
-\begin{frame} \frametitle{RTM imaging process} \plot{img05_ref}{width=1\textwidth}{}\end{frame}
+\begin{frame} 
+ \plot{img05_ref}{width=1\textwidth}{}
+\end{frame}
+\begin{frame} 
+ \plot{img05_ref}{width=1\textwidth}{\put(10.2,13.4){\red{\line(1,0){86}}}}
+\end{frame}
+\begin{frame} 
+ \plot{img05_nn}{width=1\textwidth}{\put(10.2,13.4){\red{\line(1,0){86}}}}
+\end{frame}
+
+
+
+\begin{frame} \frametitle{conventional imaging condition}
+ \[ \US(\xx,t) \] 
+ \begin{picture}(0,0)
+ \put(220,40){\vector(1,-1){10}}
+ \end{picture}
+ \pause
+ \[ \UR(\xx,t) \] 
+ \begin{picture}(0,0)
+ \put(220,30){\vector(1,1){10}}
+ \end{picture}
+ \pause
+ \[
+    R(\xx)= \sum_{t} \US(\xx,t) \UR(\xx,t)
+ \]
+\end{frame}
+
+
+\begin{frame} 
+ \plot{img05_ref}{width=1\textwidth}{\put(10.2,13.4){\red{\line(1,0){86}}}}
+\end{frame}
+
+
 
 % ====================================  END OF MOVIE ====================================================
  \begin{frame} 
     \plot{wts-b05-000}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-000}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=0.00s$}}
+    \plot{wtr-b05-000}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.00s$}}
     \plot{imgs-b_r-b05-000}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-050}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-050}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=0.20s$}}
+    \plot{wtr-b05-050}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.20s$}}
     \plot{imgs-b_r-b05-050}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-100}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-100}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=0.40s$}}
+    \plot{wtr-b05-100}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.40s$}}
     \plot{imgs-b_r-b05-100}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-150}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-150}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=0.60s$}}
+    \plot{wtr-b05-150}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.60s$}}
     \plot{imgs-b_r-b05-150}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-200}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-200}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=0.80s$}}
+    \plot{wtr-b05-200}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.80s$}}
     \plot{imgs-b_r-b05-200}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-250}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-250}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=1.00s$}}
+    \plot{wtr-b05-250}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.00s$}}
     \plot{imgs-b_r-b05-250}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-300}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-300}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=1.20s$}}
+    \plot{wtr-b05-300}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.20s$}}
     \plot{imgs-b_r-b05-300}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-350}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-350}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=1.40s$}}
+    \plot{wtr-b05-350}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.40s$}}
     \plot{imgs-b_r-b05-350}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-400}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-400}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=1.60s$}}
+    \plot{wtr-b05-400}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.60s$}}
     \plot{imgs-b_r-b05-400}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-450}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-450}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=1.80s$}}
+    \plot{wtr-b05-450}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.80s$}}
     \plot{imgs-b_r-b05-450}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-500}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-500}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=2.00s$}}
+    \plot{wtr-b05-500}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.00s$}}
     \plot{imgs-b_r-b05-500}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-550}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-550}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=2.20s$}}
+    \plot{wtr-b05-550}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.20s$}}
     \plot{imgs-b_r-b05-550}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-600}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-600}{height=0.25\textheight}{ \klabellarge{100}{15}{$UR$} \klabellarge{-40}{15}{$t=2.40s$}}
+    \plot{wtr-b05-600}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.40s$}}
     \plot{imgs-b_r-b05-600}{height=0.25\textheight}{\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 % ====================================  END OF MOVIE ====================================================
@@ -124,23 +158,77 @@ Colorado School of Mines
 
 \begin{frame} \frametitle{Defining the backscattered energy.}
 
-Given a model with a sharp interface:
 \begin{columns}
-\column{0.5\textwidth}
+\vspace{0.2in}
+\column{0.4\textwidth}
+\[
+\color{black} \US= \USr + \USt
+\]
+\vspace{0.3in}
+\[
+\color{black} \UR= \URr + \URt
+\]
+\column{0.6\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-3}{25}}
+\plot{wtr-b05-250}{width=\textwidth}{}
+\end{columns}
 
+\end{frame}
+
+
+
+\begin{frame} \frametitle{Defining the backscattered energy.}
+
+\begin{columns}
+\vspace{0.2in}
+\column{0.4\textwidth}
 \[
-\US= \USr + \USt
+\color{red} \US= \USr + \USt
 \]
-\vspace{0.8in}
+\vspace{0.3in}
 \[
-\UR= \URr + \URt
+\color{black} \UR= \URr + \URt
 \]
-\column{0.5\textwidth}
+\column{0.6\textwidth}
 \plot{wts-b05-250}{width=\textwidth}{}
 \plot{wtr-b05-250}{width=\textwidth}{}
 \end{columns}
 
 \end{frame}
+
+
+
+\begin{frame} \frametitle{Defining the backscattered energy.}
+
+\begin{columns}
+\vspace{0.2in}
+\column{0.4\textwidth}
+\[
+\color{black} \US= \USr + \USt
+\]
+\vspace{0.3in}
+\[
+\color{red} \UR= \URr + \URt
+\]
+\column{0.6\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{}
+\plot{wtr-b05-250}{width=\textwidth}{}
+\end{columns}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \begin{frame} 
 Using the conventional imaging condition~\cite{claerbout:467}:

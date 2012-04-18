@@ -160,9 +160,25 @@ Flow('flood_mask','vel',
     ''')
 
 Plot('vel',fdmod.cgrey('''
-allpos=y bias=1.5 pclip=100 color=j title=Survey\ Design labelsz=4 titlesz=6 wheretitle=t
-''',par))
-Result('vel',['vel','rr','ss'],'Overlay')
+allpos=y bias=1.5 pclip=100 color=j  labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b''',par))
+
+
+
+
+
+fdmod.param(plotpar)
+
+fdmod.box('zoom',plotpar['ox'],plotpar['ox']+plotpar['nx']*plotpar['dx'],plotpar['oz'],plotpar['oz']+plotpar['nz']*plotpar['dz'],plotpar)
+
+Plot('zoom',fdmod.ssplot(' labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',par))
+
+Result('vel',['vel','zoom'],'Overlay')
+
+Plot('vel_rtm',fdmod.cgrey('''
+allpos=y bias=1.5 pclip=100 color=j  labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b
+''',plotpar))
+Result('vel_rtm',['vel_rtm'],'Overlay')
+
 
 # ------------------------------------------------------------
 
@@ -189,9 +205,6 @@ Flow('vel_water','vel','math output="1.5"')
 
 iwindow='nqx=1050 oqx=%g'%(par['orec']-1.0)
 
-
-
-fdmod.param(plotpar)
 
 Plot('gg',fdmod.qqplot('labelsz=8 labelfat=4 titlesz=12 yll=1 wherexlabel=b',plotpar))
 

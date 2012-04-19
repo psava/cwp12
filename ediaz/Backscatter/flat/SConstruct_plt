@@ -318,6 +318,7 @@ for j in range(nvels):
      Flow('cip'+k+'_byt',map(lambda x:'cip'+k+'_%s'%x, c2),'cat axis=4 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.3 '%len(c2))  
      Flow('cip'+k+'b_byt',map(lambda x:'cip'+k+'_%s'%x, back),'cat axis=4 space=n  ${SOURCES[1:%d]}|stack axis=4 norm=n|byte gainpanel=a pclip=100 '%len(back))  
      i=0
+    
      for cases in ['b b','b n','n b','n n']:
           words=cases.split()
           s=words[0]
@@ -353,20 +354,18 @@ for j in range(nvels):
 
 
 
+     Plot(  'img'+k+'_ref2',
+          'img'+k+'_byt',
+          'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=12 labelfat=6 xll=3 yll=2 yll=.01',par))
 
      Plot(  'img'+k+'_ref',
           'img'+k+'_byt',
           'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
-
-     Plot(  'img'+k+'_stk',
-          'img'+k+'_byt',
-          'window n3=1 f3=%d |'%(len(c2_i)-1) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
-
  #    fdmod.wframe('img'+k+'_ref','img'+k+'_byt',len(c2)-1,'  labelsz=12 xll=3 yll=2',par)
 
      Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall'],'Overlay')
+     Result('img'+k+'_ref2',['img'+k+'_ref2','rr','ssall'],'Overlay')
      Result('img'+k+'_nn_old',['img'+k+'_nn_old','rr','ssall'],'Overlay')
-     Result('img'+k+'_stk',['img'+k+'_stk','rr','ssall'],'Overlay')
 
      Result('cit'+k+'_ref',
                  'cit'+k+'_byt',
@@ -536,12 +535,20 @@ for k in ['05']:
 
 
 Flow('citx_ref_byt',map(lambda x:'citx%s_ref'%x, COF),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=99.8 '%nvels)
+Flow('img_stk_byt',map(lambda x:'img%s_stk'%x, COF),'cat axis=3 space=n  ${SOURCES[1:%d]}|byte gainpanel=a pclip=97.8 '%nvels)
 
 i=0
 
 for j in range(nvels):
      k='%02d'%j
      xx=xx+' %s'%k
+
+     Plot(  'img'+k+'_stk',
+          'img_stk_byt',
+          'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=98.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
+
+     Result('img'+k+'_stk',['img'+k+'_stk','rr','ssall'],'Overlay')
+
 
      Result('citx'+k+'_ref',
             'citx_ref_byt',

@@ -44,16 +44,21 @@ Colorado School of Mines
 
 
 \begin{frame} \frametitle{conventional imaging condition}
+ \begin{columns}
+ \column{0.5\textwidth}
  \[ \US(\xx,t) \] 
  \begin{picture}(0,0)
- \put(220,40){\vector(1,-1){10}}
+ \put(140,40){\vector(1,-1){30}}
  \end{picture}
  \pause
+ \column{0.5\textwidth}
  \[ \UR(\xx,t) \] 
  \begin{picture}(0,0)
- \put(220,30){\vector(1,1){10}}
+ \put(0,10){\vector(1,1){30}}
  \end{picture}
+ \end{columns}
  \pause
+\vspace{.5in}
  \[
     R(\xx)= \sum_{t} \US(\xx,t) \UR(\xx,t)
  \]
@@ -69,79 +74,79 @@ Colorado School of Mines
 % ====================================  END OF MOVIE ====================================================
  \begin{frame} 
     \plot{wts-b05-000}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-000}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.00s$}}
+    \plot{wtr-b05-000}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.0s$}}
     \plot{imgs-b_r-b05-000}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-050}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-050}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.20s$}}
+    \plot{wtr-b05-050}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.2s$}}
     \plot{imgs-b_r-b05-050}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-100}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-100}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.40s$}}
+    \plot{wtr-b05-100}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.4s$}}
     \plot{imgs-b_r-b05-100}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-150}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-150}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.60s$}}
+    \plot{wtr-b05-150}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.6s$}}
     \plot{imgs-b_r-b05-150}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-200}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-200}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.80s$}}
+    \plot{wtr-b05-200}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=0.8s$}}
     \plot{imgs-b_r-b05-200}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-250}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-250}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.00s$}}
+    \plot{wtr-b05-250}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.0s$}}
     \plot{imgs-b_r-b05-250}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-300}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-300}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.20s$}}
+    \plot{wtr-b05-300}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.2s$}}
     \plot{imgs-b_r-b05-300}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-350}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-350}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.40s$}}
+    \plot{wtr-b05-350}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.4s$}}
     \plot{imgs-b_r-b05-350}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-400}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-400}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.60s$}}
+    \plot{wtr-b05-400}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.6s$}}
     \plot{imgs-b_r-b05-400}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-450}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-450}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.80s$}}
+    \plot{wtr-b05-450}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=1.8s$}}
     \plot{imgs-b_r-b05-450}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-500}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-500}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.00s$}}
+    \plot{wtr-b05-500}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.0s$}}
     \plot{imgs-b_r-b05-500}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-550}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-550}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.20s$}}
+    \plot{wtr-b05-550}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.2s$}}
     \plot{imgs-b_r-b05-550}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 %-----------------------
  \begin{frame} 
     \plot{wts-b05-600}{height=0.25\textheight}{\putaxes{-9}{33} \klabellarge{100}{15}{$\US$}}
-    \plot{wtr-b05-600}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.40s$}}
+    \plot{wtr-b05-600}{height=0.25\textheight}{ \klabellarge{100}{15}{$\UR$} \klabellarge{-40}{15}{$t=2.4s$}}
     \plot{imgs-b_r-b05-600}{height=0.25\textheight}{\put(-4,15){\red{\line(1,0){98}}}\klabellarge{100}{15}{$R(\xx)$}}
  \end{frame}
 % ====================================  END OF MOVIE ====================================================
@@ -220,38 +225,50 @@ Colorado School of Mines
 
 
 
-
-
-
-
-
-
-
-
-
+%%%%%% CONVENTIONAL IMAGE SPLITTING %%%%%%%%%%
 
 \begin{frame} 
+\plot{img05_ref2}{width=0.8\textwidth}{}
 \begin{align}
 \nonumber \R &= \Rc{tt} +\Rc{rr}\\
 \nonumber             &+ \Rc{tr}+ \Rc{rt}
 \end{align}
 \end{frame}
 
-
 \begin{frame} 
+\plot{img05_nn}{width=0.8\textwidth}{}
 \begin{align}
-\nonumber \R &= {\color{red} \Rc{tt}} + {\color{red} \Rc{rr}}\\
+\nonumber \R &= {\color{red} \Rc{tt}} + { \Rc{rr}}\\
 \nonumber             &+ \Rc{tr}+ \Rc{rt}
 \end{align}
 \end{frame}
 
+
 \begin{frame} 
+\plot{img05_bb}{width=0.8\textwidth}{}
 \begin{align}
-\nonumber \R &= {\color{red} \Rc{tt}} + {\color{red} \Rc{rr}}\\
-\nonumber             &+ {\color{blue} \Rc{tr} }+ {\color{blue} \Rc{rt}}
+\nonumber \R &= { \Rc{tt}} + {\color{red} \Rc{rr}}\\
+\nonumber             &+ \Rc{tr}+ \Rc{rt}
 \end{align}
 \end{frame}
 
+\begin{frame}
+\plot{img05_nb}{width=0.8\textwidth}{} 
+\begin{align}
+\nonumber \R &= { \Rc{tt}} + { \Rc{rr}}\\
+\nonumber             &+ {\color{blue} \Rc{tr} }+ { \Rc{rt}}
+\end{align}
+\end{frame}
+
+\begin{frame}
+\plot{img05_bn}{width=0.8\textwidth}{} 
+\begin{align}
+\nonumber \R &= { \Rc{tt}} + { \Rc{rr}}\\
+\nonumber             &+ { \Rc{tr} }+ {\color{blue} \Rc{rt}}
+\end{align}
+\end{frame}
+
+%%%%%% END OF CONVENTIONAL IMAGE SPLITTING %%%%%%%%
 
 
 
@@ -270,104 +287,116 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 \end{frame}
 
 
-\begin{frame} 
-\begin{align}
-\nonumber \Re &= \Rce{tt} +\Rce{rr}\\
-\nonumber             &+ \Rce{tr}+ \Rce{rt}
-\end{align}
-\end{frame}
-
-
-\begin{frame} 
-\begin{align}
-\nonumber \Re &= {\color{red} \Rce{tt}} + {\color{red} \Rce{rr}}\\
-\nonumber             &+ \Rce{tr}+ \Rce{rt}
-\end{align}
-\end{frame}
-
-\begin{frame} 
-\begin{align}
-\nonumber \Re &= {\color{red} \Rce{tt}} + {\color{red} \Rce{rr}}\\
-\nonumber             &+ {\color{blue} \Rce{tr} }+ {\color{blue} \Rce{rt}}
-\end{align}
-\end{frame}
-
-
-
-
-\inputdir{flat}
-
-\begin{frame}
-\plot{img05_ref}{width=\textwidth}{\wlabellarge{70}{3}{$\R$}}
-\end{frame}
-\linethickness{0.2mm}
-
-
-
-
-\begin{frame}
-\begin{columns}
-    \column{0.5\textwidth}
-      \plot{img05_nn}{width=1\textwidth}{
-      \wlabellarge{70}{3}{${\color{red} \Rc{tt}}$}}
-      \plot{img05_bn}{width=1\textwidth}{
-      \wlabellarge{70}{3}{${\color{blue} \Rc{rt}}$}}
-
-    \column{0.5\textwidth}
-      \plot{img05_nb}{width=1\textwidth}{
-      \wlabellarge{70}{3}{${\color{blue} \Rc{tr}}$}}
-
-      \plot{img05_bb}{width=1\textwidth}{
-      \wlabellarge{70}{3}{${\color{red} \Rc{rr}}$}}
-
-\end{columns}
-\end{frame}
-
 
 \begin{frame}
 \plot{img05_ref}{width=\textwidth}{\put(53.25,1){\red{\line(0,1){25}}}}
 \end{frame}
 
 
-\begin{frame}
-      \plot{cit05_ref}{height=0.5\textheight}{
-       \klabellarge{-50}{50}{$\Rct{}$} }
-\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%% Time-lag gathers slipt %%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\begin{columns}
-    \column{0.5\textwidth}
-      \vspace{-.15in}
-      \plot{cit05_nn}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{red}\Rct{tt}}$}}
-      \vspace{-.3in}
-      \plot{cit05_nb}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{blue}\Rct{tr}}$}}
-    \column{0.5\textwidth}
-      \vspace{-.15in}
-      \plot{cit05_bn}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{blue}\Rct{rt}}$}}
-      \vspace{-.3in}
-      \plot{cit05_bb}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{red}\Rct{rr}}$}}
-\end{columns}
+\plot{cit05_ref}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rct{} &= { \Rct{tt}} + {\Rct{rr}}\\
+\nonumber             &+ { \Rct{tr} }+ { \Rct{rt}}
+\end{align}
 \end{frame}
 
-\begin{frame}
-      \plot{citx05_ref}{height=0.5\textheight}{
-       \klabellarge{-50}{50}{$\Rcl{}$} }
-\end{frame}
 
 \begin{frame}
-\begin{columns}
-    \column{0.5\textwidth}
-      \vspace{-.15in}
-      \plot{citx05_nn}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{red}\Rcl{tt}}$}}
-      \vspace{-.3in}
-      \plot{citx05_nb}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{blue}\Rcl{tr}}$}}
-    \column{0.5\textwidth}
-      \vspace{-.15in}
-      \plot{citx05_bn}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{blue}\Rcl{rt}}$}}
-      \vspace{-.3in}
-      \plot{citx05_bb}{height=0.5\textheight}{\klabellarge{20}{8}{${\color{red}\Rcl{rr}}$}}
-\end{columns}
+\plot{cit05_nn}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rct{} &= {\color{red} \Rct{tt}} + {\Rct{rr}}\\
+\nonumber             &+ { \Rct{tr} }+ { \Rct{rt}}
+\end{align}
 \end{frame}
+
+
+\begin{frame}
+\plot{cit05_bb}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rct{} &= {\Rct{tt}} + {\color{red} \Rct{rr}}\\
+\nonumber             &+ { \Rct{tr} }+ { \Rct{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{cit05_nb}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rct{} &= {\Rct{tt}} + {\Rct{rr}}\\
+\nonumber             &+ {\color{blue}  \Rct{tr} }+ { \Rct{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{cit05_bn}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rct{} &= {\Rct{tt}} + {\Rct{rr}}\\
+\nonumber             &+ { \Rct{tr} }+ {\color{blue}  \Rct{rt}}
+\end{align}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%% Time-lag gathers slipt %%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{frame}
+\plot{citx05_ref}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rcl{} &= { \Rcl{tt}} + {\Rcl{rr}}\\
+\nonumber             &+ { \Rcl{tr} }+ { \Rcl{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{citx05_nn}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rcl{} &= {\color{red} \Rcl{tt}} + {\Rcl{rr}}\\
+\nonumber             &+ { \Rcl{tr} }+ { \Rcl{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{citx05_bb}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rcl{} &= {\Rcl{tt}} + {\color{red} \Rcl{rr}}\\
+\nonumber             &+ { \Rcl{tr} }+ { \Rcl{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{citx05_nb}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rcl{} &= {\Rcl{tt}} + {\Rcl{rr}}\\
+\nonumber             &+ {\color{blue}  \Rcl{tr} }+ { \Rcl{rt}}
+\end{align}
+\end{frame}
+
+
+\begin{frame}
+\plot{citx05_bn}{height=0.7\textheight}{}  
+\begin{align}
+\nonumber \Rcl{} &= {\Rcl{tt}} + {\Rcl{rr}}\\
+\nonumber             &+ { \Rcl{tr} }+ {\color{blue}  \Rlt{rt}}
+\end{align}
+\end{frame}
+
+
+
+
+
+
+
 
 
 \begin{frame}
@@ -602,25 +631,25 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 
 
 \begin{frame}
-\vspace{-.5in}
 \[
-    2J_{\tau}= \lnorm{P({\tau})[R^{tr}(\xx,\tau)+R^{rt}(\xx,\tau)]}^2_2
+    2J_{\tau}= \lnorm{P({\tau})[{\color{blue}\Rct{tr}}+{\color{blue}\Rct{rt}}]}^2_2
 \]
-      \plot{Penalty_cit}{height=0.6\textheight}{\klabellarge{20}{-20}{$P(\tau)=|\tau|$} }
+\vspace{0.05in}
+      \plot{Penalty_cit}{height=0.7\textheight}{\klabellarge{-55}{50}{$P(\tau)=|\tau|$} }
 \end{frame}
 \begin{frame}
-\vspace{-.5in}
 \[
-    2J_{\hh}= \lnorm{P({\hh})[R^{tr}(\xx,\hh)+R^{rt}(\xx,\hh)]}^2_2,
+    2J_{\hh}= \lnorm{P({\hh})[{\color{blue}\Rcl{tr}}+{\color{blue}\Rct{rt}}]}^2_2,
 \]
-      \plot{Penalty_cix}{height=0.6\textheight}{\klabellarge{20}{-20}{$P(\hh)=|\hh|$} }
+\vspace{0.05in}
+      \plot{Penalty_cix}{height=0.7\textheight}{\klabellarge{-55}{50}{$P(\hh)=|\hh|$} }
 \end{frame}
 \begin{frame}
-\vspace{-.5in}
 \[
-    2J_{{\cc}}= \lnorm{P({\hh,\tau})[R^{tr}(\xx,\hh,\tau)+R^{rt}(\xx,\hh,\tau)]}^2_2
+    2J_{{\cc}}= \lnorm{P({\hh,\tau})[{\color{blue}\Rce{tr}}+{\color{blue}\Rce{rt}}]}^2_2
 \]
-      \plot{Penalty_cip}{height=0.6\textheight}{\klabellarge{25}{-15}{$P(\hh,\tau)$} }
+\vspace{0.05in}
+      \plot{Penalty_cip}{height=0.7\textheight}{\klabellarge{-45}{50}{$P(\hh,\tau)$} }
 \end{frame}
 
 \begin{frame}

@@ -64,7 +64,7 @@ par['nhz']=par['nhx']
 par['nht']=100
 par['dht']=par['dt']*10
 
-adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+adcig.tparam((par['nhx']*par['dx'])/((par['nht']-10)*par['dt']),
              2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
                par['nz']   ,            par['oz'],par['dz'],
              par)
@@ -335,15 +335,15 @@ for j in range(nvels):
           # CIG
           Result('cit'+k+'_'+s+r,
                  'cit'+k+'_byt',
-                 'window n3=1 f3=%d |'%i + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   labelsz=14  labelfat=7 xll=3 yll=2 yll=.01',par))
+                 'window n3=1 f3=%d |'%i + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   labelsz=14  labelfat=7 xll=3 yll=2 yll=.01 d1num=0.4 n1tic=3 o1num=-0.4',par))
           
           Result('citx'+k+'_'+s+r,
                  'citx'+k+'_byt',
-                 'window n3=1 f3=%d |'%i + adcig.xgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2    labelsz=14  labelfat=7 xll=3 yll=2 yll=.01',par))
+                 'window n3=1 f3=%d |'%i + adcig.xgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2    labelsz=14  labelfat=7 xll=3 yll=2 yll=.01 ',par))
 
           Result('cip'+k+'_'+s+r,
                  'cip'+k+'_byt',
-                 'window n4=1 f4=%d |'%i + adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2 yll=1  labelsz=14  labelfat=7 xll=3 yll=2',par))
+                 'window n4=1 f4=%d |'%i + adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2 yll=1  labelsz=14  labelfat=7 xll=3 yll=2 d3num=0.4 n3tic=3 o3num=-0.4',par))
 
           i+=1 
 
@@ -369,12 +369,12 @@ for j in range(nvels):
 
      Result('cit'+k+'_ref',
                  'cit'+k+'_byt',
-                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2     labelsz=14  labelfat=7 xll=3 yll=2 yll=.01',par))
+                 'window n3=1 f3=%d |'%(len(c2)-1) + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2     labelsz=14  labelfat=7 xll=3 yll=2 yll=.01 d1num=0.4 n1tic=3 o1num=-0.4',par))
 
 
      Result('cip'+k+'_ref',
                  'cip'+k+'_byt',
-                 'window n4=1 f4=%d |'%(len(c2)-1) + adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2 yll=1   labelsz=14  labelfat=7 xll=3 yll=2',par))
+                 'window n4=1 f4=%d |'%(len(c2)-1) + adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2 yll=1   labelsz=14  labelfat=7 xll=3 yll=2 d3num=0.4 n3tic=3 o3num=-0.4',par))
 
 
     #################################################################################
@@ -389,7 +389,7 @@ for j in range(nvels):
 
      Result('cit'+k+'_back','scale axis=123 |'+  adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   labelsz=12 xll=3 yll=.01',par))
      Result('citx'+k+'_back','scale axis=123 |'+  adcig.xgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   labelsz=12 xll=3 yll=.01',par))
-     Result('cip'+k+'_back','cip'+k+'_back','scale axis=12 | byte gainpanel=a pclip=99.9|'+ adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2  labelsz=12 xll=3 yll=2',par))
+     Result('cip'+k+'_back','cip'+k+'_back','scale axis=12 | byte gainpanel=a pclip=99.9|'+ adcig.egrey('wherexlabel=t labelsz=14 =4 labelsz=12 xll=3 yll=2  labelsz=12 xll=3 yll=2 d3num=0.4 n3tic=3 o3num=-0.4',par))
 
      Flow('penal_cit'+k+'_back','cit'+k+'_back','scale axis=123|math output="abs(x2)*input"')
      Flow('penal_cix'+k+'_back','citx'+k+'_back','scale axis=123|math output="abs(x2)*input"')
@@ -445,13 +445,14 @@ Flow('OF_cix',map(lambda x:'OF_cix%s_back'%x, COF),'cat axis=1 space=n  ${SOURCE
 Flow('OF_cit',map(lambda x:'OF_cit%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=1|window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1|math output="1-input" '%nvels)
 Flow('OF_cip',map(lambda x:'OF_cip%s_back'%x, COF),'cat axis=1 space=n  ${SOURCES[1:%d]}| put o1=-15 d1=3|scale axis=123 |math output="input" | window n1=9 f1=1 |scale axis=1|math output="1-input"|scale axis=1 |math output="1-input"'%nvels)
 
-Result('OF_cix','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n =3 plotfat=16 screenratio=0.5 screenht=6 yll=1 n2tic=20')
-Result('OF_cit','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n =3 plotfat=16 screenratio=0.5 screenht=6 yll=1 n2tic=20')
-Result('OF_cip','graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=6 parallel2=n labelrot=n =3 plotfat=16 screenratio=0.5 screenht=6 yll=1 n2tic=20')
+Result('OF_cix',' graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=8 parallel2=n labelrot=n =3 labelfat=4 plotfat=10 screenratio=0.8 screenht=10 yll=1 plotcol=7')
+Result('OF_cit',' graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=8 parallel2=n labelrot=n =3 labelfat=4 plotfat=10 screenratio=0.8 screenht=10 yll=1 plotcol=6')
+Result('OF_cip',' graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=8 parallel2=n labelrot=n =3 labelfat=4 plotfat=10 screenratio=0.8 screenht=10 yll=1 plotcol=5')
 
 
 
-Result('OF_join',['OF_cix','OF_cit','OF_cip'],'cat ${SOURCES[1]} ${SOURCES[2]} axis=2| graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=8 parallel2=n labelrot=n =3 labelfat=4 plotfat=4 screenratio=0.8 screenht=10 yll=1')
+Result('OF_join',['Fig/OF_cix','Fig/OF_cit','Fig/OF_cip'],'Overlay')
+#Result('OF_join',['Fig/OF_cix','Fig/OF_cit','Fig/OF_cip'],'cat ${SOURCES[1]} ${SOURCES[2]} axis=2| graph min=0 max=1 n2tic=40 title="" label1="velocity error(%)" label2="J" labelsz=8 parallel2=n labelrot=n =3 labelfat=4 plotfat=4 screenratio=0.8 screenht=10 yll=1')
 
 
 

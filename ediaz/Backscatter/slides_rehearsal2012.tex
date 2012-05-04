@@ -48,7 +48,6 @@ Colorado School of Mines
  \begin{picture}(0,0)
  \put(140,40){\vector(1,-1){30}}
  \end{picture}
- \pause
  \column{0.5\textwidth}
  \[ \UR(\xx,t) \] 
  \begin{picture}(0,0)
@@ -59,6 +58,79 @@ Colorado School of Mines
 \vspace{.5in}
  \[
     R(\xx)= \sum_{shots} \sum_{t} \US(\xx,t) \UR(\xx,t)
+ \]
+\end{frame}
+
+
+\begin{frame}  \frametitle{conventional imaging condition}
+
+\begin{columns}
+\vspace{0.2in}
+\column{0.4\textwidth}
+\[
+\color{black} \US= \USr + \USt
+\]
+\vspace{0.3in}
+\[
+\color{black} \UR= \URr + \URt
+\]
+\column{0.6\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\end{columns}
+
+\end{frame}
+
+
+
+\begin{frame} \frametitle{conventional imaging condition}
+\begin{columns}
+\vspace{0.2in}
+\column{0.4\textwidth}
+\[
+\color{red} \US= \USr + \USt
+\]
+\vspace{0.3in}
+\[
+\color{black} \UR= \URr + \URt
+\]
+\column{0.6\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\end{columns}
+
+\end{frame}
+
+
+
+\begin{frame}  \frametitle{conventional imaging condition}
+
+\begin{columns}
+\vspace{0.2in}
+\column{0.4\textwidth}
+\[
+\color{black} \US= \USr + \USt
+\]
+\vspace{0.3in}
+\[
+\color{red} \UR= \URr + \URt
+\]
+\column{0.6\textwidth}
+\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
+\end{columns}
+
+\end{frame}
+
+\begin{frame} \frametitle{conventional imaging condition}
+ \[
+    R(\xx)= \sum_{shots} \sum_{t} \US(\xx,t) \UR(\xx,t)
+ \]
+\end{frame}
+
+\begin{frame} \frametitle{conventional imaging condition}
+ \[
+    R(\xx)= \Rc{ff}+\Rc{bf} + \Rc{fb}+\Rc{bb} 
  \]
 \end{frame}
 
@@ -159,111 +231,29 @@ Colorado School of Mines
 
 
 
-\begin{frame} \frametitle{defining the backscattered energy}
-
-\begin{columns}
-\vspace{0.2in}
-\column{0.4\textwidth}
-\[
-\color{black} \US= \USr + \USt
-\]
-\vspace{0.3in}
-\[
-\color{black} \UR= \URr + \URt
-\]
-\column{0.6\textwidth}
-\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\end{columns}
-
-\end{frame}
-
-
-
-\begin{frame} \frametitle{defining the backscattered energy}
-
-\begin{columns}
-\vspace{0.2in}
-\column{0.4\textwidth}
-\[
-\color{red} \US= \USr + \USt
-\]
-\vspace{0.3in}
-\[
-\color{black} \UR= \URr + \URt
-\]
-\column{0.6\textwidth}
-\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\end{columns}
-
-\end{frame}
-
-
-
-\begin{frame} \frametitle{defining the backscattered energy}
-
-\begin{columns}
-\vspace{0.2in}
-\column{0.4\textwidth}
-\[
-\color{black} \US= \USr + \USt
-\]
-\vspace{0.3in}
-\[
-\color{red} \UR= \URr + \URt
-\]
-\column{0.6\textwidth}
-\plot{wts-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\plot{wtr-b05-250}{width=\textwidth}{\putwaxes{-2}{27}}
-\end{columns}
-
-\end{frame}
-
-
 
 
 %%%%%% CONVENTIONAL IMAGE SPLITTING %%%%%%%%%%
 
 \begin{frame} 
-\plot{img05_ref2}{width=0.8\textwidth}{}
-\begin{align}
-\nonumber \R &= \Rc{ff} +\Rc{bb}\\
-\nonumber             &+ \Rc{fb}+ \Rc{bf}
-\end{align}
+\plot{img05_ref2}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
 \end{frame}
 
 \begin{frame} 
-\plot{img05_nn}{width=0.8\textwidth}{}
-\begin{align}
-\nonumber \R &= {\color{red} \Rc{ff}} + { \Rc{bb}}\\
-\nonumber             &+ \Rc{fb}+ \Rc{bf}
-\end{align}
+\plot{img05_nn}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { \color{red} R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
 \end{frame}
 
 
 \begin{frame} 
-\plot{img05_bb}{width=0.8\textwidth}{}
-\begin{align}
-\nonumber \R &= { \Rc{ff}} + {\color{red} \Rc{bb}}\\
-\nonumber             &+ \Rc{fb}+ \Rc{bf}
-\end{align}
+\plot{img05_bb}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {\color{red} R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
 \end{frame}
 
 \begin{frame}
-\plot{img05_nb}{width=0.8\textwidth}{} 
-\begin{align}
-\nonumber \R &= { \Rc{ff}} + { \Rc{bb}}\\
-\nonumber             &+ {\color{blue} \Rc{fb} }+ { \Rc{bf}}
-\end{align}
+\plot{img05_nb}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {\color{blue} R^{fb}}+ {R^{bf}}$}} 
 \end{frame}
 
 \begin{frame}
-\plot{img05_bn}{width=0.8\textwidth}{} 
-\begin{align}
-\nonumber \R &= { \Rc{ff}} + { \Rc{bb}}\\
-\nonumber             &+ { \Rc{fb} }+ {\color{blue} \Rc{bf}}
-\end{align}
+\plot{img05_bn}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {\color{blue}R^{bf}}$}} 
 \end{frame}
 
 %%%%%% END OF CONVENTIONAL IMAGE SPLITTING %%%%%%%%
@@ -300,7 +290,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
         \plot{cit05_ref}{height=0.45\textheight}{}
     \column{0.3\textwidth}
         \vspace{-.1in}
-        \plot{citx05_ref}{height=0.45\textheight}{\klabellarge{-40}{-30}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+        \plot{citx05_ref}{height=0.45\textheight}{\klabellarge{-30}{-40}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
     \column{0.3\textwidth}
         \vspace{.1in}
         \plot{cip05_ref}{height=0.45\textheight}{}
@@ -316,7 +306,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
         \plot{cit05_nn}{height=0.45\textheight}{}
     \column{0.3\textwidth}
         \vspace{-.1in}
-        \plot{citx05_nn}{height=0.45\textheight}{\klabellarge{-40}{-30}{$R = { \color{red}R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+        \plot{citx05_nn}{height=0.45\textheight}{\klabellarge{-30}{-40}{$R = { \color{red}R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
     \column{0.3\textwidth}
         \vspace{.1in}
         \plot{cip05_nn}{height=0.45\textheight}{}
@@ -333,7 +323,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
         \plot{cit05_bb}{height=0.45\textheight}{}
     \column{0.3\textwidth}
         \vspace{-.1in}
-        \plot{citx05_bb}{height=0.45\textheight}{\klabellarge{-40}{-30}{$R = { R^{ff}} + {\color{red}R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+        \plot{citx05_bb}{height=0.45\textheight}{\klabellarge{-30}{-40}{$R = { R^{ff}} + {\color{red}R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
     \column{0.3\textwidth}
         \vspace{.1in}
         \plot{cip05_bb}{height=0.45\textheight}{}
@@ -351,7 +341,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
         \plot{cit05_nb}{height=0.45\textheight}{}
     \column{0.3\textwidth}
         \vspace{-.1in}
-        \plot{citx05_nb}{height=0.45\textheight}{\klabellarge{-40}{-30}{$R = { R^{ff}} + {R^{bb}} + {\color{blue}R^{fb}}+ {R^{bf}}$}}
+        \plot{citx05_nb}{height=0.45\textheight}{\klabellarge{-30}{-40}{$R = { R^{ff}} + {R^{bb}} + {\color{blue}R^{fb}}+ {R^{bf}}$}}
     \column{0.3\textwidth}
         \vspace{.1in}
         \plot{cip05_nb}{height=0.45\textheight}{}
@@ -369,7 +359,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
         \plot{cit05_bn}{height=0.45\textheight}{}
     \column{0.3\textwidth}
         \vspace{-.1in}
-        \plot{citx05_bn}{height=0.45\textheight}{\klabellarge{-40}{-30}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {\color{blue}R^{bf}}$}}
+        \plot{citx05_bn}{height=0.45\textheight}{\klabellarge{-30}{-40}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {\color{blue}R^{bf}}$}}
     \column{0.3\textwidth}
         \vspace{.1in}
         \plot{cip05_bn}{height=0.45\textheight}{}
@@ -650,7 +640,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 \end{frame}
 
 \begin{frame}
-\plot{OF_join}{width=0.9\textwidth}{\klabellarge{85}{30}{$\color{Blue} J_{\lambda}$}\klabellarge{83}{25}{$\color{red} J_{\tau}$}\klabellarge{81}{20}{$\color{magenta} J_c$}}
+\plot{OF_join}{width=0.9\textwidth}{\klabellarge{85}{30}{$ J_{\lambda}$}\klabellarge{83}{25}{$\color{blue} J_{\tau}$}\klabellarge{81}{20}{$\color{red} J_c$}}
 \end{frame}
 
 
@@ -683,15 +673,14 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 
 \begin{frame} \end{frame}
 
-\begin{frame} 
-\cen{backscattering:}
-\cen{ is not noise}
-\cen{ is sensitive to velocity}
+\begin{frame} \frametitle{conclusions} 
+\itab{backscattering:}\\
+\itab{\itab{ is not noise}} \\
+\itab{\itab{ is sensitive to velocity}}
 \pause
-\cen{salt geometry constraining?}
-\cen{wavefield decomposition alternatives}
+\sep
+\itab{salt geometry constraining?}\\
+\itab{wavefield decomposition alternatives}
 \end{frame}
 
-
-\begin{frame} \end{frame}
 \bibliography{SEG}

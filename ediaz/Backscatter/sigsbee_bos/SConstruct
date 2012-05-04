@@ -100,8 +100,9 @@ for s in SHOTS:
     transp |
     reverse axis=1 opt=i |
     add mode=p ${SOURCES[2]}|
-    pad beg2=%d |window n2=9000
-    '''%(s,par['kt']*8))
+    pad beg2=%d |
+    window n2=9000 
+    '''%(s,0))
 
     # Creat shot  coordinates
     Flow('ss'+stag,'data'+stag,'transp plane=13 |rtoc |math output="imag(0.0)+real(x1)"|dd type=float |window n2=1 n3=1 |window squeeze=y ')
@@ -120,23 +121,6 @@ for s in SHOTS:
     dummyf('del_wtr'+stag,'wtr'+stag)
     dummyf('del_wtr_rev'+stag,'wtr_rev'+stag)
     dummyf('del_wts'+stag,'wtr'+stag)
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 End()

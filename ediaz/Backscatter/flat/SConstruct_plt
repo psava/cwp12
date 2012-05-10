@@ -327,7 +327,7 @@ for j in range(nvels):
           # image
           Plot(  'img'+k+'_'+s+r,
                'img'+k+'_byt',
-               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=12 labelfat=6 xll=3 yll=2 yll=.01',par))
+               'window n3=1 f3=%d |'%i + fdmod.cgrey('pclip=98.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
 #          fdmod.wframe('img'+k+'_'+s+r, 'img'+k+'_byt',i,'  labelsz=12 xll=3 yll=2',par)
 
           Result('img'+k+'_'+s+r,['img'+k+'_'+s +r,'rr','ssall'],'Overlay')
@@ -356,11 +356,11 @@ for j in range(nvels):
 
      Plot(  'img'+k+'_ref2',
           'img'+k+'_byt',
-          'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=12 labelfat=6 xll=3 yll=2 yll=.01',par))
+          'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=98.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
 
      Plot(  'img'+k+'_ref',
           'img'+k+'_byt',
-          'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=99.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
+          'window n3=1 f3=%d |'%(len(c2_i)-2) + fdmod.cgrey('pclip=98.8 labelsz=4  titlesz=4    labelsz=8 xll=3 yll=2 yll=.01',par))
  #    fdmod.wframe('img'+k+'_ref','img'+k+'_byt',len(c2)-1,'  labelsz=12 xll=3 yll=2',par)
 
      Result('img'+k+'_ref',['img'+k+'_ref','rr','ssall'],'Overlay')
@@ -436,7 +436,7 @@ for j in range(nvels):
      
 
 Result('Penalty_cip','cip05_back','scale|envelope  |math output="1/(input+%g)" |byte gainpanel=a |'%1e-14 + adcig.egrey('wherexlabel=t   xll=3 yll=2 color=e  allpos=y labelsz=14  labelfat=6 xll=3 yll=2',par))
-Result('Penalty_cit','cit05_back','math output="abs(x2)" |byte gainpanel=a |' + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   color=e   labelsz=14  labelfat=6 xll=3 yll=2 yll=.01',par))
+Result('Penalty_cit','cit05_back','math output="abs(x2)" |byte gainpanel=a |' + adcig.tgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2     labelsz=14  labelfat=7 xll=3 yll=2 yll=.01 d1num=0.4 n1tic=3 o1num=-0.4  color=e  ',par))
 Result('Penalty_cix','citx05_back','math output="abs(x2)" |byte gainpanel=a |' + adcig.xgrey('labelsz=14 =4 labelsz=12 xll=3 yll=2   color=e   labelsz=14  labelfat=6 xll=3 yll=2 yll=.01',par))
 
 COF=xx.split()

@@ -59,6 +59,7 @@ Colorado School of Mines
  \[
     R(\xx)= \sum_{shots} \sum_{t} \US(\xx,t) \UR(\xx,t)
  \]
+
 \end{frame}
 
 
@@ -130,8 +131,23 @@ Colorado School of Mines
 
 \begin{frame} \frametitle{conventional imaging condition}
  \[
-    R(\xx)= \Rc{ff}+\Rc{bf} + \Rc{fb}+\Rc{bb} 
+    R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}
  \]
+ \red{\white{test}}
+\end{frame}
+
+\begin{frame} \frametitle{conventional imaging condition}
+ \[
+    R = {\color{white} \color{red} R^{ff}} + {\color{red} R^{bb}} + {R^{fb}}+ {R^{bf}}
+ \]
+\itab{\itab{ \itab{\white{ backscattering}}}}
+\end{frame}
+
+\begin{frame} \frametitle{conventional imaging condition}
+ \[
+    R = { R^{ff}} + {R^{bb}} + {\color{blue} R^{fb}}+ {\color{blue}R^{bf}}
+ \]
+\itab{\itab{ \itab{\itab{\itab{\blue{backscattering}}}}}}
 \end{frame}
 
 
@@ -236,24 +252,24 @@ Colorado School of Mines
 %%%%%% CONVENTIONAL IMAGE SPLITTING %%%%%%%%%%
 
 \begin{frame} 
-\plot{img05_ref2}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+\plot{img05_ref2}{width=\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$} }
 \end{frame}
 
 \begin{frame} 
-\plot{img05_nn}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { \color{red} R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+\plot{img05_nn}{width=\textwidth}{\klabellarge{20}{-10}{$R = { \color{red} R^{ff}} + {R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
 \end{frame}
 
 
 \begin{frame} 
-\plot{img05_bb}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {\color{red} R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
+\plot{img05_bb}{width=\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {\color{red} R^{bb}} + {R^{fb}}+ {R^{bf}}$}}
 \end{frame}
 
 \begin{frame}
-\plot{img05_nb}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {\color{blue} R^{fb}}+ {R^{bf}}$}} 
+\plot{img05_nb}{width=\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {\color{blue} R^{fb}}+ {R^{bf}}$}} 
 \end{frame}
 
 \begin{frame}
-\plot{img05_bn}{width=0.8\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {\color{blue}R^{bf}}$}} 
+\plot{img05_bn}{width=\textwidth}{\klabellarge{20}{-10}{$R = { R^{ff}} + {R^{bb}} + {R^{fb}}+ {\color{blue}R^{bf}}$}} 
 \end{frame}
 
 %%%%%% END OF CONVENTIONAL IMAGE SPLITTING %%%%%%%%
@@ -272,6 +288,9 @@ Colorado School of Mines
 \[
 R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 \]
+\sep
+$\hh$: space lag\\
+$\tau$: time lag
 \end{frame}
 
 
@@ -407,17 +426,17 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 
 
 
-\begin{frame} \plot{img00_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{-15\% velocity error}} \end{frame}
-\begin{frame} \plot{img01_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{-12\% velocity error}} \end{frame}
-\begin{frame} \plot{img02_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -9\% velocity error}} \end{frame}
-\begin{frame} \plot{img03_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -6\% velocity error}} \end{frame}
-\begin{frame} \plot{img04_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -3\% velocity error}} \end{frame}
-\begin{frame} \plot{img05_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +0\% velocity error}} \end{frame}
-\begin{frame} \plot{img06_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +3\% velocity error}} \end{frame}
-\begin{frame} \plot{img07_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +6\% velocity error}} \end{frame}
-\begin{frame} \plot{img08_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +9\% velocity error}} \end{frame}
-\begin{frame} \plot{img09_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{+12\% velocity error}} \end{frame}
-\begin{frame} \plot{img10_stk}{width=0.9\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{+15\% velocity error}} \end{frame}
+\begin{frame} \plot{img00_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{-15\% velocity error}} \end{frame}
+\begin{frame} \plot{img01_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{-12\% velocity error}} \end{frame}
+\begin{frame} \plot{img02_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -9\% velocity error}} \end{frame}
+\begin{frame} \plot{img03_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -6\% velocity error}} \end{frame}
+\begin{frame} \plot{img04_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ -3\% velocity error}} \end{frame}
+\begin{frame} \plot{img05_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +0\% velocity error}} \end{frame}
+\begin{frame} \plot{img06_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +3\% velocity error}} \end{frame}
+\begin{frame} \plot{img07_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +6\% velocity error}} \end{frame}
+\begin{frame} \plot{img08_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{ +9\% velocity error}} \end{frame}
+\begin{frame} \plot{img09_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{+12\% velocity error}} \end{frame}
+\begin{frame} \plot{img10_stk}{width=\textwidth}{\klabellarge{45}{45}{$\R$}\klabellarge{30}{-10}{+15\% velocity error}} \end{frame}
 
 
 \begin{frame} 
@@ -612,7 +631,6 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 
 
 
-\begin{frame} \end{frame}
 
 
 
@@ -622,25 +640,25 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
     2J_{\tau}= \lnorm{P({\tau})[{\color{blue}\Rct{fb}}+{\color{blue}\Rct{bf}}]}^2_2
 \]
 \vspace{0.05in}
-      \plot{Penalty_cit}{height=0.7\textheight}{\klabellarge{-55}{70}{$P(\tau)=|\tau|$} }
+      \plot{Penalty_cit}{height=0.7\textheight}{\klabellarge{-50}{45}{$P(\tau)=|\tau|$} }
 \end{frame}
 \begin{frame}
 \[
-    2J_{\hh}= \lnorm{P({\hh})[{\color{blue}\Rcl{fb}}+{\color{blue}\Rcl{bf}}]}^2_2,
+    2J_{\hh}= \lnorm{P({\hh_x})[{\color{blue}\Rcl{fb}}+{\color{blue}\Rcl{bf}}]}^2_2,
 \]
 \vspace{0.05in}
-      \plot{Penalty_cix}{height=0.7\textheight}{\klabellarge{-55}{70}{$P(\hh)=|\hh|$} }
+      \plot{Penalty_cix}{height=0.7\textheight}{\klabellarge{-60}{45}{$P(\hh_x)=|\hh_x|$} }
 \end{frame}
 \begin{frame}
 \[
     2J_{{\cc}}= \lnorm{P({\hh,\tau})[{\color{blue}\Rce{fb}}+{\color{blue}\Rce{bf}}]}^2_2
 \]
 \vspace{0.05in}
-      \plot{Penalty_cip}{height=0.7\textheight}{\klabellarge{-45}{50}{$P(\hh,\tau)$} }
+      \plot{Penalty_cip}{height=0.7\textheight}{\klabellarge{65}{70}{$P(\hh,\tau)$} }
 \end{frame}
 
 \begin{frame}
-\plot{OF_join}{width=0.9\textwidth}{\klabellarge{85}{30}{$ J_{\lambda}$}\klabellarge{83}{25}{$\color{blue} J_{\tau}$}\klabellarge{81}{20}{$\color{red} J_c$}}
+\plot{OF_join}{width=0.9\textwidth}{\klabellarge{85}{30}{$ J_{\hh}$}\klabellarge{83}{25}{$\color{blue} J_{\tau}$}\klabellarge{81}{20}{$\color{red} J_c$}}
 \end{frame}
 
 
@@ -671,7 +689,6 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 \end{frame}
 
 
-\begin{frame} \end{frame}
 
 \begin{frame} \frametitle{conclusions} 
 \itab{backscattering:}\\
@@ -680,7 +697,7 @@ R(\xx,\hh,\tau) =  \sum_{shots} \sum_t \US(\xx-\hh,t-\tau) \UR(\xx+\hh,t+\tau)
 \pause
 \sep
 \itab{salt geometry constraining?}\\
-\itab{wavefield decomposition alternatives}
+\itab{extended image filtering}
 \end{frame}
 
 \bibliography{SEG}

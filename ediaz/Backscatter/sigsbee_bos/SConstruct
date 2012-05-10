@@ -24,7 +24,7 @@ plotpar = {
 
 
 def dummyf(out,name):
-    Flow(out+'.log',None,'\\rm /var2/ediaz/Backscatter/sigsbee_bos/%s.rsf@; echo "successful delete "'%name,stdin=0)
+    Flow(out+'.log',None,'\\rm /var/tmp/ediaz/Backscatter/sigsbee_bos/%s.rsf@; echo "successful delete "'%name,stdin=0)
 
 
 
@@ -65,7 +65,7 @@ Flow('den','migvel','math output="1"')
 par['kt']=13
 fdmod.wavelet('wav_tmp',10,par)
 
-Flow('wavx','wav_tmp','sinc d1=0.001 n1=9000 o1=0')
+Flow('wavx','wav_tmp','sinc d1=0.001 n1=9000 o1=0|sfput o1=-0.1')
 Flow('wav','wavx','transp plane=12')
 
 
@@ -99,10 +99,8 @@ for s in SHOTS:
     bandpass fhi=20|
     transp |
     reverse axis=1 opt=i |
-    add mode=p ${SOURCES[2]}|
-    pad beg2=%d |
-    window n2=9000 
-    '''%(s,0))
+    add mode=p ${SOURCES[2]}
+    '''%(s))
 
     # Creat shot  coordinates
     Flow('ss'+stag,'data'+stag,'transp plane=13 |rtoc |math output="imag(0.0)+real(x1)"|dd type=float |window n2=1 n3=1 |window squeeze=y ')

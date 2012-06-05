@@ -52,6 +52,9 @@ psava@mines.edu
 \def\beq{\begin{equation}}
 \def\eeq{  \end{equation}}
 
+% Norm symbol
+\newcommand{\norm}[1]{\left|\left|#1\right|\right|}
+
 
 %\def\req#1{(\ref{#1})}
 
@@ -215,6 +218,14 @@ a_x \; a_y \; a_z
 \def\Fop#1{\mathcal{F}     \lb #1 \rb}
 \def\Fin#1{\mathcal{F}^{-1}\lb #1 \rb}
 
+
+% ------------------------------------------------------------
+% wave equation operators:
+
+\def\swe#1{ \frac{1}{v_p(\xx)^2}\dtwo{#1}{t}- \LAPL{#1}}
+\def\awe#1{ \frac{1}{v_p(\xx)^2 \rho(\xx)}\dtwo{#1}{t}- \DIV{\frac{1}{\rho(\xx)}\GRAD{#1}} }
+\def\ewe#1{ \rho(\xx) \dtwo{#1}{t} -v_p(\xx)^2\LAPL{#1}+v_s(\xx)^2\CURL{\CURL{#1}}}
+
 % ------------------------------------------------------------
 % partial derivatives
 
@@ -309,7 +320,7 @@ a_x \; a_y \; a_z
 \def\Rct#1{R^{#1}(z,\tau)}
 \def\Rcl#1{R^{#1}(z,\lambda_x)}
 
-\def\UU{W}
+\def\UU{u}
 \def\US{{\UU_s}}
 \def\USt{{\UU_s^f}}
 \def\USr{{\UU_s^b}}

@@ -84,8 +84,6 @@ Flow('dmask',None,
      ''' % par)
 
 
-
-
 aperture=3.0
 for s in SHOTS:
     stag="-%03d"%s
@@ -107,14 +105,10 @@ for s in SHOTS:
     Flow('rr'+stag,'data'+stag,'transp plane=23 |rtoc |math output="imag(0.0)+real(x1+x2)"|dd type=float |window n3=1 |put n1=2 n2=348 ')
 
 
-    shtor=sfutil.sfaxa('data'+stag,dim=3)
-    offor=sfutil.sfaxa('data'+stag,dim=1)
-    
-    max2=shtor[2]+offor[2]+(offor[0]-1)*offor[1] +offor[1]*0.4
-    min2=shtor[2]-offor[1]*0.4
-   
+   # max2=shtor[2]+offor[2]+(offor[0]-1)*offor[1] +offor[1]*0.4
+   # min2=shtor[2]-offor[1]*0.4
 
-    Flow('vel'+stag,'migvel','window min2=%s max2=%g'%(min2-aperture,max2+aperture))
+    #Flow('vel'+stag,'migvel','window min2=%s max2=%g'%(min2-aperture,max2+aperture))
 
 
     fdmod.awefd2d('dd'+stag,'wts'+stag,'wav','migvel','den','ss'+stag,'rr'+stag,'jsnap=10 '+iwindow,par)

@@ -1,0 +1,59 @@
+\bibliographystyle{seg}
+\input{./Share/pcsmacros}
+\pgfdeclareimage[height=0.75in]{mypic}{esteban}
+\bibliography{SEG}
+
+\title[]{Diving waves test}
+\subtitle{}
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines }
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\begin{frame}
+
+\end{frame}
+
+
+\begin{frame}
+Geometry is kept constant, velocity error is variable.\\
+Images are gained independently thats why we see energy at 0\% error.
+\end{frame}
+
+\inputdir{ddiving}
+\begin{frame}\plot{velS}{width=1\textwidth}{\klabellarge{50}{10}{Correct velocity}}\end{frame}
+\begin{frame}\plot{dgrad-468-080}{width=1\textwidth}{\klabellarge{50}{10}{$-20\%$}}\end{frame}
+\begin{frame}\plot{dgrad-468-090}{width=1\textwidth}{\klabellarge{50}{10}{$-10\%$}}\end{frame}
+\begin{frame}\plot{dgrad-468-100}{width=1\textwidth}{\klabellarge{50}{10}{$0\%$}}\end{frame}
+\begin{frame}\plot{dgrad-468-110}{width=1\textwidth}{\klabellarge{50}{10}{$10\%$}}\end{frame}
+\begin{frame}\plot{dgrad-468-120}{width=1\textwidth}{\klabellarge{50}{10}{$20\%$}}\end{frame}
+
+
+\begin{frame}\plot{Cit-468-080}{height=1\textheight}{\klabellarge{70}{10}{$-20\%$}}\end{frame}
+\begin{frame}\plot{Cit-468-090}{height=1\textheight}{\klabellarge{70}{10}{$-10\%$}}\end{frame}
+\begin{frame}\plot{Cit-468-100}{height=1\textheight}{\klabellarge{70}{10}{$0\%$}}\end{frame}
+\begin{frame}\plot{Cit-468-110}{height=1\textheight}{\klabellarge{70}{10}{$10\%$}}\end{frame}
+\begin{frame}\plot{Cit-468-120}{height=1\textheight}{\klabellarge{70}{10}{$20\%$}}\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}
+Why do we see energy at $\tau=0$?\\
+It is because of the adjoint source, the energy 
+at zero lag comes from the data simulated with the wrong model.\\
+Clearly, the velocity error introduces cycle skipping in the time-lags (two separated events). 
+I think this could be optimized using DSO type of penalty, as we saw with the backscaterring. 
+The problem seems to be similar to the backscattering energy optimization.
+\end{frame}
+
+
+
+
+\bibliography{SEG}

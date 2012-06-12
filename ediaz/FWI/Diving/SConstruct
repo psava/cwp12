@@ -317,7 +317,7 @@ fdmod.vertical('xx',11.5,par)
 
 
 Flow('gg2','velS',
-     'window j2=30| rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*(int(par['nx']/30)+1))+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
+     'window j2=200| rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*(int(par['nx']/200)+1))+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
 Plot('gg',fdmod.rrplot('',par))
 Plot('gg2',fdmod.rrplot('',par))
 
@@ -358,7 +358,7 @@ for s in SHOTS:
          ''' % par)
 
         # extended imaging condition:  time-lag gathers  and space-lag gathers    
-        wemig.eic('cig'+stag+veltag,'uS'+stag+veltag,'aS'+stag+veltag,'gg2','nhx=0 nhz=0 |transp plane=14 |transp plane=23  ',par)
+        wemig.eic('cig'+stag+veltag,'uS'+stag+veltag,'aS'+stag+veltag,'gg2','nhx=0 nhz=0 |window squeeze=y',par)
 
 
         i+=1

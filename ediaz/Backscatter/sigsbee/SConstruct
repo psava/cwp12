@@ -238,6 +238,8 @@ fdmod.point('cip7',20.27 ,3.76428,par)
 Flow('ggcip',['cip0','cip1','cip2','cip3','cip4','cip5','cip6','cip7'],'cat axis=2 ${SOURCES[1:8]}')
 
 Plot('ggcip',fdmod.qqplot('plotfat=30 plotcol=6 symbol=. symbolsz=30',plotpar))
+
+
 for s in SHOTS:
     stag = "-%04d"%s
 

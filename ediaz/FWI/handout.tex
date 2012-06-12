@@ -64,14 +64,6 @@ For the receiver wavefield we apply the wave equation operator backward in time 
 \label{eq:ur}
 \eeq
 
-
-this means we will obtain as much sources as extended image locations we have.
-
-
-
-
-
-
 We can rewrite equations~\ref{eq:us}and~\ref{eq:ur} in matrix form as follow:
 
 \bea
@@ -93,10 +85,8 @@ f_r(\xx,t)
 
 \section{Adjoint state variables}
 
-To generate the adjoint variables (adjoint source and receiver wavefields) we need to create the adjoint source, which will
-take us from the image to the wavefields, whereas in the state variables we go from the wavefields to the image. 
-
-To generate the adjoint source we need to differentiate our OF respect the state variables, now I will show how we obtain
+To generate the adjoint variables (adjoint source and receiver wavefields) we need to create the adjoint source. To generate 
+the adjoint source we need to differentiate our OF respect the state variables, now I will show how we obtain
 the adjoint source $g_s(\xx,t)$ for the $l^2$ norm:
 
 Let's first start by expanding the objective function $J_\tau$ shown in equation~\ref{eq:OF}:
@@ -105,10 +95,12 @@ J_\tau = \frac{1}{2} \norm{P(\tau)R(\xx,\tau)}^2_{\xx,\tau} = \frac{1}{2} \sum_{
 \]
 then, by substituting equation~\ref{eq:eic} back in the OF:
 \[
-J_\tau= \frac{1}{2} \sum_{\xx,tau}\left (P(\tau)\sum_t \US(\xx,t -\tau)\UR(\xx,t+\tau) \right)^2
+J_\tau= \frac{1}{2} \sum_{\xx,tau}\left (P(\tau)\sum_t \US(\xx,t -\tau)\UR(\xx,t+\tau) \right)^2,
+\]
+\[
+J_\tau= \frac{1}{2} \sum_{\xx,tau}\left (P(\tau)\sum_t \US(\xx,t)*\delta(\xx,t-\tau) \UR(\xx,t) * \delta(\xx,t+\tau) \right)^2,
 \]
 now, 
-
 \[
 g_s(\xx,t)=\done{J_\tau}{\US} (\xx,t) = \sum_{\xx,tau}\left (P(\tau) \sum_t \US(\xx,t -\tau)\UR(\xx,t+\tau) \right) \left (P(\tau) \UR(\xx,t+\tau) \right),
 \]

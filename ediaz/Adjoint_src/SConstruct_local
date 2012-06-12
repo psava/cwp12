@@ -1,0 +1,8 @@
+from rsf.proj import *
+
+Program('sfadjsrc_mva','Madjsrc_mva.c')
+
+
+
+	
+	

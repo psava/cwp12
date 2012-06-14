@@ -1,0 +1,33 @@
+\input{./Share/pcsmacros}
+
+\author{Esteban D\'{i}az}
+\title{Multiscale seismic waveform inversion, by Bunks et al 1995}{summary}
+
+
+% ------------------------------------------------------------
+
+\section{introduction}
+
+Bunks et al, makes a extensive review about the issues present in many seismic 
+geophysical problems. The issues in this problems are directly correlated with the prescense
+of local minima. 
+
+To address the local minima problems, many people assume that the starting model 
+is close to the correct answer, therefore one could linearize the problem to get rid,
+in part, of the non-linearity. However, the power of resolution of such methods is not
+optimal when the initial model is far from the global minimum.
+
+The issue of local minima depends on the scale, therefore if one approach the model 
+at different scale (starting from long wavelenght and refining the model towards short
+wavelenght) components. 
+
+Full Waveform Inversion is a highly non-linear problem, the objective function is usually
+multi-modal. Therefore, depending on the starting model, the probability to fall
+in a local minimum is very high. Bunks et al propose a multigrid method for different scales,
+the methodology is implemented in the time-domain. On should first solve of the problem
+by using first the low frequency components of the data, and then use the high frequency.
+Such an approach have two main advantages: (1) in theory one could reach to a model
+in the vicinity of global minimum if the frequency content of the data is low enough and (2)
+solving for low frequencies is computationally much cheaper than for high frequencies.
+
+

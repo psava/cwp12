@@ -40,15 +40,16 @@ int main (int argc, char* argv[])
 
     // axes
     sf_axis awx,awz,awt;                /* wavefield axes */
-    sf_axis atau,aeic;                  /* eic axes: time-lag and extended images */
+    sf_axis atau;                  /* eic axes: time-lag and extended images */
     sf_axis ar;                         /* coordinate file */
 
-    int nr, ns;
+    int nr;
     // integer
-    int i1,i2,i3, it, itau,maxt;                   /* integer var for loops */
+    int i1, it, itau;                   /* integer var for loops */
 
     int ix,iz;                          /*integers for extracting windowed wavefield */
-    float t;
+
+    float tmin, tmax;
     // arrays
     float ***uo;                        /* wavefield array */
     float *tgathers;                    /* time lag gathers */
@@ -157,13 +158,15 @@ int main (int argc, char* argv[])
     
             for (it=0; it<sf_n(awt); it++){
     
+            sf_warning("it=%d %d",it,sf_n(awt));
                 adjsrc[0][it]=0.0;
-                maxt=sf_n(atau)-it;
-                for (itau=0; itau<maxt; itau++) {
 
-                    tua
+                tmin=SF_MAX(sf_o(awt)+it*sf_d(awt)+sf_o(atau),0);
+                tmax=SF_MIN(sf_o(awt)+it*sf_d(awt)+(sf_o(atau)+(sf_n(atau)-1)*sf_d(atau)),(sf_n(awt)-1)*sf_d(awt)+sf_o(awt));
+                
 
-
+                for (itau=0.5 + (tmin - sf_o(atau))/sf_d(atau)  ; itau<0.5 + (tmax - sf_o(atau))/sf_d(atau) ; itau++) {
+                    sf_warning("                itau=%d %f",itau,sf_o(atau)+(itau)*sf_d(atau));
                     adjsrc[0][it] += tgathers[itau]*uo[it+itau][ix][iz];
                 }
             }
@@ -176,15 +179,24 @@ int main (int argc, char* argv[])
             iz=  0.5+(rr[i1].z - sf_o(awz))/sf_d(awz);
     
             sf_warning("cc=%d %d",i1,sf_n(atau));
-    
+
             for (it=0; it<sf_n(awt); it++){
     
                 adjsrc[0][it]=0.0;
-                maxt=SF_MAX(it-sf_n(atau),0);
-                for (itau=0; itau<sf_n(atau); itau++) {
+
+                tmin=SF_MAX(sf_o(awt)+it*sf_d(awt)-(sf_o(atau)+(sf_n(atau)-1)*sf_d(atau)),0);
+                tmax=SF_MIN(sf_o(awt)+it*sf_d(awt)-(sf_o(atau)),(sf_n(awt)-1)*sf_d(awt)+sf_o(awt));
+                
+
+                for (itau=0.5 + (tmin - sf_o(atau))/sf_d(atau)  ; itau<0.5 + (tmax - sf_o(atau))/sf_d(atau) ; itau++) {
                     adjsrc[0][it] += tgathers[itau]*uo[it-itau][ix][iz];
                 }
             }
+
+
+
+
+
         }   
 
 

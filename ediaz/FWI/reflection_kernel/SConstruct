@@ -1,0 +1,166 @@
+# 
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,math
+import commands, os
+
+
+
+def grapht(custom,par):
+    return '''
+    graph label2="" title="" n2tic=0 
+    label1="\F10 t \F3 " unit1="s" screenratio=0.3 screenht=4 yll=2
+    labelsz=6 labelfat=3 titlesz=12 plotfat=7 
+    %s
+    '''%custom
+
+
+
+par = {
+    'nt':4001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':275 , 'dx':0.030 , 'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.030 , 'oy':0, 'ly':'y', 'uy':'km',
+    'nz':125,  'dz':0.030 , 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25,
+    'jwfld':5
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+
+# ------------------------------------------------------------
+# source
+
+# ------------------------------------------------------------
+# receivers
+
+# ------------------------------------------------------------
+# CIGs at uniformly-sampled locations
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*10
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',6,par)
+Flow(  'wav', 'wav_','transp')
+
+Result('wav','window n2=500 |'+fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=100
+par['xl']=par['nx']-100
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=30 repeat=50
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
+
+#================================================================================
+Flow('velC',None,
+    '''
+    spike nsp=1 mag=1.0
+    n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=1 l1=%(nz)d |
+    spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+    add add=1 |
+    put label1=%(lz)s unit1=%(uz)s label2=%(lx)s unit2=%(ux)s
+    '''%(par))
+
+Flow('dens','velC','math output="sqrt(abs(x1-2.)^2 + abs(x2-4)^2)"|mask min=0.1 |dd type=float |math x=${SOURCES[0]} output="input*2 + x*0.5 "')
+
+Flow('cdens','velC','math output="x1-3"|mask min=0 |dd type=float |math x=${SOURCES[0]} output=" x*0.5 "')
+
+#================================================================================
+
+# Individual receiver coordinates and CIG coordinates 
+for i in range(par['nz']):
+    fdmod.point('r-%03d'%i,7,i*par['dz'],par)
+    Plot('r-%03d'%i,fdmod.rrplot('plotfat=15',par))
+
+    fdmod.point('e-%03d'%i,4,i*par['dz'],par)
+    Plot('e-%03d'%i,fdmod.rrplot(' plotcol=5 plotfat=15',par))
+
+REC=range(par['nz'])
+
+Flow('rall',map(lambda x:'r-%03d'%x,REC),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(REC))
+Flow('eall',map(lambda x:'e-%03d'%x,REC),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(REC))
+
+
+# Plot receivers
+Plot('rall', fdmod.ssplot(' plotfat=5',par))
+
+#Plot cig location
+Plot('eall', fdmod.ssplot('plotcol=5 plotfat=5',par))
+    
+# Individual shot coordinates
+for i in range(0,par['nz'],20):
+    fdmod.point('s-%03d'%i,1,i*par['dz'],par)
+    Plot('s-%03d'%i,fdmod.ssplot('plotfat=15',par))
+
+SHOTS=range(0,par['nz'],20)
+Flow('sall',map(lambda x:'s-%03d'%x,SHOTS),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(SHOTS))
+
+#Plot shot coord
+Plot('sall', fdmod.ssplot('plotcol=4 plotfat=5',par))
+
+#================================================================================
+#                     Generate reference data with correct model
+#================================================================================
+
+
+for i in SHOTS:
+    stag='-%03d'%i
+
+    
+    fdmod.awefd_data('direct_all_'+stag,'wav','velC','cdens','s'+stag,'rall','free=y  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    fdmod.awefd_data('dC_all_'+stag,'wav','velC','cdens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+    Flow('dC'+stag,['direct_all_'+stag,'dC_all_'+stag],'add ${SOURCES[1]} scale=1,-1')
+
+    fdmod.awefd_swfl('swfl'+stag,'wav','velC','cdens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','cdens','rall','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+
+    Flow('cics'+stag,['swfl'+stag,'rwfl'+stag],
+      '''
+      xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+      ''' % par)
+
+
+
+End()

@@ -187,10 +187,31 @@ for s in SHOT_cases:
 
             wfltag='wfl_s'+stag+'_e'+etag+'_r'+rtag
         
+
+            Flow('dC_'+'s'+stag+'_r'+rtag,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
+            ############# correct image with 1 shot 1 receiver
+
+            fdmod.awefd_swfl('corr_s'+wfltag,'wav','velC','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+            fdmod.awefd_rwfl('corr_r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velC','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+          
+
+            Flow('corr_cic_s'+stag+'_e'+etag+'_r'+rtag,['corr_s'+wfltag,'corr_r'+wfltag],
+              '''
+              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+              ''' % par)
+
+            
+
+
+
+
+
+
+
+
             # Source wfld
             fdmod.awefd_swfl('s'+wfltag,'wav','velI','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
-            Flow('dC_'+'s'+stag+'_r'+rtag,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
 
             # Receiver wfld
             fdmod.awefd_rwfl('r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velI','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)

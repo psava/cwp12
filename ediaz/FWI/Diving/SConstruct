@@ -1,46 +1,58 @@
-try:
-    from rsf.cluster import *
-except:
-    from rsf.proj import *
-import fdmod,wemig,adcig
+# 
+from rsf.proj import *
+import fdmod,adcig,encode,wemig,math
+import commands, os
 
 
 
+def grapht(custom,par):
+    return '''
+    graph label2="" title="" n2tic=0 
+    label1="\F10 t \F3 " unit1="s" screenratio=0.3 screenht=4 yll=2
+    labelsz=6 labelfat=3 titlesz=12 plotfat=7 
+    %s
+    '''%custom
+
+
+
+par = {
+    'nt':4001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':275 , 'dx':0.030 , 'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.030 , 'oy':0, 'ly':'y', 'uy':'km',
+    'nz':125,  'dz':0.030 , 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25,
+    'jwfld':5
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=par['nx']/2
+par['izsou']=1
+
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
 
 # ------------------------------------------------------------
-f2m=0.3048
-par = dict(
-    nx=1201,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
-    nz=900, oz=6.5*f2m,dz=0.025*f2m,lz='z',uz='km',
-    nt=12000,ot=0,      dt=0.0005,    lt='t',ut='s',
-    jsnap=250,
-    jwfld=20,
-    kt=200,
-    nb=100,
-    frq=12,
-    orec=2.25, jrec=1,   nrec=850,
-    osou=5.55,  jsou=50, nsou=2
-    )
+# source
 
-# wavefield save window
-par['nqx']=par['nx']
-par['nqz']=par['nz']
-par['oqx']=par['ox']
-par['oqz']=par['oz']
+# ------------------------------------------------------------
+# receivers
 
-# wavefield frames
-par['nframe']=int((par['nt']-1)/par['jsnap'])
-    
-# standard deviation (in physical units)
-par['dstd']=2  # amplitude units
-par['mstd']=5  # km/s
-#-------------------------------------------------------------
+# ------------------------------------------------------------
+# CIGs at uniformly-sampled locations
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
 # EIC computational domain
 par['nhz']=0
 par['nhx']=100
 par['nhz']=par['nhx']
 par['nht']=100
-par['dht']=par['dt']*0.1*par['jsnap']
+par['dht']=par['dt']*10
 
 adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
              2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
@@ -52,334 +64,205 @@ adcig.xparam(
                par['nz']   ,            par['oz'],par['dz'],
              par)
 
-
 adcig.eparam(10.0,
              2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
-             par['nhz']+1,-0.5*par['nhz']*par['dz'],par['dz'],
-             par['nht']+1,-0.5*par['nht']*par['dt'],par['dt'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
              par)
-
-
-
-# ------------------------------------------------------------
-fdmod.param(par)
 
 # ------------------------------------------------------------
 # wavelet
-fdmod.wavelet('wav_',par['frq'],par) 
-Flow(  'wav','wav_','transp | scale rscale=1')      
-Result('wav','window n2=1000 | scale axis=123|'
-       + fdmod.waveplot('',par)) 
+fdmod.wavelet('wav_',6,par)
+Flow(  'wav', 'wav_','transp')
 
-# ------------------------------------------------------------
-# sources
-par['fsou']=int((par['osou']-par['oz'])/par['dz'])
-SHOTS=range(par['fsou'],
-            par['fsou']+(par['nsou']-1)*par['jsou'],
-            par['jsou'])
-
-
-for s in SHOTS:
-    stag = "-%03d"%s
-    fdmod.point('ss'+stag,7,par['oz']+s*par['dz'],par)
-    Plot('ss'+stag,fdmod.ssplot('plotcol=0 plotfat=20',par))
-
-Plot('ss',map(lambda x: 'ss-%03d' % x,SHOTS),'Overlay')
-
-fdmod.point('ss',7,par['oz']+0.5*par['nz']*par['dz'],par)
-
-# ------------------------------------------------------------
-# receiver coordinates
-fdmod.vertical('tr',15.5,par)
-Flow('rr','tr',
-     'window j2=%(jrec)d min2=%(orec)g n2=%(nrec)d'%par)
-Plot('rr',fdmod.rrplot('',par)) 
-
-# ------------------------------------------------------------
-# velocity
-strvelfile = 'data/sigsbee/sigsbee2a_stratigraphy.sgy'
-Flow('vraw',strvelfile,'segyread read=data')
-Flow('velo',
-     'vraw',
-     '''
-     scale rscale=%g |
-     put o1=%g d1=%g o2=%g d2=%g |
-     window n1=%d min1=%g n2=%d min2=%g 
-     ''' % (0.001*f2m,
-            0     ,0.025*f2m,
-            10*f2m,0.025*f2m,
-            par['nz'],par['oz'],
-            par['nx'],par['ox']
-            ))
-
-# ------------------------------------------------------------
-# salt mask
-Flow(  'smask','velo','mask min=4.499 | dd type=float')
-Result('smask',fdmod.cgrey('allpos=y',par))
-    
-# water mask
-Flow(  'wmask','velo','mask max=1.50 | dd type=float')
-Result('wmask',fdmod.cgrey('allpos=y',par))
-
-# sediment mask
-Flow(  'lmask',['smask','wmask'],'add ${SOURCES[1]} | math output="1-input"')
-Result('lmask',fdmod.cgrey('allpos=y',par))
-
-
-# ------------------------------------------------------------
-# v(z) background
-Flow('vofz','smask velo wmask',
-     '''
-     math v=${SOURCES[1]} output="input*1.95+(1-input)*v" |
-     smooth rect1=100 rect2=100 |
-     math w=${SOURCES[2]} output="input*(1-w)+1.5*w"
-     '''%par)
-Result('vofz',fdmod.cgrey('allpos=y color=j bias=1.5',par))
-
-# ------------------------------------------------------------
-# velocity models
-# C: correct
-# S: starting
-# R: reference
-
-#Flow('velC','velo','window')
-Flow('velC','vofz','window')
-
-Flow('velS','vofz','window|math output="input*1"')
-#Flow('velS','smask vofz','math v=${SOURCES[1]} output="input*4.51147+(1-input)*v"')
-
-
-Flow('velR','smask velo','math v=${SOURCES[1]} output="input*4.51147+(1-input)*v"')
-
-par['jC']=0
-par['jS']=1
-par['jR']=2
-Flow('vbyt vbar','velC velS velR',
-     '''
-     cat axis=3 space=n ${SOURCES[1:3]} |
-     byte gainpanel=a pclip=100 bar=${TARGETS[1]} bias=1.5 allpos=y
-     ''')
-for v in ('C','S','R'):
-    Plot(  'vel'+v,
-         'vbyt vbar',
-         'window n3=1 f3=%d |'%par['j'+v] +
-         fdmod.cgrey('bias=1.5 color=j bar=${SOURCES[1]}',par))
-    Result('vel'+v,['vel'+v,'ss','rr'],'Overlay')
-
-# ------------------------------------------------------------
-# slowness squared
-for v in ('C','S','R'):
-    Flow('sls'+v,'vel'+v,'math output="1/(input*input)"')
-
-# ------------------------------------------------------------
-# density
-Flow(  'dens','velo','math output=1')
-Plot(  'dens',fdmod.cgrey('allpos=y bias=1.43',par))
-Result('dens',['dens','ss','rr'],'Overlay')
-
-# ------------------------------------------------------------
-# reference data
-fdmod.awefd('dC','wC','wav','velC','dens','ss','rr','free=n',par)
+Result('wav','window n2=500 |'+fdmod.waveplot('',par))
 
 # ------------------------------------------------------------
 # data mask
-fdmod.gauss1z('dmask',5.5,2.0,par)
+par['xk']=100
+par['xl']=par['nx']-100
 
-# ------------------------------------------------------------
-# data stdev
-Flow('dstdv','dC',
+Flow('dmask',None,
      '''
-     stack axis=2 max=y |
-     stack axis=1 max=y |
-     math output="0.01*input*%(dstd)g"
-     '''%par)
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=30 repeat=50
+     ''' % par)
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 screenratio=1.5',par))
 
-# data weight = 1/stdev
-Flow('dwght','dstdv dmask',
-     '''
-     math output="1/input" |
-     spray axis=1 n=%(nz)d o=%(oz)g d=%(dz)g |
-     add mode=p ${SOURCES[1]} |
-     window j1=%(jrec)d min1=%(orec)g n1=%(nrec)d |
-     spray axis=2 n=%(nt)d o=%(ot)g d=%(dt)g
-     '''%par)
-Result('dwght','window j2=%(jwfld)d |'%par
-       + fdmod.egrey('allpos=y color=j',par))
+#================================================================================
+Flow('velC',None,
+    '''
+    spike nsp=1 mag=1.0
+    n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=1 l1=%(nz)d |
+    spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+    add add=1 |
+    put label1=%(lz)s unit1=%(uz)s label2=%(lx)s unit2=%(ux)s
+    '''%(par))
 
-# ------------------------------------------------------------
-# model stdev
-Flow(  'mstdv','slsC',
-     '''
-     stack max=y axis=2 |
-     stack max=y axis=1 |
-     math output="0.01*input*%(mstd)g"
-     '''%par)
+Flow('dens','velC','math output="1"')
 
-# model weight = 1/stdev
-Flow(  'mwght','mstdv',
-     '''
-     math output="1/input" |
-     spray axis=1 n=%(nz)d o=%(oz)g d=%(dz)g |
-     spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g
-     '''%par)
-Result('mwght',fdmod.cgrey('allpos=y color=j',par))
+#================================================================================
 
-# ------------------------------------------------------------
-Flow('imag','velo',
-     '''
-     window f1=1 |
-     pad n1out=%(nz)d |
-     add ${SOURCES[0]} scale=+1,-1 |
-     ricker1 frequency=6
-     '''%par)
-Result('imag',fdmod.cgrey('pclip=99',par))
+# Individual receiver coordinates and CIG coordinates 
+for i in range(par['nz']):
+    fdmod.point('r-%03d'%i,7,i*par['dz'],par)
+    Plot('r-%03d'%i,fdmod.rrplot('plotfat=15',par))
 
-# dip field
-Flow('mdipf','imag',
-     'dip order=2 p0=0 verb=y niter=20 rect1=10 rect2=10')
-Result('mdipf',fdmod.cgrey('color=j pclip=99.9',par))
+    fdmod.point('e-%03d'%i,4,i*par['dz'],par)
+    Plot('e-%03d'%i,fdmod.rrplot(' plotcol=5 plotfat=15',par))
 
-# model mask (i.e. borehole locations): K
-Flow('mmask','dens',
-     '''
-     spike nsp=1 n1=%d n2=%d n3=%d k2=%d |
-     put n2=%d n3=1 |
-     pad n2out=%d |
-     '''%(par['nz'],
-           (par['nx']-1)/5,5,
-           110,
-           par['nx']-1,par['nx']) +
-     '''
-     put o1=%(oz)g d1=%(dz)g o2=%(ox)g d2=%(dx)g
-     '''%par)
-Result('mmask','smooth rect2=10 |' + fdmod.cgrey('',par))
+REC=range(par['nz'])
+
+Flow('rall',map(lambda x:'r-%03d'%x,REC),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(REC))
+Flow('eall',map(lambda x:'e-%03d'%x,REC),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(REC))
 
 
+# Plot receivers
+Plot('rall', fdmod.ssplot(' plotfat=5',par))
+
+#Plot cig location
+Plot('eall', fdmod.ssplot('plotcol=5 plotfat=5',par))
+    
+# Individual shot coordinates
+for i in range(0,par['nz'],20):
+    fdmod.point('s-%03d'%i,1,i*par['dz'],par)
+    Plot('s-%03d'%i,fdmod.ssplot('plotfat=15',par))
+
+SHOTS=range(0,par['nz'],20)
+Flow('sall',map(lambda x:'s-%03d'%x,SHOTS),'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(SHOTS))
+
+#Plot shot coord
+Plot('sall', fdmod.ssplot('plotcol=4 plotfat=5',par))
+
+#================================================================================
+#                     Generate reference data with correct model
+#================================================================================
 
 
-'''
-Now I create data, stag is the shot position.
-'''
+for i in SHOTS:
+    stag='-%03d'%i
+    fdmod.awefd('dC'+stag,'swfl'+stag,'wav','velC','dens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','dens','rall','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
 
-for s in SHOTS:
-    stag = "-%03d"%s
+    Flow('cics'+stag,['swfl'+stag,'rwfl'+stag],
+      '''
+      xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+      ''' % par)
 
-    # data
-    fdmod.awefd('dC'+stag,'wC'+stag,'wav','velC','dens','ss'+stag,'rr','free=n',par)
-    fdmod.awefd('dS'+stag,'uS'+stag,'wav','velS','dens','ss'+stag,'rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
-    # noise
-    Flow('rC'+stag,
-         'dC'+stag,
-         '''
-         stack axis=2 max=y |
-         stack axis=1 max=y |
-         math output="0.01*input*%(dstd)g" |
-         spray axis=1 n=%(nz)d o=%(oz)g d=%(dz)g |
-         window j1=%(jrec)d min1=%(orec)g n1=%(nrec)d |
-         spray axis=2 n=%(nt)d o=%(ot)g d=%(dt)g
-         '''%par)
+    
 
-    Flow('nC'+stag,
-         'rC'+stag,
-         '''
-         noise rep=y |
-         transp |
-         ricker1 frequency=%(frq)g |
-         transp |
-         scale axis=123 |
-         add mode=p ${SOURCES[0]}
-         '''%par)
-    Flow('datC'+stag,['dC'+stag,'nC'+stag],
-         'add scale=1,1 ${SOURCES[1]}')
 
-    # ------------------------------------------------------------
-    # simulated data & state variables
-    Flow('datS'+stag,'dS'+stag,'window')
+Flow('velI','velC','math output="input*1.2 "')
 
-    # ------------------------------------------------------------
-    # plot data
-    for v in ('C','S'):
-        Result('dat'+v+stag,'window j2=%(jwfld)d |'%par
-               + fdmod.egrey('pclip=99.9',par))
+
+Result('vels',['velC','velI'],
+'''cat axis=3 ${SOURCES[1]} |transp plane=23| window n3=1|
+   graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
+   plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
+   parallel2=n wherexlabel=t  min2=1.5 max2=3.5 d2tic=0.5 
+   labelsz=6 labelfat=3 titlesz=12 titlefat=3
+    '''%(par))
 
 
 
+# Case 1: 1 shot, 1 eic, 1 receiver
+SHOT_cases= [0,80,120]
+EIC_cases= [69]
+REC_cases= [14,59,121]
 
 
-'''
-Compute gradient
-'''
-fdmod.vertical('xx',11.5,par)
+for s in SHOT_cases:
+    stag='-%03d'%s
 
+    for e in EIC_cases:
+        etag='-%03d'%e
 
+        for r in REC_cases:
+            rtag='-%03d'%r
 
-
-Flow('gg2','velS',
-     'window j2=200| rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*(int(par['nx']/200)+1))+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
-Plot('gg',fdmod.rrplot('',par))
-Plot('gg2',fdmod.rrplot('',par))
-
-
-VELS=[x * 0.1 +0.8 for x in range(0, 5)]
-VELS2=[int((x * 0.1 +0.8)*100) for x in range(0, 5)]
-
-
-
-for s in SHOTS:
-    stag = "-%03d"%s
-
-    i=0
-    for v in VELS:
+            wfltag='wfl_s'+stag+'_e'+etag+'_r'+rtag
         
-        veltag="-%03d"%int(v*100)
+            # Source wfld
+            fdmod.awefd_swfl('s'+wfltag,'wav','velI','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+            Flow('dC_'+'s'+stag+'_r'+rtag,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
+
+            # Receiver wfld
+            fdmod.awefd_rwfl('r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velI','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+            # conventional imaging condition
+            Flow('cic_s'+stag+'_e'+etag+'_r'+rtag,['s'+wfltag,'r'+wfltag],
+              '''
+              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+              ''' % par)
+
+            Result('cic_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
+
+            # time-lag gathers
+            wemig.eic('cig_s'+stag+'_e'+etag+'_r'+rtag,'s'+wfltag,'r'+wfltag,'e'+etag,'nhx=0 nhz=0 |window squeeze=y',par)
+
+            # Penalized time-lag gathers
+            Flow('pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'cig_s'+stag+'_e'+etag+'_r'+rtag,
+                'math output="abs(x1)^2 * input "')
+
+            
+            
+            Result('pen-cig_s'+stag+'_e'+etag+'_r'+rtag,['cig_s'+stag+'_e'+etag+'_r'+rtag,'pen_cig_s'+stag+'_e'+etag+'_r'+rtag],
+                ''' 
+                cat ${SOURCES[1]} axis=2|scale axis=123| '''+grapht('',par))
+                
 
 
-        Flow('velS'+veltag,'velS','math output="%g*input"'%v)
-
-        Result('velS'+veltag,fdmod.cgrey('allpos=y color=j ',par))
-
-        fdmod.awefd('dat'+stag+veltag,'uS'+stag+veltag,'wav','velS'+veltag,'dens','ss'+stag,'rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-        Flow('ain'+stag+veltag,['dat'+stag+veltag,'dC'+stag,'dwght'],'add scale=+1,-1 ${SOURCES[1]}|add mode=p ${SOURCES[2]} |reverse opt=i which=2')
-
-
-
-        fdmod.awefd('junk'+stag+veltag,'raS'+stag+veltag,'ain'+stag+veltag,'velS'+veltag,'dens','rr','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-        Flow('aS'+stag+veltag,'raS'+stag+veltag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i | deriv3 axis=3| deriv3 axis=3'%par)
-
-        # ------------------------------------------------------------
-        # data gradient
-        Flow('dgrad'+stag+veltag,['uS'+stag+veltag,'aS'+stag+veltag],
-         '''
-         xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-         ''' % par)
-
-        # extended imaging condition:  time-lag gathers  and space-lag gathers    
-        wemig.eic('cig'+stag+veltag,'uS'+stag+veltag,'aS'+stag+veltag,'gg2','nhx=0 nhz=0 |window squeeze=y',par)
-
-
-        i+=1
-
-
-
-    Flow('Cit-all',map(lambda x:'cig'+stag+'-%03d'%x,VELS2),'cat axis=3 space=n ${SOURCES[1:%d]} | byte gainpanel=a pclip=99.7'%len(VELS))
-    Flow('dgrad-all',map(lambda x:'dgrad'+stag+'-%03d'%x,VELS2),'cat axis=3 space=n ${SOURCES[1:%d]} | byte gainpanel=a pclip=99.7'%len(VELS))
-
-
-    i=0
-    for v in VELS:
+            #Adjoint source, source side
+            Flow('adj_sou_'+wfltag,['r'+wfltag,'pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'e'+etag,'wav_'],
+                '''
+                 ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
+                  sinc pattern=${SOURCES[3]}|transp plane=12 
+                ''')
+            # Adjoint source wavefield
+            fdmod.awefd_rwfl('adj_s'+wfltag,'adj_sou_'+wfltag,'velI','dens','e'+etag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
         
-        veltag="-%03d"%int(v*100)
+            
 
-        Plot('dgrad'+stag+veltag,'dgrad-all','window f3=%d n3=1|'%i + fdmod.cgrey(' ',par))
+            # Adjoint source receiver side
+            Flow('adj_rec_'+wfltag,['s'+wfltag,'pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'e'+etag,'wav_'],
+                '''
+                 ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
+                 sinc pattern=${SOURCES[3]}|transp plane=12 
+                ''')
 
-        Result('dgrad'+stag+veltag,['dgrad'+stag+veltag,'rr','ss'+stag],'Overlay')
 
-        Result('Cit'+stag+veltag,'Cit-all','window f3=%d n3=1|'%i + adcig.tgrey('pclip=99',par))          
-        i+=1
+
+            Result('adj_srcs_s'+stag+'_e'+etag+'_r'+rtag,['adj_rec_'+wfltag,'adj_sou_'+wfltag],
+                 '''
+                cat ${SOURCES[1]} axis=1|scale axis=123| transp plane=12| '''+grapht('label1="t"',par))
+
+
+            # Adjoint receiver wavefield
+            fdmod.awefd_swfl('adj_r'+wfltag,'adj_rec_'+wfltag,'velI','dens','e'+etag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+        
+
+            # Data gradient
+            Flow('sgrad_s'+stag+'_e'+etag+'_r'+rtag,['s'+wfltag,'adj_s'+wfltag],
+                '''
+                 xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+                ''')
+            Plot('sgrad_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
+            Result('sgrad_s'+stag+'_e'+etag+'_r'+rtag,['sgrad_s'+stag+'_e'+etag+'_r'+rtag,'r'+rtag,'s'+stag,'e'+etag],'Overlay')
+
+            Flow('rgrad_s'+stag+'_e'+etag+'_r'+rtag,['r'+wfltag,'adj_r'+wfltag],
+                '''
+                 xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+                ''')
+            Plot('rgrad_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
+
+
+            Result('rgrad_s'+stag+'_e'+etag+'_r'+rtag,['rgrad_s'+stag+'_e'+etag+'_r'+rtag,'r'+rtag,'s'+stag,'e'+etag],'Overlay')
 
 
 

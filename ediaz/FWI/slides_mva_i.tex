@@ -1,0 +1,148 @@
+\bibliographystyle{seg}
+\input{./Share/pcsmacros}
+\pgfdeclareimage[height=0.75in]{mypic}{esteban}
+\bibliography{SEG}
+
+\title[]{Time-domain MVA in constant velocity:}
+\subtitle{a kernel analysis}
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines }
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\begin{frame}
+
+\end{frame}
+
+
+\begin{frame} \frametitle{experiment}
+\begin{itemize}
+
+\item One source, one receiver and one time-lag cip location.
+\item Constant velocity medium, with a +20\% error
+\end{itemize}
+\end{frame}
+
+\inputdir{ddiving}
+
+\begin{frame}\plot{vels}{height=1\textheight}{\klabellarge{-40}{30}{\klabellarge{85}{30}{\blue {correct}}\klabellarge{83}{25}{\red {incorrect}} }}\end{frame}
+
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-000_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-000_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-000_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-000_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-000_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-000_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-000_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-000_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-000_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-000_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-000_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-000_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-080_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-080_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-080_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-080_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-080_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-080_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-080_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-080_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-080_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-080_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-080_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-080_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-120_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-120_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-120_e-069_r-014}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-120_e-069_r-014}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-120_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-120_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-120_e-069_r-059}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-120_e-069_r-059}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+%-------------------------------------------
+\begin{frame} 
+    \begin{columns}
+        \column{0.5\textwidth}
+            \plot{sgrad_s-120_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{source gradient}}
+            \plot{pen-cig_s-120_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{time-lag}}\klabellarge{8}{-20}{\red{penalized}}}
+        \column{0.5\textwidth}
+            \plot{rgrad_s-120_e-069_r-121}{width=\textwidth}{\klabellarge{10}{50}{receiver gradient}}
+            \plot{adj_srcs_s-120_e-069_r-121}{width=0.85\textwidth}{\klabellarge{10}{-10}{\blue{source adjoint src}}\klabellarge{8}{-20}{\red{rec adjoint src}}}
+     \end{columns}
+\end{frame}
+%------------------------------------------------
+
+
+

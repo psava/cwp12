@@ -1,0 +1,187 @@
+try:
+    from rsf.cluster import *
+except:
+    from rsf.proj import *
+import fdmod,wemig,adcig
+
+
+
+
+# ------------------------------------------------------------
+f2m=0.3048
+par = dict(
+    nx=1201,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
+    nz=900, oz=6.5*f2m,dz=0.025*f2m,lz='z',uz='km',
+    nt=12000,ot=0,      dt=0.0005,    lt='t',ut='s',
+    jsnap=250,
+    jwfld=20,
+    kt=200,
+    nb=100,
+    frq=12,
+    orec=2.25, jrec=1,   nrec=850,
+    osou=5.55,  jsou=50, nsou=2
+    )
+
+# wavefield save window
+par['nqx']=par['nx']
+par['nqz']=par['nz']
+par['oqx']=par['ox']
+par['oqz']=par['oz']
+
+# wavefield frames
+par['nframe']=int((par['nt']-1)/par['jsnap'])
+    
+# standard deviation (in physical units)
+par['dstd']=2  # amplitude units
+par['mstd']=5  # km/s
+#-------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=100
+par['dht']=par['dt']*0.1*par['jsnap']
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             par['nhz']+1,-0.5*par['nhz']*par['dz'],par['dz'],
+             par['nht']+1,-0.5*par['nht']*par['dt'],par['dt'],
+             par)
+
+
+
+# ------------------------------------------------------------
+fdmod.param(par)
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',par['frq'],par) 
+Flow(  'wav','wav_','transp | scale rscale=1')      
+Result('wav','window n2=1000 | scale axis=123|'
+       + fdmod.waveplot('',par)) 
+
+# ------------------------------------------------------------
+# sources
+par['fsou']=int((par['osou']-par['oz'])/par['dz'])
+SHOTS=(0)
+
+#range(par['fsou'],
+#            par['fsou']+(par['nsou']-1)*par['jsou'],
+#            par['jsou'])
+
+
+fdmod.point('ss',7,par['oz']+0.5*par['nz']*par['dz'],par)
+Plot('ss',fdmod.ssplot('plotcol=0 plotfat=20',par))
+
+
+# ------------------------------------------------------------
+# receiver coordinates
+fdmod.vertical('tr',15.5,par)
+Flow('rr','tr',
+     'window j2=%(jrec)d min2=%(orec)g n2=%(nrec)d'%par)
+Plot('rr',fdmod.rrplot('',par)) 
+
+# ------------------------------------------------------------
+# velocity
+strvelfile = 'data/sigsbee/sigsbee2a_stratigraphy.sgy'
+Flow('vraw',strvelfile,'segyread read=data|'+
+     '''
+     scale rscale=%g |
+     put o1=%g d1=%g o2=%g d2=%g |
+     window n1=%d min1=%g n2=%d min2=%g |
+     put label1="Depth" label2="Distance" unit1="km" unit2="km" 
+     ''' % (0.001*f2m,
+            0     ,0.025*f2m,
+            10*f2m,0.025*f2m,
+            par['nz'],par['oz'],
+            par['nx'],par['ox']
+            ))
+
+# ------------------------------------------------------------
+# velocity models
+# C: correct
+
+#Flow('velC','velo','window')
+Flow('velC','vraw','window|math output="2.5"')
+
+Plot('velC','window | ' +fdmod.cgrey('bias=1.5 color=j ',par))
+Result('velC',['velC','ss','rr'],'Overlay')
+
+# ------------------------------------------------------------
+# density
+Flow(  'dens','velC','math output=1')
+
+# ------------------------------------------------------------
+# reference data
+fdmod.awefd('dC','wC','wav','velC','dens','ss','rr','free=n',par)
+
+# ------------------------------------------------------------
+# data mask
+fdmod.gauss1z('dmask',5.5,2.0,par)
+
+
+'''
+Compute gradient
+'''
+fdmod.vertical('xx',11.5,par)
+
+fdmod.point('xx1',11.5,7,par)
+
+
+Flow('global','velC',
+     ' rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*par['nx'])+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
+Plot('global',fdmod.rrplot('',par))
+
+
+VELS=[x * 0.1 +1.2 for x in range(1)]
+VELS2=[int((x * 0.1 +1.2)*100) for x in range(1)]
+
+
+
+i=0
+for v in VELS:
+        
+    veltag="-%03d"%int(v*100)
+    
+    eicoord='xx'
+
+
+    Flow('velS'+veltag,'velC','math output="%g*input"'%v)
+
+    Result('velS'+veltag,fdmod.cgrey('allpos=y color=j ',par))
+
+    fdmod.awefd('dat'+veltag,'uS'+veltag,'wav','velS'+veltag,'dens','ss','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+    Flow('ain'+veltag,['dat'+veltag,'dC'],'add scale=+1,-1 ${SOURCES[1]} |reverse opt=i which=2')
+
+
+    # Reverse propagation of FWI adjoint source
+    fdmod.awefd('junk'+veltag,'raS'+veltag,'ain'+veltag,'velS'+veltag,'dens','rr','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+    Flow('aS'+veltag,'raS'+veltag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i | deriv3 axis=3| deriv3 axis=3'%par)
+
+    # ------------------------------------------------------------
+    # data gradient FWI
+    Flow('dgrad'+veltag,['uS'+veltag,'aS'+veltag],
+        '''
+        xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+        ''' % par)
+    # extended imaging condition:  global time-lag gathers  and space-lag gathers    
+    wemig.eic('Global-tlag'+veltag,'uS'+veltag,'aS'+veltag,'global','nhx=0 nhz=0 |window squeeze=y',par)
+
+
+
+
+
+End()

@@ -43,13 +43,14 @@ int main (int argc, char* argv[])
     sf_axis atau;                  /* eic axes: time-lag and extended images */
     sf_axis ar;                         /* coordinate file */
 
-    int nr;
+    int nr,nx,nz,nt;
     // integer
-    int i1, it, itau;                   /* integer var for loops */
+    int i1, i2,i3,it, itau,itaux;                   /* integer var for loops */
 
     int ix,iz;                          /*integers for extracting windowed wavefield */
 
-    float tmin, tmax;
+    float tmin, tmax,taumin,taumax;
+    float *uaux;
     // arrays
     float ***uo;                        /* wavefield array */
     float *tgathers;                    /* time lag gathers */
@@ -92,6 +93,14 @@ int main (int argc, char* argv[])
     if (! sf_getbool("verb",&verb))       verb=true; /* verbosity flag, mainly debug printout */
                                                      /* at this time */
     
+    if(verb) sf_warning("====================================================");
+    if(verb) sf_warning("====== Calculating adjoint source            =======");
+    if(source){ 
+    if(verb) sf_warning("====== source side joint source              =======");
+    }else{
+    if(verb) sf_warning("====== receiver side joint source            =======");
+    }
+    if(verb) sf_warning("====================================================");
     // -------------------------------------------------
     // Some file type checking 
     if (SF_FLOAT != sf_gettype(Fwfl)) sf_error("Need float input for wavefield");
@@ -107,10 +116,20 @@ int main (int argc, char* argv[])
 
     // From coordinates
     ar = sf_iaxa(Fxcr,2); 
+    
+    // From extended images
+    atau =  sf_iaxa(Feic,1);
+
+    taumin =  SF_MIN(sf_o(atau),(sf_n(atau)-1)*sf_d(atau)+sf_o(atau));
+    taumax =  SF_MAX(sf_o(atau),(sf_n(atau)-1)*sf_d(atau)+sf_o(atau));
+
 
     // To adjoint source
     sf_oaxa(Fadj,awt,1);
     sf_oaxa(Fadj,ar,2);
+    sf_putint(Fadj,"n3",1);
+
+
     nr=sf_n(ar); 
 
     /*-------------------------------------------------------------------------------------*/
@@ -118,6 +137,9 @@ int main (int argc, char* argv[])
     /*-------------------------------------------------------------------------------------*/
     rr = pt2dalloc1(nr);
     pt2dread1(Fxcr,rr,nr,2);
+
+
+
 
     if(verb) sf_warning("====================================================");
     if(verb) sf_warning("reading %d extended image coordinates points",nr);
@@ -131,16 +153,26 @@ int main (int argc, char* argv[])
     // allocate wavefield space    
     uo = sf_floatalloc3(sf_n(awz),sf_n(awx),sf_n(awt));
 
-    // read wavefield
-    sf_floatread(uo[0][0],sf_n(awz)*sf_n(awx)*sf_n(awt),Fwfl);
+    if(uo==NULL) sf_error("not enough memory to read wavefield");
 
-    /*-------------------------------------------------------------------------------------*/
-    /* reading extended images */
-    /*-------------------------------------------------------------------------------------*/
+    uaux = sf_floatalloc(1);
+    nz=sf_n(awz); nx=sf_n(awx); nt=sf_n(awt);
+
+    // read wavefield
+    for (i3=0 ; i3<nt; i3++){ ;for (i2=0 ; i2<nx; i2++){; for (i1=0 ; i1<nz; i1++){
+        sf_floatread(uaux,1,Fwfl);
+        uo[i3][i2][i1]=uaux[0];
+    }}}
+
+
+
+
+    //-------------------------------------------------------------------------------------
+    // reading extended images 
+    //-------------------------------------------------------------------------------------
     if(verb) sf_warning("reading %d extended images points",nr);
     if(verb) sf_warning("=====================================================");
     if(verb) sf_warning("");
-    atau =  sf_iaxa(Feic,1);
     
     tgathers = sf_floatalloc(sf_n(atau));
     adjsrc   = sf_floatalloc2(sf_n(awt),1);
@@ -150,56 +182,83 @@ int main (int argc, char* argv[])
     if(source) {
         for (i1=0; i1<sf_n(ar); i1++) {
             sf_floatread(tgathers,sf_n(atau),Feic);
-    
+
             ix=  0.5+(rr[i1].x - sf_o(awx))/sf_d(awx);
             iz=  0.5+(rr[i1].z - sf_o(awz))/sf_d(awz);
-    
-            sf_warning("cc=%d %d",i1,sf_n(atau));
-    
+
+
+
+
+            if (verb) sf_warning("cc=%d/%d",i1+1,sf_n(ar));
+
+ 
             for (it=0; it<sf_n(awt); it++){
     
-            sf_warning("it=%d %d",it,sf_n(awt));
                 adjsrc[0][it]=0.0;
 
-                tmin=SF_MAX(sf_o(awt)+it*sf_d(awt)+sf_o(atau),0);
-                tmax=SF_MIN(sf_o(awt)+it*sf_d(awt)+(sf_o(atau)+(sf_n(atau)-1)*sf_d(atau)),(sf_n(awt)-1)*sf_d(awt)+sf_o(awt));
-                
+                // get the limits of tau such as we avoid
+                // segmentation fault on the wavefield uo:
+                // 0 < t+tau < tmax
 
-                for (itau=0.5 + (tmin - sf_o(atau))/sf_d(atau)  ; itau<0.5 + (tmax - sf_o(atau))/sf_d(atau) ; itau++) {
-                    sf_warning("                itau=%d %f",itau,sf_o(atau)+(itau)*sf_d(atau));
-                    adjsrc[0][it] += tgathers[itau]*uo[it+itau][ix][iz];
+                //Lower tau bound
+                tmin = SF_MAX(it*sf_d(awt)+sf_o(awt)+taumin,0);
+                tmin = tmin - (it*sf_d(awt) +sf_o(awt));
+            
+                //Upper tau bound
+                tmax = SF_MIN(it*sf_d(awt)+sf_o(awt)+taumax,sf_o(awt)+sf_d(awt)*(sf_n(awt)-1));
+                tmax = tmax - (it*sf_d(awt) +sf_o(awt));
+
+
+                for (itau = 0.5 + (tmin - sf_o(atau))/sf_d(atau)   ; itau<  .5 +  (tmax - sf_o(atau))/sf_d(atau)  ; itau++) {
+
+                    itaux = 0.5 + (((it*sf_d(awt) +sf_o(awt)) + (itau*sf_d(atau)+sf_o(atau) ))-sf_o(awt))/sf_d(awt);
+                    adjsrc[0][it] += tgathers[itau]*uo[itaux][ix][iz];
                 }
             }
-        }   
+            sf_floatwrite(adjsrc[0],nt,Fadj);
+        }  
     }else{
+
         for (i1=0; i1<sf_n(ar); i1++) {
             sf_floatread(tgathers,sf_n(atau),Feic);
-    
+
             ix=  0.5+(rr[i1].x - sf_o(awx))/sf_d(awx);
             iz=  0.5+(rr[i1].z - sf_o(awz))/sf_d(awz);
-    
-            sf_warning("cc=%d %d",i1,sf_n(atau));
 
+            if (verb) sf_warning("cc=%d/%d",i1+1,sf_n(ar));
+    
             for (it=0; it<sf_n(awt); it++){
     
                 adjsrc[0][it]=0.0;
 
-                tmin=SF_MAX(sf_o(awt)+it*sf_d(awt)-(sf_o(atau)+(sf_n(atau)-1)*sf_d(atau)),0);
-                tmax=SF_MIN(sf_o(awt)+it*sf_d(awt)-(sf_o(atau)),(sf_n(awt)-1)*sf_d(awt)+sf_o(awt));
+                // get the limits of tau such as we avoid
+                // segmentation fault on the wavefield uo:
+                // 0 < t-tau < tmax
+
+                //Lower tau bound
+                tmin = SF_MAX(it*sf_d(awt)+sf_o(awt)-taumax,0);
+                tmin = -tmin + (it*sf_d(awt) +sf_o(awt));
                 
+                //Upper tau bound
+                tmax = SF_MIN(it*sf_d(awt)+sf_o(awt)-taumin,sf_o(awt)+sf_d(awt)*(sf_n(awt)-1));
+                tmax = -tmax + (it*sf_d(awt) +sf_o(awt));
 
-                for (itau=0.5 + (tmin - sf_o(atau))/sf_d(atau)  ; itau<0.5 + (tmax - sf_o(atau))/sf_d(atau) ; itau++) {
-                    adjsrc[0][it] += tgathers[itau]*uo[it-itau][ix][iz];
+                for (itau = 0.5 + (tmax - sf_o(atau))/sf_d(atau)   ; itau< .5+    (tmin - sf_o(atau))/sf_d(atau)  ; itau++) {
+                    itaux = 0.5 + (((it*sf_d(awt) +sf_o(awt)) - (itau*sf_d(atau)+sf_o(atau) ))-sf_o(awt))/sf_d(awt);
+                    adjsrc[0][it] += tgathers[itau]*uo[itaux][ix][iz];
                 }
+
             }
-
-
-
-
-
-        }   
-
-
+            sf_floatwrite(adjsrc[0],nt,Fadj);
+        }  
     }
+
+    
+
+
+    free(**uo);free(*uo);free(uo);
+    free(*adjsrc);free(adjsrc);
+    free(tgathers);
+ 
     exit(0);
 }

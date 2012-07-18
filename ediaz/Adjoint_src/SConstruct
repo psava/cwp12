@@ -1,6 +1,7 @@
 from rsf.proj import *
 
 Program('sfadjsrc_mva','Madjsrc_mva.c')
+Program('sfadjsrc_mva2','Madjsrc_mva2.c')
 
 
 

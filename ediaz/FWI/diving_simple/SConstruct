@@ -10,7 +10,7 @@ import fdmod,wemig,adcig
 # ------------------------------------------------------------
 f2m=0.3048
 par = dict(
-    nx=1201,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
+    nx=1200,ox=22.*f2m,dx=0.025*f2m,lx='x',ux='km',
     nz=900, oz=6.5*f2m,dz=0.025*f2m,lz='z',uz='km',
     nt=12000,ot=0,      dt=0.0005,    lt='t',ut='s',
     jsnap=250,
@@ -90,7 +90,6 @@ Plot('ss',fdmod.ssplot('plotcol=0 plotfat=20',par))
 fdmod.vertical('tr',15.5,par)
 Flow('rr','tr',
      'window j2=%(jrec)d min2=%(orec)g n2=%(nrec)d'%par)
-Plot('rr',fdmod.rrplot('',par)) 
 
 # ------------------------------------------------------------
 # velocity
@@ -105,7 +104,7 @@ Flow('vraw',strvelfile,'segyread read=data|'+
             0     ,0.025*f2m,
             10*f2m,0.025*f2m,
             par['nz'],par['oz'],
-            par['nx'],par['ox']
+            par['nx']+1,par['ox']
             ))
 
 # ------------------------------------------------------------
@@ -113,7 +112,7 @@ Flow('vraw',strvelfile,'segyread read=data|'+
 # C: correct
 
 #Flow('velC','velo','window')
-Flow('velC','vraw','window|math output="2.5"')
+Flow('velC','vraw','window n2=%(nx)d|math output="2.5"'%par)
 
 Plot('velC','window | ' +fdmod.cgrey('bias=1.5 color=j ',par))
 Result('velC',['velC','ss','rr'],'Overlay')
@@ -139,49 +138,75 @@ fdmod.vertical('xx',11.5,par)
 fdmod.point('xx1',11.5,7,par)
 
 
-Flow('global','velC',
-     ' rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*par['nx'])+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
-Plot('global',fdmod.rrplot('',par))
+#Flow('global','velC',
+#     ' rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*par['nx']/10)+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
 
 
-VELS=[x * 0.1 +1.2 for x in range(1)]
+VELS=[x * 0.1 +1.0 for x in range(1)]
 VELS2=[int((x * 0.1 +1.2)*100) for x in range(1)]
 
 
+REC=['rr','r1']
+
+Flow('r1','rr','window n2=1 f2=200')
+fdmod.boxarray('gt',
+               par['nz'],par['oz'],par['dz'],
+               par['nx'],par['ox'],par['dx'],
+               par)
+
+par['jcx']=30
+Flow('global','gt',
+     'put n2=%(nz)d n3=%(nx)d | window j3=%(jcx)d |'%par + 
+     'put n2=%d n3=1'% (par['nz']*par['nx']/par['jcx']) )
+
+Plot('global',fdmod.rrplot('',par))
 
 i=0
 for v in VELS:
-        
+
     veltag="-%03d"%int(v*100)
-    
-    eicoord='xx'
+    r=0
+    for rarr in REC:
+        
+        rtag='-%02d'%r
+        eicoord='xx'
+        
+        Plot(rarr,fdmod.rrplot('',par)) 
+        
+        Flow('velS'+veltag+rtag,'velC','math output="%g*input"'%v)
+        
+        Plot('velS'+veltag+rtag,fdmod.cgrey('allpos=y color=j ',par))
+        
+        fdmod.awefd('dat'+veltag+rtag,'uS'+veltag+rtag,'wav','velS'+veltag+rtag,'dens','ss',rarr,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+        
+        if rarr=='rr':
+            Flow('ain'+veltag+rtag,['dC'],'window|reverse opt=i which=2')
+        else:
+            Flow('ain'+veltag+rtag,['dC'],'window n1=1 f1=200|transp plane=12|reverse opt=i which=2')
+                   
+        
+        # Reverse propagation of FWI adjoint source
+        fdmod.awefd('junk'+veltag+rtag,'raS'+veltag+rtag,'ain'+veltag+rtag,'velS'+veltag+rtag,'dens',rarr,rarr,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+        
+        Flow('aS'+veltag+rtag,'raS'+veltag+rtag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i '%par)
+        
+        # ------------------------------------------------------------
+        # data gradient FWI
+        Flow('dgrad'+veltag+rtag,['uS'+veltag+rtag,'aS'+veltag+rtag],
+            '''
+            xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+            ''' % par)
+        # extended imaging condition:  global time-lag gathers  and space-lag gathers    
+        wemig.eic('Global-tlag'+veltag+rtag,'uS'+veltag+rtag,'aS'+veltag+rtag,'global','nhx=0 nhz=0 |window squeeze=y',par)
+        
+        
+        Flow('tlags'+veltag+rtag,'Global-tlag'+veltag+rtag,'put n2=%(nz)d d2=%(dz)g o2=%(oz)g o3=%(ox)g'%par+' n3=%d d3=%g|transp plane=12'%(par['nx']/par['jcx'],par['dx']*par['jcx']))
+
+        Result('tlags'+veltag+rtag,'grey gainpanel=a')
+
+        Result('velS'+veltag+rtag,['velS'+veltag+rtag,'global',rarr,'ss'],'Overlay')
 
 
-    Flow('velS'+veltag,'velC','math output="%g*input"'%v)
-
-    Result('velS'+veltag,fdmod.cgrey('allpos=y color=j ',par))
-
-    fdmod.awefd('dat'+veltag,'uS'+veltag,'wav','velS'+veltag,'dens','ss','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-    Flow('ain'+veltag,['dat'+veltag,'dC'],'add scale=+1,-1 ${SOURCES[1]} |reverse opt=i which=2')
-
-
-    # Reverse propagation of FWI adjoint source
-    fdmod.awefd('junk'+veltag,'raS'+veltag,'ain'+veltag,'velS'+veltag,'dens','rr','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-    Flow('aS'+veltag,'raS'+veltag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i | deriv3 axis=3| deriv3 axis=3'%par)
-
-    # ------------------------------------------------------------
-    # data gradient FWI
-    Flow('dgrad'+veltag,['uS'+veltag,'aS'+veltag],
-        '''
-        xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-        ''' % par)
-    # extended imaging condition:  global time-lag gathers  and space-lag gathers    
-    wemig.eic('Global-tlag'+veltag,'uS'+veltag,'aS'+veltag,'global','nhx=0 nhz=0 |window squeeze=y',par)
-
-
-
-
+        r+=1
 
 End()

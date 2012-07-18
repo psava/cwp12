@@ -1,0 +1,287 @@
+from rsf.proj import *
+import fdmod,encode,wei,adcig,wemig
+import math
+
+# ------------------------------------------------------------
+par = {
+    'nx':500, 'ox':0, 'dx':0.02,  'lx':'x', 'ux':'km',
+    'ny':1,   'oy':0, 'dy':0.02,  'ly':'y', 'uy':'km',
+    'nz':250, 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
+    'nt':1000,'ot':0, 'dt':0.002, 'lt':'t', 'ut':'s',
+    'kt':80,
+    'jsnap':100,
+    'nb':100,
+    'frq':15
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=220
+par['dht']=par['dt']*2
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+# ------------------------------------------------------------
+
+
+par['impulse']='n'
+
+# taper parameters
+par['xk']=50
+par['yk']=50
+par['xl']=par['nx']-50
+par['yl']=par['ny']-50
+
+# migration parameters
+par['jw']=1
+par['ow']=2
+par['nw']=72
+par['dw']=1/(par['nt']*par['dt'])
+
+# deconvolution regularization
+par['deps']=1e-5
+
+# lag parameters
+par['nhz']=0
+par['nhx']=60
+par['nhy']=0
+par['nht']=220
+par['mht']=2*par['nht']+1
+par['dht']=  par['dt'] *2
+par['oht']= -par['nht']*par['dht']
+par['tratio']=1.0
+par['xratio']=1.0
+par['lratio']=1.0
+
+wei.wempar(par)
+
+# ------------------------------------------------------------
+def zwtcube(custom,par):
+    return '''
+    grey3 title="" flat=y labelsz=6 labelfat=2 wantaxis=y framelabel=n
+    frame1=%d frame2=%d frame3=%d
+    label1=z label2=f label3="\F10 t\F3"
+    unit1=km unit2=Hz unit3=s
+    screenratio=1 point1=0.65 point2=0.65
+    %s
+    ''' %(75,par['nw']/2,par['nht'],
+    par['labelattr']+' '+custom)
+
+# ------------------------------------------------------------
+# source/receiver coordinates
+# ------------------------------------------------------------
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+par['ixsou']=(par['xsou']-par['ox'])/par['dx']
+
+fdmod.point3d('ss',par['xsou'],par['oy'],par['zsou'],par)
+Flow('ss2d','ss','window n1=2 j1=2')
+Plot('ss','ss2d',fdmod.ssplot('plotcol=2',par))
+
+fdmod.horizontal3d('rr',par['oz'],par)
+Flow('rr2d','rr','window n1=2 j1=2')
+Plot('rr','rr2d',fdmod.rrplot('plotcol=6 plotfat=10',par))
+
+# ------------------------------------------------------------
+# all CIGs for extension calculation
+par['jcx']=5
+par['ncx']=par['nx']/par['jcx']
+par['dcx']=par['dx']*par['jcx']
+par['fcx']=0
+
+allcc = range(0,par['nx']+1,par['jcx'])
+
+for icx in allcc:
+    ctag = "-%03d"%icx
+    cipx = par['ox']+icx*par['dx']
+    cipy = par['oy']
+    
+    fdmod.vertical3d('cc'+ctag,cipx,cipy,par)
+    Plot('cc'+ctag,'window j1=2 |'+fdmod.bbplot('plotcol=1',par))
+    
+Flow('cc',map(lambda x: 'cc-%03d' % x,allcc),
+     'rcat axis=2 space=n ${SOURCES[1:%d]}'%(par['nx']/par['jcx']))
+Plot('cc',map(lambda x: 'cc-%03d.vpl' % x,allcc),'Overlay')
+
+# ------------------------------------------------------------
+# one CIG for gradient calculation
+par['xcig']=par['xsou']+1
+par['zcig']=1.5
+par['icig']=(par['xcig']-par['ox'])/par['dx']
+
+fdmod.vertical3d('gg',par['xcig'],par['oy'],par)
+Plot('gg','window j1=2 |'
+     + fdmod.qqplot('plotcol=3 plotfat=5',par))
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',par['frq'],par)
+Flow(  'wav','wav_','transp')
+Result('wav','transp |' + fdmod.waveplot('',par))
+
+# ------------------------------------------------------------
+# model parameters
+par['vp']=3.0
+par['ro']=2.0
+
+# ------------------------------------------------------------
+# density
+Flow('den',None,
+     '''
+     spike nsp=5 mag=0,0,0,0,1
+     n1=%(nz)d o1=%(oz)g d1=%(dz)g k1=51,76,101,126,151
+     n2=%(nx)d o2=%(ox)g d2=%(dx)g  |
+     put label1=%(lz)s label2=%(lx)s unit1=%(uz)s unit2=%(ux)s |
+     add add=1.0
+     ''' % par)
+Flow('con','den','math output=1.0')
+Plot('den','add add=-1.0 | ricker1 frequency=10 |'
+     + fdmod.cgrey('',par))
+
+# velocity
+Flow('vel','den','math output="%g"' %par['vp'])
+Plot('vel',fdmod.cgrey('allpos=y bias=2.0',par))
+
+for i in (['vel','den']):
+    Result(i,[i,'rr','cc','gg','ss'],'Overlay')
+
+# slowness
+wei.slowness('slo','vel',par)
+Flow('slo-L','slo','scale rscale=1.2')
+Flow('slo-C','slo','scale rscale=1.0')
+Flow('slo-H','slo','scale rscale=0.8')
+
+par['zref-L']=1.90
+par['zref-C']=1.50
+par['zref-H']=1.15
+
+fdmod.horizontal('hh',par['zref-C'],par)
+Plot('hh',fdmod.bbplot('plotcol=5 plotfat=5',par))
+for m in (['-L','-C','-H']):
+    fdmod.horizontal('hh'+m,par['zref'+m],par)
+    Plot('hh'+m,fdmod.bbplot('plotcol=5 plotfat=5',par))
+
+par['zzof-L']=1.25
+par['zzof-C']=1.50
+par['zzof-H']=1.90
+for m in (['-L','-C','-H']):
+    fdmod.point('cc'+m,par['xcig'],par['zzof'+m],par)
+    Plot('cc'+m,fdmod.qqplot('plotcol=3 plotfat=15',par))
+
+# ------------------------------------------------------------
+# acoustic modeling
+Flow('dm',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=50
+     ''' % par)
+fdmod.awefd2d('dd','ww','wav','vel','den','ss2d','rr2d','',par)
+fdmod.awefd2d('do','wo','wav','vel','con','ss2d','rr2d','',par)
+Flow('dat','dd do dm',
+     '''
+     add scale=1,-1 ${SOURCES[1]} | 
+     add mode=p ${SOURCES[2]} 
+     ''' %par)
+Result('dat',
+       'transp |' + fdmod.dgrey('',par))
+
+
+Flow('cc2d','cc','window j1=2')
+fdmod.vertical('gg2d',par['xcig'],par)
+
+
+for m in (['-L','-C','-H']):
+    Flow('vel'+m,'slo'+m,'math output="1/input"|window squeeze=y|transp plane=12')
+
+    fdmod.awefd_swfl('us'+m,'wav','vel'+m,'con','ss2d','jsnap=1',par)
+    fdmod.awefd_rwfl('ur'+m,'dat','vel'+m,'con','rr2d','jsnap=1',par)
+
+
+    Result('us'+m,'window j3=10| '+fdmod.wgrey('',par))
+    Result('ur'+m,'window j3=10| '+fdmod.wgrey('',par))
+
+    Flow('img'+m,['us'+m,'ur'+m],
+        ''' 
+        xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+        ''' % par)
+
+    # Extended image (constant lateral medium trick: calculate cigs eevrywhere, then stack)
+    
+    wemig.eic('eic_all'+m,'us'+m,'ur'+m,'cc2d','nhx=0 nhz=0 nht=%(nht)d|window squeeze=y'%par,par)
+
+
+    # Simulated extended image with many shots
+    Flow('eic'+m,'eic_all'+m,
+         '''        
+         put n2=%(nz)d n3=%(ncx)d | transp plane=23 | stack 
+         '''%par)
+
+    # Penalized time-lag gather
+    Flow('pen_eic'+m,'eic'+m,'math output="input*x1"')
+
+     # Adjoint source, receiver side
+    Flow('adj_r'+m,['us'+m,'pen_eic'+m,'gg2d','wav_'],
+         '''
+         ./sfadjsrc_mva2.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
+          sinc pattern=${SOURCES[3]} | transp plane=12 
+         ''')
+    # Adjoint source, source side
+    Flow('adj_s'+m,['ur'+m,'pen_eic'+m,'gg2d','wav_'],
+         '''
+         ./sfadjsrc_mva2.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
+         sinc pattern=${SOURCES[3]} | transp plane=12 
+         ''')
+
+    # Adjoint state variables
+    fdmod.awefd_rwfl('as'+m,'adj_s'+m,'vel'+m,'con','gg2d','jsnap=1',par)
+    fdmod.awefd_swfl('ar'+m,'adj_r'+m,'vel'+m,'con','gg2d','jsnap=1',par)
+
+
+    Result('as'+m,'window j3=10| '+fdmod.wgrey('',par))
+    Result('ar'+m,'window j3=10| '+fdmod.wgrey('',par))
+
+
+    # Gradient calculation 
+    Flow('sgrad'+m,['us'+m,'as'+m],'deriv3 axis=3|deriv3 axis=3 |xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100')
+    Flow('rgrad'+m,['ur'+m,'ar'+m],'deriv3 axis=3|deriv3 axis=3 |xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100')
+
+    Plot('sgrad'+m,fdmod.cgrey('',par))
+    Result('sgrad'+m,['sgrad'+m,'gg','rr','ss'],'Overlay')
+    Plot('rgrad'+m,fdmod.cgrey('',par))
+    Result('rgrad'+m,['rgrad'+m,'gg','rr','ss'],'Overlay')
+
+    # gg.rsf
+
+
+    Flow('grad'+m,['rgrad'+m,'sgrad'+m,'vel'],'add scale=1,1 ${SOURCES[1]}|math v=${SOURCES[2]} output="-2*input/(v^3)"')
+
+
+
+Flow('gbyte',['grad-L','grad-C','grad-H'],'cat axis=3 ${SOURCES[1:3]} | byte gainpanel=a pclip=99.0')
+
+i=0
+for  m in (['-L','-C','-H']):
+    Plot('grad'+m,['gbyte'],'window f3=%d n3=1 |'%i+fdmod.cgrey('color=E  ',par))
+    Result('grad'+m,['grad'+m,'gg','rr','ss'],'Overlay')
+    i+=1
+
+
+End()

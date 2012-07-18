@@ -1,0 +1,250 @@
+from rsf.proj import *
+import fdmod,encode,wei,adcig,wemig
+import math
+
+# ------------------------------------------------------------
+par = {
+    'nx':500, 'ox':0, 'dx':0.02,  'lx':'x', 'ux':'km',
+    'ny':1,   'oy':0, 'dy':0.02,  'ly':'y', 'uy':'km',
+    'nz':250, 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
+    'nt':2000,'ot':0, 'dt':0.002, 'lt':'t', 'ut':'s',
+    'kt':80,
+    'jsnap':100,
+    'nb':100,
+    'frq':10,
+    'ns':10,'os':0.0,'ds':0.25,'oxs':1.0
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=220
+par['dht']=par['dt']*2
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+# ------------------------------------------------------------
+
+
+par['impulse']='n'
+
+# taper parameters
+par['xk']=50
+par['yk']=50
+par['xl']=par['nx']-50
+par['yl']=par['ny']-50
+
+# migration parameters
+par['jw']=1
+par['ow']=2
+par['nw']=72
+par['dw']=1/(par['nt']*par['dt'])
+
+# deconvolution regularization
+par['deps']=1e-5
+
+# lag parameters
+par['nhz']=0
+par['nhx']=60
+par['nhy']=0
+par['nht']=220
+par['mht']=2*par['nht']+1
+par['dht']=  par['dt'] *2
+par['oht']= -par['nht']*par['dht']
+par['tratio']=1.0
+par['xratio']=1.0
+par['lratio']=1.0
+
+# ------------------------------------------------------------
+# source/receiver coordinates
+# ------------------------------------------------------------
+
+# source coordinates:
+
+for ishot in range(par['ns']):
+    stag='-%03d'%ishot
+ 
+    zx=ishot*par['ds']+par['os']
+    fdmod.point('s'+stag,par['oxs'],zx,par)
+    Plot('s'+stag,fdmod.ssplot('',par))
+
+
+
+Flow('ss',map(lambda x:'s-%03d'%x,range(par['ns'])), 'rcat axis=2 space=n ${SOURCES[1:%s]}'%len(range(par['ns'])))
+Plot('ss',fdmod.ssplot('',par))
+
+
+
+
+
+
+
+
+# receiver coordinates:
+fdmod.vertical('rr',9.0,par)
+Plot('rr',fdmod.rrplot('',par))
+
+# tlag gather coordinates:
+fdmod.vertical('gg',5.0,par)
+Plot('gg',fdmod.rrplot('plotcol=2',par))
+
+# ------------------------------------------------------------
+# model parameters
+# ------------------------------------------------------------
+par['vp']=3.0
+par['ro']=2.0
+
+# ------------------------------------------------------------
+# density
+# ------------------------------------------------------------
+Flow('den',None,
+    '''
+    math  n1=%(nz)d o1=%(oz)g d1=%(dz)g
+          n2=%(nx)d o2=%(ox)g d2=%(dx)g output="1.0"
+    '''%par)
+
+# velocity
+# lateral gradient
+#Flow('vel-L','den','math output=" %(vp)g +(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
+#Flow('vel-C','den','math output="%g"' %par['vp'])
+#Flow('vel-H','den','math output=" %(vp)g -(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
+
+# constant error
+Flow('vel-C','den','math output="%g"' %par['vp'])
+Flow('vel-L','vel-C','math output="input*0.8"')
+Flow('vel-H','vel-C','math output="input*1.2"')
+
+
+# Plot velocities
+Flow(['vels-byte','vels-bar'],['vel-L','vel-C','vel-H'],'cat axis=3 ${SOURCES[1:3]} |byte gainpanel=a allpos=y color=j bias=1.5 bar=${TARGETS[1]}')
+i=0
+for v in (['-L','-C','-H']):
+    Plot('vel'+v,['vels-byte','vels-bar'],'window f3=%d n3=1 |'%i +fdmod.cgrey('bar=${SOURCES[1]} color=j ',par))
+    i+=1
+
+# Overlay velocities with sources, receivers and eic locations
+for i in (['vel-L','vel-C','vel-H']):
+    Result(i,[i,'rr','gg','ss'],'Overlay')
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',par['frq'],par)
+Flow(  'wav','wav_','transp')
+Result('wav','transp |' + fdmod.waveplot('',par))
+
+
+
+# Generate data with true model
+
+for ishot in range(par['ns']):
+    stag='-%03d'%ishot
+    fdmod.awefd_data('dat_s'+stag,'wav','vel-C','den','s'+stag,'rr','jsnap=1',par)
+
+
+
+
+
+
+for m in (['-L','-C','-H']):
+
+    for ishot in range(par['ns']):
+        stag='-%03d'%ishot
+        fdmod.awefd_swfl('us'+stag+m,'wav','vel'+m,'den','s'+stag,'jsnap=1',par)
+        fdmod.awefd_rwfl('ur'+stag+m,'dat_s'+stag,'vel'+m,'den','rr','jsnap=1',par)
+        Flow('img'+stag+m,['us'+stag+m,'ur'+stag+m],
+            ''' 
+            xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+            ''' % par)
+        # Extended image (constant lateral medium trick: calculate cigs eevrywhere, then stack)
+        wemig.eic('eic'+stag+m,'us'+stag+m,'ur'+stag+m,'gg','nhx=0 nhz=0 nht=%(nht)d|window squeeze=y'%par,par)
+
+
+
+    Flow('eic'+m,map(lambda x:'eic-%03d'%x+m,range(par['ns'])),'cat axis=3 ${SOURCES[1:%d]} |stack axis=3 '%par['ns'])
+    # Penalized time-lag gather
+    Flow('pen_eic'+m,'eic'+m,'math output="input*x1"')
+
+
+
+    for ishot in range(par['ns']):
+        stag='-%03d'%ishot
+        # Adjoint source, receiver side
+        Flow('adj_r'+stag+m,['us'+stag+m,'pen_eic'+m,'gg','wav_'],
+             '''
+             ./sfadjsrc_mva2.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
+              sinc pattern=${SOURCES[3]} | transp plane=12 
+             ''')
+        # Adjoint source, source side
+        Flow('adj_s'+stag+m,['ur'+stag+m,'pen_eic'+m,'gg','wav_'],
+             '''
+             ./sfadjsrc_mva2.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
+             sinc pattern=${SOURCES[3]} | transp plane=12 
+             ''')
+        # Adjoint state variables
+        fdmod.awefd_rwfl('as'+stag+m,'adj_s'+stag+m,'vel'+m,'den','gg','jsnap=1',par)
+        fdmod.awefd_swfl('ar'+stag+m,'adj_r'+stag+m,'vel'+m,'den','gg','jsnap=1',par)
+        # Gradient calculation 
+        Flow('sgrad'+stag+m,['us'+stag+m,'as'+stag+m],'deriv3 axis=3|deriv3 axis=3 |xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100')
+        Flow('rgrad'+stag+m,['ur'+stag+m,'ar'+stag+m],'deriv3 axis=3|deriv3 axis=3 |xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100')
+
+        Plot('sgrad'+stag+m,fdmod.cgrey('color=E ',par))
+        Result('sgrad'+stag+m,['sgrad'+stag+m,'gg','rr','ss'],'Overlay')
+        Plot('rgrad'+stag+m,fdmod.cgrey('color=E ',par))
+        Result('rgrad'+stag+m,['rgrad'+stag+m,'gg','rr','ss'],'Overlay')
+
+
+    Flow('sgrad'+m,map(lambda x:'sgrad-%03d'%x+m,range(par['ns'])),'cat axis=3 ${SOURCES[1:%d]}|stack axis=3'%par['ns'])
+
+    Flow('rgrad'+m,map(lambda x:'rgrad-%03d'%x+m,range(par['ns'])),'cat axis=3 ${SOURCES[1:%d]}|stack axis=3'%par['ns'])
+
+    Flow('grad'+m,['sgrad'+m,'rgrad'+m],'add ${SOURCES[1]} ')
+
+
+
+
+Flow('rgrad_byte',map(lambda x:'rgrad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
+Flow('sgrad_byte',map(lambda x:'sgrad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
+Flow('grad_byte',map(lambda x:'grad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
+
+
+
+i=0
+for m in (['-L','-C','-H']):
+
+    Plot('sgrad'+m,'sgrad_byte','window f3=%d n3=1 |'%i + fdmod.cgrey('color=E pclip=99.5',par))
+    Result('sgrad'+m,['sgrad'+m,'gg','rr','ss'],'Overlay')
+
+    Plot('rgrad'+m,'rgrad_byte','window f3=%d n3=1 |'%i + fdmod.cgrey('color=E pclip=99.5',par))
+    Result('rgrad'+m,['rgrad'+m,'gg','rr','ss'],'Overlay')
+
+    Plot('grad'+m,'grad_byte','window f3=%d n3=1 |'%i + fdmod.cgrey('color=E pclip=99.5',par))
+    Result('grad'+m,['grad'+m,'gg','rr','ss'],'Overlay')
+    i+=1
+
+    
+
+
+
+# Remove some artifacts from the gradient
+
+Flow ('ss.picks','ss','disfil col=2 number=n |awk \'{printf("%10.4f%10.4f\\n",$1,$2)}\'')   
+
+Flow ('ss_mask',['vel-C','ss.picks'],'picks2rsf tmask=1 picks=${SOURCES[1]}')
+
+
+End()

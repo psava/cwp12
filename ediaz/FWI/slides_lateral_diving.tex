@@ -1,0 +1,87 @@
+\bibliographystyle{seg}
+\input{./Share/pcsmacros}
+\pgfdeclareimage[height=0.75in]{mypic}{esteban}
+\bibliography{SEG}
+
+\title[]{Time-domain MVA in constant velocity:}
+\subtitle{}
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines }
+\date{}
+\logo{}
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+% ------------------------------------------------------------
+\begin{frame}
+
+\end{frame}
+
+
+\begin{frame} \frametitle{experiment}
+\begin{itemize}
+
+\item Multiple sources, multiple receivers.
+\item Constant velocity medium, with a $\pm20\%$ error
+\end{itemize}
+\end{frame}
+
+
+
+\inputdir{lateral_diving_mva}
+
+
+\begin{frame}\frametitle{-20\% anomaly}
+    \plot{vel-L}{width=\textwidth}{} 
+\end{frame}
+
+\begin{frame}\frametitle{0\% anomaly} 
+    \plot{vel-C}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}\frametitle{+20\% anomaly} 
+    \plot{vel-H}{width=\textwidth}{} 
+\end{frame}
+
+
+\begin{frame} \frametitle{flow}
+
+    \begin{itemize}
+        \item for all $\bf e$ do:
+        \begin{enumerate}
+            \item Calculate $ u_s({\bf x},t,{\bf e})$ and  $ u_r({\bf x},t,{\bf e})$
+        \end{enumerate}
+    \end{itemize}
+
+    \begin{itemize}
+        \item Compute extended image $R(x=5,\tau)$
+        \item Apply $|\tau|$ as penalty function
+        \item for all $\bf e$ do:
+        \begin{enumerate}
+            \item Calculate  $ g_s({\bf x},t,{\bf e})$ and  $ g_r({\bf x},t,{\bf e})$
+            \item Calculate $ a_s({\bf x},t,{\bf e})$ and  $a_r({\bf x},t,{\bf e})$
+            \item Calculate $g({\bf x},{\bf e})=   u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e}) + u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
+        \end{enumerate}
+        \item obtain $g({\bf x})=\sum_{{\bf e}} g({\bf x},{\bf e}) $
+    \end{itemize}
+
+\end{frame}
+
+
+
+
+\begin{frame}\frametitle{-20\% anomaly}
+    \plot{grad-L}{width=\textwidth}{} 
+\end{frame}
+
+\begin{frame}\frametitle{0\% anomaly} 
+    \plot{grad-C}{width=\textwidth}{} 
+\end{frame}
+\begin{frame}\frametitle{+20\% anomaly} 
+    \plot{grad-H}{width=\textwidth}{} 
+\end{frame}
+

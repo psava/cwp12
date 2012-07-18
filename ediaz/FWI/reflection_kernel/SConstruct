@@ -101,9 +101,7 @@ Flow('velC',None,
     put label1=%(lz)s unit1=%(uz)s label2=%(lx)s unit2=%(ux)s
     '''%(par))
 
-Flow('dens','velC','math output="sqrt(abs(x1-2.)^2 + abs(x2-4)^2)"|mask min=0.1 |dd type=float |math x=${SOURCES[0]} output="input*2 + x*0.5 "')
-
-Flow('cdens','velC','math output="x1-3"|mask min=0 |dd type=float |math x=${SOURCES[0]} output=" x*0.5 "')
+Flow('dens','velC','math output="1"')
 
 #================================================================================
 
@@ -145,15 +143,9 @@ Plot('sall', fdmod.ssplot('plotcol=4 plotfat=5',par))
 
 for i in SHOTS:
     stag='-%03d'%i
+    fdmod.awefd('dC'+stag,'swfl'+stag,'wav','velC','dens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
-    
-    fdmod.awefd_data('direct_all_'+stag,'wav','velC','cdens','s'+stag,'rall','free=y  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-    fdmod.awefd_data('dC_all_'+stag,'wav','velC','cdens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-    Flow('dC'+stag,['direct_all_'+stag,'dC_all_'+stag],'add ${SOURCES[1]} scale=1,-1')
-
-    fdmod.awefd_swfl('swfl'+stag,'wav','velC','cdens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','cdens','rall','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','dens','rall','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
 
     Flow('cics'+stag,['swfl'+stag,'rwfl'+stag],
@@ -161,6 +153,77 @@ for i in SHOTS:
       xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
       ''' % par)
 
+
+    
+
+
+Flow('velI','velC','math output="input*1.2 "')
+
+
+Result('vels',['velC','velI'],
+'''cat axis=3 ${SOURCES[1]} |transp plane=23| window n3=1|
+   graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
+   plotfat=5 screenratio=3 wantscalebar=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 xll=1.1
+   parallel2=n wherexlabel=t  min2=1.5 max2=3.5 d2tic=0.5 
+   labelsz=6 labelfat=3 titlesz=12 titlefat=3
+    '''%(par))
+
+
+
+# Case 1: 1 shot, 1 eic, 1 receiver
+SHOT_cases= [0,80,120]
+EIC_cases= [69]
+REC_cases= [14,59,121]
+
+
+for s in SHOT_cases:
+    stag='-%03d'%s
+
+    for e in EIC_cases:
+        etag='-%03d'%e
+
+        for r in REC_cases:
+            rtag='-%03d'%r
+
+            wfltag='wfl_s'+stag+'_e'+etag+'_r'+rtag
+        
+
+            Flow('dC_'+'s'+stag+'_r'+rtag,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
+            ############# correct image with 1 shot 1 receiver
+
+            fdmod.awefd_swfl('corr_s'+wfltag,'wav','velC','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+            fdmod.awefd_rwfl('corr_r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velC','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+          
+
+            Flow('corr_cic_s'+stag+'_e'+etag+'_r'+rtag,['corr_s'+wfltag,'corr_r'+wfltag],
+              '''
+              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+              ''' % par)
+
+            
+            Result('corr_cic_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
+
+
+
+
+
+
+
+
+            # Source wfld
+            fdmod.awefd_swfl('s'+wfltag,'wav','velI','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+
+            # Receiver wfld
+            fdmod.awefd_rwfl('r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velI','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+            # conventional imaging condition
+            Flow('cic_s'+stag+'_e'+etag+'_r'+rtag,['s'+wfltag,'r'+wfltag],
+              '''
+              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+              ''' % par)
+
+            Result('cic_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
 
 
 End()

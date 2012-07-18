@@ -1,7 +1,7 @@
 # 
 from rsf.proj import *
 import fdmod,adcig,encode,wemig,math
-import commands, os
+import commands, os,numpy
 
 
 
@@ -72,7 +72,7 @@ adcig.eparam(10.0,
 
 # ------------------------------------------------------------
 # wavelet
-fdmod.wavelet('wav_',6,par)
+fdmod.wavelet('wav_',8,par)
 Flow(  'wav', 'wav_','transp')
 
 Result('wav','window n2=500 |'+fdmod.waveplot('',par))
@@ -143,9 +143,11 @@ Plot('sall', fdmod.ssplot('plotcol=4 plotfat=5',par))
 
 for i in SHOTS:
     stag='-%03d'%i
-    fdmod.awefd('dC'+stag,'swfl'+stag,'wav','velC','dens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    fdmod.awefd('dCtmp'+stag,'swfl'+stag,'wav','velC','dens','s'+stag,'rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
-    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','dens','rall','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    Flow('dC'+stag,'dCtmp'+stag,'scale axis=123')
+
+    fdmod.awefd_rwfl('rwfl'+stag,'dC'+stag,'velC','dens','rall','free=n  jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
 
     Flow('cics'+stag,['swfl'+stag,'rwfl'+stag],
@@ -157,7 +159,7 @@ for i in SHOTS:
     
 
 
-Flow('velI','velC','math output="input*1.2 "')
+Flow('velI','velC','math output="input*1.1 "')
 
 
 Result('vels',['velC','velI'],
@@ -171,119 +173,104 @@ Result('vels',['velC','velI'],
 
 
 # Case 1: 1 shot, 1 eic, 1 receiver
-SHOT_cases= [0,80,120]
-EIC_cases= [69]
-REC_cases= [14,59,121]
+SHOT_cases = [0,80,120]
+EIC_cases  = [69]
+REC_cases  = [14,59,121]
 
+ncases=len(SHOT_cases)*len(EIC_cases)*len(REC_cases)
 
+cases= numpy.zeros((ncases,3))
+i=0
 for s in SHOT_cases:
-    stag='-%03d'%s
-
     for e in EIC_cases:
-        etag='-%03d'%e
-
         for r in REC_cases:
-            rtag='-%03d'%r
-
-            wfltag='wfl_s'+stag+'_e'+etag+'_r'+rtag
-        
-
-            Flow('dC_'+'s'+stag+'_r'+rtag,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
-            ############# correct image with 1 shot 1 receiver
-
-            fdmod.awefd_swfl('corr_s'+wfltag,'wav','velC','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-            fdmod.awefd_rwfl('corr_r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velC','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-          
-
-            Flow('corr_cic_s'+stag+'_e'+etag+'_r'+rtag,['corr_s'+wfltag,'corr_r'+wfltag],
-              '''
-              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-              ''' % par)
-
-            
+            cases[i][0]=s
+            cases[i][1]=e
+            cases[i][2]=r
+            print i
+            i+=1
 
 
 
 
 
 
+for c in range(ncases):
+    s=cases[c][0]
+    e=cases[c][1]
+    r=cases[c][2]
+
+    stag='-%03d'%s
+    etag='-%03d'%e
+    rtag='-%03d'%r
 
 
-            # Source wfld
-            fdmod.awefd_swfl('s'+wfltag,'wav','velI','dens','s'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-
-            # Receiver wfld
-            fdmod.awefd_rwfl('r'+wfltag,'dC_'+'s'+stag+'_r'+rtag,'velI','dens','r'+stag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-
-            # conventional imaging condition
-            Flow('cic_s'+stag+'_e'+etag+'_r'+rtag,['s'+wfltag,'r'+wfltag],
-              '''
-              xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-              ''' % par)
-
-            Result('cic_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
-
-            # time-lag gathers
-            wemig.eic('cig_s'+stag+'_e'+etag+'_r'+rtag,'s'+wfltag,'r'+wfltag,'e'+etag,'nhx=0 nhz=0 |window squeeze=y',par)
-
-            # Penalized time-lag gathers
-            Flow('pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'cig_s'+stag+'_e'+etag+'_r'+rtag,
-                'math output="abs(x1)^2 * input "')
-
-            
-            
-            Result('pen-cig_s'+stag+'_e'+etag+'_r'+rtag,['cig_s'+stag+'_e'+etag+'_r'+rtag,'pen_cig_s'+stag+'_e'+etag+'_r'+rtag],
-                ''' 
-                cat ${SOURCES[1]} axis=2|scale axis=123| '''+grapht('',par))
-                
-
-
-            #Adjoint source, source side
-            Flow('adj_sou_'+wfltag,['r'+wfltag,'pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'e'+etag,'wav_'],
-                '''
-                 ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
-                  sinc pattern=${SOURCES[3]}|transp plane=12 
-                ''')
-            # Adjoint source wavefield
-            fdmod.awefd_rwfl('adj_s'+wfltag,'adj_sou_'+wfltag,'velI','dens','e'+etag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-        
-            
-
-            # Adjoint source receiver side
-            Flow('adj_rec_'+wfltag,['s'+wfltag,'pen_'+'cig_s'+stag+'_e'+etag+'_r'+rtag,'e'+etag,'wav_'],
-                '''
-                 ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
-                 sinc pattern=${SOURCES[3]}|transp plane=12 
-                ''')
+    m='-%02d'%c
 
 
 
-            Result('adj_srcs_s'+stag+'_e'+etag+'_r'+rtag,['adj_rec_'+wfltag,'adj_sou_'+wfltag],
-                 '''
-                cat ${SOURCES[1]} axis=1|scale axis=123| transp plane=12| '''+grapht('label1="t"',par))
+    Flow('dC'+m,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
+
+    # Source wfld
+    fdmod.awefd_swfl('us'+m,'wav','velI','dens','s'+stag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
 
-            # Adjoint receiver wavefield
-            fdmod.awefd_swfl('adj_r'+wfltag,'adj_rec_'+wfltag,'velI','dens','e'+etag,'r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
-        
+    # Receiver wfld
+    fdmod.awefd_rwfl('ur'+m,'dC'+m,'velI','dens','r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+    
+    # conventional imaging condition
+    Flow('cic'+m,['us'+m,'ur'+m],
+      '''
+      xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+      ''' % par)
 
-            # Data gradient
-            Flow('sgrad_s'+stag+'_e'+etag+'_r'+rtag,['s'+wfltag,'adj_s'+wfltag],
-                '''
-                 xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-                ''')
-            Plot('sgrad_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
-            Result('sgrad_s'+stag+'_e'+etag+'_r'+rtag,['sgrad_s'+stag+'_e'+etag+'_r'+rtag,'r'+rtag,'s'+stag,'e'+etag],'Overlay')
+    Result('cic'+m, fdmod.cgrey(' ',par))
 
-            Flow('rgrad_s'+stag+'_e'+etag+'_r'+rtag,['r'+wfltag,'adj_r'+wfltag],
-                '''
-                 xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
-                ''')
-            Plot('rgrad_s'+stag+'_e'+etag+'_r'+rtag, fdmod.cgrey(' ',par))
+    # time-lag gathers
+    wemig.eic('cig'+m,'us'+m,'ur'+m,'e'+etag,'nhx=0 nhz=0 |window squeeze=y',par)
+    
+    # Penalized time-lag gathers
+    Flow('pen_cig'+m,'cig'+m,
+        'math output="abs(x1)^2 * input "')
+
+    Result('pen_cig'+m,['cig'+m,'pen_cig'+m],
+        ''' 
+         cat ${SOURCES[1]} axis=2|scale axis=123| '''+grapht('',par))
+  
+    #Adjoint source, source side
+    Flow('adjs_s'+m,['ur'+m,'pen_cig'+m,'e'+etag,'wav_'],
+     '''
+      ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
+       sinc pattern=${SOURCES[3]}|transp plane=12 
+     ''')
+
+    # Adjoint source wavefield
+    fdmod.awefd_rwfl('as'+m,'adjs_s'+m,'velI','dens','e'+etag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+ 
 
 
-            Result('rgrad_s'+stag+'_e'+etag+'_r'+rtag,['rgrad_s'+stag+'_e'+etag+'_r'+rtag,'r'+rtag,'s'+stag,'e'+etag],'Overlay')
+    # Adjoint source receiver side
+    Flow('adjs_r'+m,['us'+m,'pen_cig'+m,'e'+etag,'wav_'],
+        '''
+         ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
+         sinc pattern=${SOURCES[3]}|transp plane=12 
+        ''')
+    # Adjoint receiver wavefield
+    fdmod.awefd_swfl('ar'+m,'adjs_r'+m,'velI','dens','e'+etag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+ 
+
+    Flow('grad'+m,['us'+m,'as'+m,'ur'+m,'ar'+m],
+        '''
+        math us=${SOURCES[0]} as=${SOURCES[1]} ur=${SOURCES[2]} ar=${SOURCES[3]}
+        output="us*as +ur*ar" |
+        stack axis=3 norm=n
+        ''')
+
+
+    Plot('grad'+m,fdmod.cgrey('',par))
+
+
+    Result('grad'+m,['grad'+m,'s'+stag,'e'+etag,'r'+rtag],'Overlay')
 
 
 

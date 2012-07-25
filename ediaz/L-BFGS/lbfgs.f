@@ -241,7 +241,6 @@ C
       IF(IFLAG.EQ.0) GO TO 10
       GO TO (172,100) IFLAG
   10  ITER= 0
-      IT = ITER
       IF(N.LE.0.OR.M.LE.0) GO TO 196
       IF(GTOL.LE.1.D-04) THEN
         IF(LP.GT.0) WRITE(LP,245)
@@ -293,6 +292,7 @@ C     MAIN ITERATION LOOP
 C    --------------------
 C
  80   ITER= ITER+1
+      IT = ITER
       INFO=0
       BOUND=ITER-1
       IF(ITER.EQ.1) GO TO 165

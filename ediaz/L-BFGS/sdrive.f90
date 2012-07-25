@@ -52,7 +52,7 @@ program sdrive
   N=100
   M=5
   IPRINT(1)= 1
-  IPRINT(2)= 0
+  IPRINT(2)= 3
 !
 !     We do not wish to provide the diagonal matrices Hk0, and 
 !     therefore set DIAGCO to FALSE.
@@ -68,8 +68,7 @@ program sdrive
      X(J+1)=1.D0
   end do
   
-  do while (ICALL.lt.2000 ) 	
-  	 		 
+  do while (ICALL.lt.2000 )	
     F= 0.D0
     do j=1,N,2
       T1= 1.D0-X(J)
@@ -77,14 +76,14 @@ program sdrive
       G(J+1)= 2.D1*T2
       G(J)= -2.D0*(X(J)*G(J+1)+T1)
       F= F+T1**2+T2**2
-	end do
+    end do
     CALL LBFGS(N,M,X,F,G,DIAGCO,DIAG,IPRINT,EPS,XTOL,W,IFLAG,ITER)
     ICALL=ICALL + 1
-    !WRITE(0,*)'ICALL:',ICALL,'ITER:',ITER
+    WRITE(0,*)'ICALL:',ICALL,'ITER:',ITER,'DIAG:',DIAG(100),'IFLAG:',IFLAG
 
 
-	if(IFLAG.eq.0 ) exit
+    if(IFLAG.eq.0 ) exit
   end do
   
 
-end program sdrive 	 
+end program sdrive  

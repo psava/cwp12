@@ -1,0 +1,145 @@
+############################################################
+# Flattening test on a 2d line:
+# 
+# I am going to work with inline 60.
+#
+# The geometry of the data is loaded in the par dictionary
+# 
+############################################################
+from rsf.proj import *
+import fdmod
+
+# ----------------------------------------------------------
+par = {
+    'nx':294, 'ox':0, 'dx':1,  'lx':'Cross-line', 'ux':'',
+    'ny':133, 'ox':0, 'dx':1,  'ly':'In-line'   , 'uy':'',
+    'nz':1  , 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
+    'nt':751, 'ot':0, 'dt':0.002, 'lt':'t', 'ut':'s',
+    'il':60, 'nil':1,  # il to work and nunmber of ilines to keep
+    'xl':294,
+    'data':'pp_data',
+    'xref':130, # reference cross-line number for flattening
+    'nh':10, # number of horizons to pick
+    'pickt0':0.6, 'picktf':.9 # time window to pick
+    }
+
+
+fdmod.param(par)
+
+iline='iline-%03d'%par['il'] 
+
+
+def ref(trace):
+    out = 'ref%d' % trace
+    par['maxt']=(par['nt']-1)*par['dt'] +par['ot']
+    par['maxx']=(par['nx']-1)*par['dx'] +par['ox']
+    Flow(out+'.asc',None,
+         '''
+         echo %d 0 %d %g n1=4 in=$TARGET data_format=ascii_float
+         ''' % (trace,trace,par['maxt']))
+
+    Plot(out,out+'.asc',
+         '''
+         dd form=native type=complex | 
+         graph min2=%(ot)g max2=%(maxt)g min1=%(ox)d max1=%(maxx)d wanttitle=n wantaxis=n plotfat=1
+         '''%par)
+    return out
+
+
+Flow(iline,par['data'],'window f3=%(il)d n3=1'%par)
+
+Plot(iline,fdmod.dgrey('pclip=99.5',par))
+Result(iline,[iline,ref(par['xref'])],'Overlay')
+
+# Dip estimation of sigmoid model with plane wave
+# desctruction (pwd) filters
+Flow('sdip',iline,
+     'dip order=2 p0=0 verb=y niter=10 rect1=3 rect2=3')
+Result('sdip',fdmod.dgrey('grey color=j title="Dip" ',par))
+
+# QC of dip via plane wave destruction:
+# if the dip is well estimated, then, most of the planar
+# features in the image should be destruyed
+Flow('spwd',[iline,'sdip'],
+     'pwd dip=${SOURCES[1]} order=2')
+
+
+Flow('res-byte',[iline,'spwd'],'cat axis=3 ${SOURCES[1]}| byte gainpanel=a pclip=99.9 ')
+
+Result('sigpwd','res-byte','window n3=1 f3=1 |'+fdmod.dgrey('grey title=Residual ',par))
+
+Flow('pad',iline+'-pad',
+    '''
+    envelope |scale axis=123 |
+    smooth rect1=2 rect2=2 repeat=4 |
+    scale dscale=100 |mask min=1 |dd type=float
+    ''')
+
+
+Flow(iline+'-pad',iline,'pad beg1=50 end1=50 | bandpass fhi=60')
+
+
+Flow('sdip-pad',[iline+'-pad','pad'],
+     '''
+     dip order=2 p0=0 verb=y niter=10 rect1=3 rect2=3 mask=${SOURCES[1]}
+     ''')
+Flow('trace',iline+'-pad','window n2=1 f2=%(xref)d'%par)
+
+
+# based on the predicted shift field then extrapolate 
+# the reference trace.
+Flow('pred','sdip-pad trace',
+     'pwpaint order=2 seed=${SOURCES[1]} i0=%(xref)d eps=0.1'%par)
+
+Plot('pred',fdmod.dgrey('title="Predicted"',par))
+Result('pred',['pred',ref(par['xref'])],'Overlay')
+
+
+Flow('seed','sdip-pad','window n2=1 | math output=x1')
+
+Flow('spick','sdip-pad seed',
+     'pwpaint order=2 seed=${SOURCES[1]} i0=%(xref)d eps=0.1'%par)
+
+Flow('sflat-%03d'%par['xref'],[iline+'-pad','spick'],'iwarp warp=${SOURCES[1]} eps=1 n1=%(nt)d o1=0'%par)
+
+
+Plot('sflat-%03d'%par['xref'],fdmod.dgrey(' title="Single reference" ',par))
+Result('sflat-%03d'%par['xref'],['sflat-%03d'%par['xref'],ref(par['xref'])],'Overlay')
+
+# Add painting
+#
+# step 1: pick strongest events
+# number of horizons to track:
+
+
+Flow('cont','trace',
+     'window min1=%(pickt0)g max1=%(picktf)g| envelope | max1 | window n1=%(nh)d | real'%par)
+Flow('k1.p','cont',
+     '''
+     math output="1.5 +(input-%(ot)g)/%(dt)g " | '''%par +
+     ''' 
+     dd type=int form=ascii format="%d," line=25 --out=$TARGET
+     ''',stdout=0)
+Command('k1.par','k1.p',
+         'printf "k1=" > $TARGET && cat $SOURCE >> $TARGET')
+
+Flow('spikes','k1.par',
+     '''
+     spike n1=%d d1=%g o1=%g  nsp=%d par=$SOURCE |
+     smooth rect1=5  
+     '''%(par['nt']+100,par['dt'],-par['dt']*50,par['nh']),stdin=0)
+
+Flow('spaint','sdip-pad spikes pad',
+     'pwpaint order=2 seed=${SOURCES[1]} i0=%(xref)d eps=0.1|scale axis=123 |add mode=p ${SOURCES[2]}'%par)
+
+
+Result('spaint',' %s-pad spaint '%iline,
+     '''
+     scale axis=123| add ${SOURCES[1]} scale=1,3| 
+     window min1=%(ot)g n1=%(nt)d  |
+     '''%par+fdmod.dgrey('color=G title="Painted" allpos=y verb=y pclip=99',par))
+
+
+
+
+End()

@@ -1,4 +1,7 @@
 dums*
+*.p
+*.par
+*.asc
 *@
 *.sgy
 *.ps

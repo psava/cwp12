@@ -26,7 +26,7 @@ par = {
     'jsnap':100,
     'nb':100,
     'frq':10,
-    'ns':10,'os':0.0,'ds':0.25,'oxs':1.0
+    'ns':10,'os':0.0,'ds':1,'oxs':1.0
     }
 fdmod.param(par)
 # ------------------------------------------------------------
@@ -93,8 +93,8 @@ par['lratio']=1.0
 for ishot in range(par['ns']):
     stag='-%03d'%ishot
  
-    zx=ishot*par['ds']+par['os']
-    fdmod.point('s'+stag,par['oxs'],zx,par)
+    x=ishot*par['ds']+par['os']
+    fdmod.point('s'+stag,x,0.01,par)
     Plot('s'+stag,fdmod.ssplot('',par))
 
 
@@ -110,7 +110,7 @@ Plot('ss',fdmod.ssplot('',par))
 
 
 # receiver coordinates:
-fdmod.vertical('rr',9.0,par)
+fdmod.horizontal('rr',.01,par)
 Plot('rr',fdmod.rrplot('',par))
 
 # tlag gather coordinates:
@@ -129,7 +129,7 @@ par['ro']=2.0
 Flow('den',None,
     '''
     math  n1=%(nz)d o1=%(oz)g d1=%(dz)g
-          n2=%(nx)d o2=%(ox)g d2=%(dx)g output="1.0"
+          n2=%(nx)d o2=%(ox)g d2=%(dx)g output="1.5"
     '''%par)
 
 # velocity
@@ -139,7 +139,8 @@ Flow('den',None,
 #Flow('vel-H','den','math output=" %(vp)g -(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
 
 # constant error
-Flow('vel-C','den','math output="%g"' %par['vp'])
+Flow('vel-C','den','math output="1.5 +x1*%g" |clip clip=3.5' %1.3)
+Flow('velc','den','math output="1.5"')
 Flow('vel-L','vel-C','math output="input*0.8"')
 Flow('vel-H','vel-C','math output="input*1.2"')
 
@@ -161,13 +162,43 @@ fdmod.wavelet('wav_',par['frq'],par)
 Flow(  'wav','wav_','transp')
 Result('wav','transp |' + fdmod.waveplot('',par))
 
+par['mt']= par['kt']-50
+
 # Generate data with true model
 for ishot in range(par['ns']):
+    x=ishot*par['ds']+par['os']
+
     stag='-%03d'%ishot
-    fdmod.awefd_data('dat_s'+stag,'wav','vel-C','den','s'+stag,'rr','jsnap=1',par)
 
 
-for m in (['-L','-C','-H']):
+    fdmod.awefd_data('dat_'+stag,'wav','vel-C','den','s'+stag,'rr','jsnap=1',par)
+
+    Flow('mute'+stag,'dat_'+stag,
+    '''
+    math output="(abs(x1 -%g)/1.5 -abs(x2-%g))/(sqrt((1/(1.5*1.5))+1))" |
+    mask max=0 |
+    dd type=float| 
+    window f2=%d |
+    pad beg2=%d |
+    math output="abs(input -1 )" | 
+    smooth rect1=4 rect2=4 repeat=5
+    '''%(x,par['mt']*par['dt']+par['ot'],par['mt'],par['mt']))
+
+    Flow('dat_s'+stag,['dat_'+stag,'mute'+stag],'add mode=p ${SOURCES[1]} |bandpass flo=1.5 phase=n')
+
+    # Example of mutting direct arrivals:
+    Result('dat_s'+stag,'transp |'+fdmod.dgrey('pclip=99.5',par))
+    Result('dat_'+stag,'transp |'+fdmod.dgrey('pclip=99.5',par))
+    Result('mute'+stag,'transp |'+fdmod.dgrey('allpos=y ',par))
+
+
+
+
+
+
+
+cases=['-L','-C']
+for m in (cases):
 
     for ishot in range(par['ns']):
         stag='-%03d'%ishot
@@ -242,12 +273,12 @@ for m in (['-L','-C','-H']):
 
 
 
-Flow('rgrad_byte',map(lambda x:'rgrad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
-Flow('sgrad_byte',map(lambda x:'sgrad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
-Flow('grad_byte',map(lambda x:'grad%s'%x,(['-L','-C','-H'])),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%3)
+Flow('rgrad_byte',map(lambda x:'rgrad%s'%x,(cases)),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%2)
+Flow('sgrad_byte',map(lambda x:'sgrad%s'%x,(cases)),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%2)
+Flow('grad_byte',map(lambda x:'grad%s'%x,(cases)),'cat axis=3 ${SOURCES[1:%d]} |byte gainpanel=a color=E pclip=99.5 '%2)
 
 i=0
-for m in (['-L','-C','-H']):
+for m in (cases):
     Plot('sgrad'+m,'sgrad_byte','window f3=%d n3=1 |'%i + fdmod.cgrey('color=E pclip=99.5',par))
     Result('sgrad'+m,['sgrad'+m,'gg','rr','ss'],'Overlay')
 

@@ -1,0 +1,82 @@
+from rsf.proj import *
+
+
+# Claerbout's sigmoid model
+Flow('sigmoid',None,
+     '''
+     sigmoid n1=200 n2=210 d2=0.008 |
+     put label2=Distance |
+     smooth rect1=3 diff1=1 adj=1 | smooth rect1=3
+     ''')
+Result('sigmoid','grey title="Input" ')
+Plot('sig','sigmoid','grey wanttitle=n clip=0.003')
+
+
+
+def ref(trace):
+    out = 'ref%d' % trace
+    Flow(out+'.asc',None,
+         '''
+         echo %d 0 %d 1 n1=4 in=$TARGET data_format=ascii_float
+         ''' % (trace,trace))
+    Plot(out,out+'.asc',
+         '''
+         dd form=native type=complex | 
+         graph min1=0 max1=210 min2=0 max2=1 wanttitle=n wantaxis=n
+         ''')
+    return out
+
+# Dip estimation of sigmoid model with plane wave
+# desctruction (pwd) filters
+Flow('sdip','sigmoid',
+     'dip order=2 p0=0 verb=y niter=10 rect1=3 rect2=3')
+Result('sdip','grey color=j title="Dip" ')
+
+# QC of dip via plane wave destruction:
+# if the dip is well estimated, then, most of the planar
+# features in the image should be destruyed
+Flow('spwd','sigmoid sdip',
+     'pwd dip=${SOURCES[1]} order=2 | envelope | sharpen perc=99')
+Result('sigpwd','spwd','grey title=Residual allpos=y')
+
+Flow('sdip0','sdip','math output=0')
+Flow('sdip1','sdip','math output=-0.285')
+
+ 
+Flow('pad','sigmoid','math output=1 | pad beg1=50 end1=50')
+Flow('sigmoid-pad','sigmoid','pad beg1=50 end1=50 | bandpass fhi=60')
+
+Flow('sdip-pad','sigmoid-pad pad',
+     '''
+     dip order=2 p0=0 verb=y niter=10 rect1=3 rect2=3 mask=${SOURCES[1]}
+     ''')
+
+Flow('trace','sigmoid-pad','window n2=1 f2=105')
+
+
+# based on the predicted shift field then extrapolate 
+# the reference trace.
+Flow('pred','sdip-pad trace',
+     'pwpaint order=2 seed=${SOURCES[1]} i0=105 eps=0.1')
+
+
+Plot('pred','window n1=200 min1=0 | grey wanttitle=y clip=0.003 title="Predicted"')
+Result('pred',['pred',ref(105)],'Overlay')
+
+
+Flow('seed','sdip-pad','window n2=1 | math output=x1')
+
+Flow('spick','sdip-pad seed',
+     'pwpaint order=2 seed=${SOURCES[1]} i0=105 eps=0.1')
+
+Flow('sflat','sigmoid-pad spick','iwarp warp=${SOURCES[1]} eps=1 n1=200 o1=0')
+
+
+Plot('sflat','grey title="Single reference" ')
+Result('sflat',['sflat',ref(105)],'Overlay')
+
+# Add painting
+Flow('scor a2 b2','sigmoid sdip',
+     'pwcoh dip=${SOURCES[1]} a2=${TARGETS[1]} b2=${TARGETS[2]} rect=3')
+
+End()

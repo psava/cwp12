@@ -139,9 +139,16 @@ Flow('den',None,
 #Flow('vel-H','den','math output=" %(vp)g -(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
 
 # constant error
+
+
 Flow('vel-C','den','math output="%g"' %par['vp'])
-Flow('vel-L','vel-C','math output="input*0.8"')
-Flow('vel-H','vel-C','math output="input*1.2"')
+
+Flow('box2','vel-C','math output="abs(x2-5)" |mask max=2 |dd type=float ')
+
+Flow('box','box2','math output="abs(x1-1.25)" |mask max=.5 |dd type=float|add mode=p ${SOURCES[0]} ')
+
+Flow('vel-L','box vel-C','smooth rect1=10 rect2=10 repeat=4 | math vc=${SOURCES[1]} output="vc- 0.2*vc*input "')
+Flow('vel-H','box vel-C','smooth rect1=10 rect2=10 repeat=4 | math vc=${SOURCES[1]} output="vc+ 0.2*vc*input "')
 
 
 # Plot velocities

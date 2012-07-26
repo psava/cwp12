@@ -1,0 +1,21 @@
+1.4-svn	sfmath	cwp12/ediaz/L-BFGS:	ediaz@dhcp11-158.mines.edu	Thu Jul 26 10:51:57 2012
+
+	o1=0
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/cwp12/ediaz/L-BFGS/tmp1.rsf@"
+	x1=0
+	d1=1
+	n1=50
+1.4-svn	sfinterleave	cwp12/ediaz/L-BFGS:	ediaz@dhcp11-158.mines.edu	Thu Jul 26 10:51:57 2012
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/cwp12/ediaz/L-BFGS/m0.rsf@"
+	n1=100
+1.4-svn	sfstack	cwp12/ediaz/L-BFGS:	ediaz@dhcp11-158.mines.edu	Thu Jul 26 11:15:20 2012
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/x@"
+	n1=1

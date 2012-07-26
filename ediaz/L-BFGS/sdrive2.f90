@@ -20,17 +20,17 @@ program sdrive
   use rsf
 
   implicit none 
-  integer      :: NDIM,MSAVE,NWORK 
+  integer      :: NDIM,MSAVE,NWORK,cit 
   double precision, allocatable,dimension (:) :: X,G,DIAG,W
   double precision :: F,EPS,XTOL,GTOL,T1,T2,STPMIN,STPMAX
   integer      :: IPRINT(2),IFLAG,ICALL,N,M,MP,LP,J,ITER
   logical      :: DIAGCO
+  real ::  Fo, grad,xo,yo,sx,sy
   EXTERNAL LB2
   COMMON /LB3/MP,LP,GTOL,STPMIN,STPMAX
 
 
-
-  NDIM=2000 ;MSAVE=7;NWORK=NDIM*(2*MSAVE +1)+2*MSAVE
+  NDIM=2 ;MSAVE=5;NWORK=NDIM*(2*MSAVE +1)+2*MSAVE
   
 !Dictionary of variables:
 ! NDIM    :   number of variables.
@@ -53,41 +53,68 @@ program sdrive
 !      The driver for LBFGS must always declare LB2 as EXTERNAL
 !
 !
-  N=100
   M=5
-  IPRINT(1)= 1
-  IPRINT(2)= 0
+  IPRINT(1)= -1
+  IPRINT(2)= -1
 !
 !     We do not wish to provide the diagonal matrices Hk0, and 
 !     therefore set DIAGCO to FALSE.
 !
   DIAGCO= .FALSE.
-  EPS= 1.0D-5
+  EPS= 1.0D-10
   XTOL= 1.0D-16
   ICALL=0
   IFLAG=0
 
-  do j=1,N,2
-     X(J)=-1.2D0
-     X(J+1)=1.D0
-  end do
+  xo=100.0; yo=100.0;
+  sx=180; sy=180;
+
+  X(1)=-4000.0; X(2)=+1293100.0 ;
   
-  do while (ICALL.lt.2000 )	
+  WRITE(0,*)'x=',X(1),'y=',X(2)
+
+  do while (ICALL.lt.2000)
     F= 0.D0
-    do j=1,N,2
-      T1= 1.D0-X(J)
-      T2= 1.D1*(X(J+1)-X(J)**2)
-      G(J+1)= 2.D1*T2
-      G(J)= -2.D0*(X(J)*G(J+1)+T1)
-      F= F+T1**2+T2**2
-    end do
-    CALL LBFGS(N,M,X,F,G,DIAGCO,DIAG,IPRINT,EPS,XTOL,W,IFLAG,ITER)
+    F= Fo(real(X(1)),real(X(2)))
+    call gradient(G,real(X(1)),real(X(2)))
+
+    cit=ITER
+    CALL LBFGS(NDIM,M,X,F,G,DIAGCO,DIAG,IPRINT,EPS,XTOL,W,IFLAG,ITER)
     ICALL=ICALL + 1
-    WRITE(0,*)'ICALL:',ICALL,'ITER:',ITER,'DIAG:',DIAG(100),'IFLAG:',IFLAG
 
+    if(IFLAG.le.0 ) exit
+    if(cit.ne.ITER) WRITE(0,*)'x=',X(1),'y=',X(2)
 
-    if(IFLAG.eq.0 ) exit
   end do
-  
 
-end program sdrive  
+
+  
+end program sdrive 
+
+
+
+
+
+
+
+
+
+function Fo(x,y)
+    real x,y;
+
+    Fo = x*x +y*y 
+    return 
+
+end function 
+
+subroutine gradient(grad,x,y)
+    real x,xo,sx,y,yo,sy;
+    double precision::  grad(2) 
+    real Fo;
+
+
+    grad(1)= 2*x
+    grad(2)= 2*y
+
+
+end subroutine 

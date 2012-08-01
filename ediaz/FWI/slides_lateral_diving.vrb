@@ -1,0 +1,15 @@
+\frametitle {flow 2: refraction tomography}\begin {algorithm}[H]
+        \begin{algorithmic}
+            \FORALL{$\bf e$}
+                \STATE obtain $u_s({\bf x},t,{\bf e})$, $u_r({\bf x},t,{\bf e})$
+                \STATE $R(\xx,\tau,{\bf e}) \leftarrow u_s({\bf x},t-\tau,{\bf e})u_r({\bf x},t+\tau,{\bf e})$
+                \STATE $\tilde{R}(\xx,\tau,{\bf e}) \leftarrow |\tau|R(\xx,\tau) I(\xx)$
+                \STATE obtain $g_s({\bf x},t,{\bf e})$, $g_r({\bf x},t,{\bf e})$ @ cip locations
+                \STATE obtain $a_s({\bf x},t,{\bf e})$, $a_r({\bf x},t,{\bf e})$
+                \STATE $g(\xx,{\bf e}) \leftarrow u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e})+u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
+            \ENDFOR
+            \STATE  $g(\xx) \leftarrow \sum_{\bf e}g(\xx,{\bf e})$
+
+        \end{algorithmic}
+    \end{algorithm}
+    Where $I(\xx)$ is an illumination-based weighting function.

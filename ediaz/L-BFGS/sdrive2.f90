@@ -61,7 +61,7 @@ program sdrive
 !     therefore set DIAGCO to FALSE.
 !
   DIAGCO= .FALSE.
-  EPS= 1.0D-10
+  EPS= 1.0D-7
   XTOL= 1.0D-16
   ICALL=0
   IFLAG=0
@@ -70,8 +70,11 @@ program sdrive
   sx=180; sy=180;
 
   X(1)=-4000.0; X(2)=+1293100.0 ;
+ 
+
   
-  WRITE(0,*)'x=',X(1),'y=',X(2)
+  cit=1; ITER=0
+  WRITE(0, "('iter: ',I3,' x= ',F15.7,' y=',F15.7)")ITER,X(1),X(2)
 
   do while (ICALL.lt.2000)
     F= 0.D0
@@ -83,28 +86,15 @@ program sdrive
     ICALL=ICALL + 1
 
     if(IFLAG.le.0 ) exit
-    if(cit.ne.ITER) WRITE(0,*)'x=',X(1),'y=',X(2)
-
+    if(cit.ne.ITER) WRITE(0, "('iter: ',I3,' x= ',F15.7,' y=',F15.7)")ITER,X(1),X(2)
   end do
 
-
-  
 end program sdrive 
-
-
-
-
-
-
-
-
 
 function Fo(x,y)
     real x,y;
-
     Fo = x*x +y*y 
     return 
-
 end function 
 
 subroutine gradient(grad,x,y)
@@ -112,9 +102,6 @@ subroutine gradient(grad,x,y)
     double precision::  grad(2) 
     real Fo;
 
-
     grad(1)= 2*x
     grad(2)= 2*y
-
-
 end subroutine 

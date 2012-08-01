@@ -48,40 +48,61 @@ Colorado School of Mines }
 \end{frame}
 
 
-\begin{frame} \frametitle{flow}
+\begin{frame}[fragile]{flow 1: Tony's mva}
+    \begin{algorithm}[H]
+        \begin{algorithmic}
+            \FORALL{$\bf e$}
+                \STATE obtain $u_s({\bf x},t,{\bf e})$, $u_r({\bf x},t,{\bf e})$
+                \STATE $R(\xx,\tau,{\bf e}) \leftarrow u_s({\bf x},t-\tau,{\bf e})u_r({\bf x},t+\tau,{\bf e})$
 
-    \begin{itemize}
-        \item for all $\bf e$ do:
-        \begin{enumerate}
-            \item Calculate $ u_s({\bf x},t,{\bf e})$ and  $ u_r({\bf x},t,{\bf e})$
-        \end{enumerate}
-    \end{itemize}
+            \ENDFOR
+            \STATE $R(\xx,\tau)\leftarrow \sum_{\bf e}R(\xx,\tau,{\bf e})$
+            \STATE $\tilde{R}(\xx,\tau) \leftarrow |\tau|R(\xx,\tau)$
+            \FORALL{$\bf e$}
+                \STATE obtain $g_s({\bf x},t,{\bf e})$, $g_r({\bf x},t,{\bf e})$ @ cip locations
+                \STATE obtain $a_s({\bf x},t,{\bf e})$, $a_r({\bf x},t,{\bf e})$
+                \STATE $g(\xx,{\bf e}) \leftarrow u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e})+u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
+            \ENDFOR
+            \STATE  $g(\xx) \leftarrow \sum_{\bf e}g(\xx,{\bf e})$
 
-    \begin{itemize}
-        \item Compute extended image $R(x=5,\tau)$
-        \item Apply $|\tau|$ as penalty function
-        \item for all $\bf e$ do:
-        \begin{enumerate}
-            \item Calculate  $ g_s({\bf x},t,{\bf e})$ and  $ g_r({\bf x},t,{\bf e})$
-            \item Calculate $ a_s({\bf x},t,{\bf e})$ and  $a_r({\bf x},t,{\bf e})$
-            \item Calculate $g({\bf x},{\bf e})=   u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e}) + u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
-        \end{enumerate}
-        \item obtain $g({\bf x})=\sum_{{\bf e}} g({\bf x},{\bf e}) $
-    \end{itemize}
+        \end{algorithmic}
+    \end{algorithm}
+\end{frame}
 
+\begin{frame}[fragile]{flow 2: refraction tomography}
+    \begin{algorithm}[H]
+        \begin{algorithmic}
+            \FORALL{$\bf e$}
+                \STATE obtain $u_s({\bf x},t,{\bf e})$, $u_r({\bf x},t,{\bf e})$
+                \STATE $R(\xx,\tau,{\bf e}) \leftarrow u_s({\bf x},t-\tau,{\bf e})u_r({\bf x},t+\tau,{\bf e})$
+                \STATE $\tilde{R}(\xx,\tau,{\bf e}) \leftarrow |\tau|R(\xx,\tau) I(\xx)$
+                \STATE obtain $g_s({\bf x},t,{\bf e})$, $g_r({\bf x},t,{\bf e})$ @ cip locations
+                \STATE obtain $a_s({\bf x},t,{\bf e})$, $a_r({\bf x},t,{\bf e})$
+                \STATE $g(\xx,{\bf e}) \leftarrow u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e})+u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
+            \ENDFOR
+            \STATE  $g(\xx) \leftarrow \sum_{\bf e}g(\xx,{\bf e})$
+
+        \end{algorithmic}
+    \end{algorithm}
+    Where $I(\xx)$ is an illumination-based weighting function.
 \end{frame}
 
 
 
 
-\begin{frame}\frametitle{-20\% anomaly}
-    \plot{grad-L}{width=\textwidth}{} 
-\end{frame}
+\begin{frame}{QC design}
 
-\begin{frame}\frametitle{0\% anomaly} 
-    \plot{grad-C}{width=\textwidth}{} 
-\end{frame}
-\begin{frame}\frametitle{+20\% anomaly} 
-    \plot{grad-H}{width=\textwidth}{} 
+\begin{center}
+    \begin{tabular}{ | c | c | c | c |}
+    \hline
+    Case   & sources & receivers & cip   \\ \hline
+       0   &    1    &      1    &  1    \\ \hline
+       1   &    1    &      1    & $n$   \\ \hline
+       2   &    1    &    $nr$   & $n$   \\ \hline
+       3   &   $ns$  &    $nr$   & $n$   \\ \hline
+       4   &   $ns$  &    $nr$   & $n^2$ \\ 
+    \hline
+    \end{tabular}
+\end{center}
 \end{frame}
 

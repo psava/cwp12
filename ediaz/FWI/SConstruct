@@ -12,7 +12,7 @@ for slides in glob.glob('slides*.tex'):
     slidesname = os.path.splitext(slides)[0]
     Paper(slidesname,
           lclass='cwpslides',
-          use='dashrule,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
+          use='mathtools,algorithm,algorithmic,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
     
 for notes in glob.glob('notes*.tex'):
     notesname = os.path.splitext(notes)[0]

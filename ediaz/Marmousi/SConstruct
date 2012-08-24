@@ -1,12 +1,142 @@
 from rsf.proj import *
-import fdmod
+import fdmod,wemig,math
 
+def horizontal(cc,ox,dx,nx,z,par):
+    f1=cc+'_'
+    f2=cc+'_z'
+    f3=cc+'_x'
+
+    m8r='$RSFROOT/bin/sf'
+
+    Flow(cc,None,
+    '''
+    math n1=%d d1=%g o1=%g output="0" > %s;
+    '''%(nx,dx,ox,f1)+
+    '''
+    %smath < %s output="%g" > %s;
+    '''%(m8r,f1,z,f2) +
+    '''
+    %smath < %s output="x1" > %s;
+    '''%(m8r,f1,f3) +
+    '''
+    %scat axis=2 %s %s space=n |
+    transp |
+    put put label1="" unit1="" label2="" unit2="" >$TARGET ;
+    '''%(m8r,f3,f2) +
+    '''
+    %srm %s %s %s
+    '''%(m8r,f1,f2,f3),
+    stdout=0)
+
+
+
+
+def s_signum_encode(owav,ocode,iwav,custom,par):
+    '''
+    user can use the custom variable to set up the
+    seed for the sfnoise command, in that
+    way one ensures to have the code fixed.
+    '''
+    m8r='$RSFROOT/bin/sf'
+    f1=owav+'_code'
+    f2=owav+'_ext_wav'
+
+    Flow([owav,ocode],iwav,
+        '''
+        spike n1=%(ns)d o1=%(os)g d1=%(ds)g | '''%par+'''
+        noise type=n var=0.499 range=1 mean=0 rep=y %s|
+        math output="input/(abs(input +1e-22))" |
+        transp |
+        '''%custom+
+        '''
+        pad end1=%d |
+        '''%(par['nt']-1)+
+        '''
+        put o1=%g d1=%g n1=%d |
+        causint |
+        math output="input/abs(input +1e-30)" >%s ;
+        '''%(par['ot'],par['dt'],par['nt'],f1)+
+        '''
+        <${SOURCES[0]} %stransp | '''%m8r+
+        '''
+        spray axis=2 d=%(ds)g o=%(os)g n=%(ns)d |put d3=? |'''%par+'''
+        window squeeze=y >%s ;
+        '''%f2 + '''
+        %sadd mode=p %s %s |%stransp>${TARGETS[0]}; 
+        %swindow n1=1 squeeze=y <%s >${TARGETS[1]};
+        %srm %s %s
+        '''%(m8r,f1,f2,m8r,m8r,f1,m8r,f1,f2)      
+        ,stdout=0,stdin=0)
+
+
+def d_signum_encode(odat,sht_list,icode,par):
+    m8r='$RSFROOT/bin/sf'
+    f1=icode+'_expanded_code'
+    
+    l1=[icode]
+    srcs=l1+sht_list
+
+    Flow(odat,srcs,
+    '''
+    transp|spray axis=1 n=%(nr)d o=%(or)g d=%(dr)g |
+    spray axis=2 n=%(nt)d o=%(ot)g d=%(dt)g |
+    window |'''%par+'''
+    put label1="r" unit1="m" label2="Time" unit2="s" label3="shot" unit3="s" >%s;
+    '''%f1+
+    '''
+    %srcat ${SOURCES[1:%d]} axis=3 |
+    '''%(m8r,par['ns']+1)+
+    '''
+    add mode=p %s |stack axis=3 norm=n > ${TARGETS[0]} ;
+    %srm %s
+    '''%(f1,m8r,f1),stdout=0)
+    
+
+
+
+
+
+
+    
 
 par = {
-'nz':121,'oz':0,'dz':25,
-'nx':369,'ox':0,'dx':25
-
+    # grid spacing:
+    'nz':200,'oz':0,'dz':0.015,
+    'nx':613,'ox':0,'dx':0.015, 
+    # time sampling
+    'nt':2840,'ot':0,'dt':0.0015,
+    # wavelet fundamental frequency
+    'frq':8, 
+    # source vector array
+    'ns':184,'os':0.0,'ds':0.050,
+    # receiver vector array
+    'nr':369,'or':0,'dr':0.025,
+    # wavelet delay
+    'kt':100, 
+    # fd parameters:
+    'nqz':121, 'oqz':0,
+    'nqx':369, 'oqx':0,
+    'jdata':10,
+    #CFL check:
+    'vmax':5.7027,
+    # min wavelenght sampling:
+    'vmin':1.5,'fmax':19.99
 }
+
+# CFL check:
+if (par['dt']> min(par['dx'],par['dz'])/(math.sqrt(2)*par['vmax'])):
+    print 'dt is too big, suggested one is: %g'%(min(par['dx'],par['dz'])/(math.sqrt(2)*par['vmax']))
+
+
+# min wavelenght sampling
+if (max(par['dx'],par['dz']) > par['vmin']/par['fmax']/5 ):
+
+    s=', suggested dx,dz is:%g'%(par['vmin']/par['fmax']/5)
+    print 'grid spacing is not small enough' +s
+
+
+
+
 
 fdmod.param(par)
 
@@ -22,15 +152,109 @@ for file in raw:
 
 Flow('mpad','marmvel.hh',
     '''
+    put d1=0.004 d2=0.004 label1="km" label2="km"  |
+    scale dscale=0.001 |
     spline o1=%(oz)g d1=%(dz)g n1=%(nz)d  | transp |
     spline o1=%(ox)g d1=%(dx)g n1=%(nx)d  | transp |
-    pad beg1=10 |
+    '''%par+
+    '''
+    pad beg1=%d |
+    '''%(int(.250/par['dz']))+
+    '''
     put o1=%(oz)g |
     window n1=%(nz)d 
     '''%par)
 
-Flow('mvel','mpad','mask min=.1 |dd type=float |math v=${SOURCES[0]} output="v*(input) +(1-input)*1500"')
+# marmousi vel 
+Flow('mvel','mpad','mask min=.1 |dd type=float |math v=${SOURCES[0]} output="v*(input) +(1-input)*1.500"')
+Flow('wmask','mvel','mask min=1.50001 |dd type=float')
+Flow('smvel',['mvel','wmask'],'smooth rect1=8 rect2=15 repeat=10 |math m=${SOURCES[1]} output="input*m +(1-m)*1.5"|smooth rect1=4 repeat=4')
+Flow('den','mvel','math output="1"')
 
-Result('mvel',fdmod.cgrey('color=j allpos=y ',par))
+# Wavelet
+fdmod.wavelet('wav_',par['frq'],par)
+Flow(  'wav','wav_','bandpass fhi=14|transp')
+
+Result('wav','transp |' + fdmod.waveplot('max1=0.5 min1=0',par))
+
+
+
+# source coordinates:
+for s in range(par['ns']):
+    stag="-%03d"%s
+    x=s*par['ds'] +par['os']
+    fdmod.point('ss'+stag,x,0,par)
+
+# receiver coordinates:
+horizontal('rr',par['or'],par['dr'],par['nr'],0.0,par)
+Plot('rr', fdmod.rrplot('rr',par))
+
+
+
+# Create data
+iwindow='oqx=%(oqx)g nqx=%(nqx)g oqz=%(oqz)g nqz=%(nqz)g'%par
+
+
+for s in range(par['ns']):
+    stag="-%03d"%s
+    fdmod.awefd_data('dat'+stag,'wav','mvel','den','ss'+stag,'rr','dabc=y nb=100 '+iwindow,par)
+    Result('dat'+stag,'transp |tpow tpow=0.8 |'+fdmod.dgrey('pclip=99.8',par))
+
+
+
+sht_list=map(lambda x:'dat-%03d'%x,range(par['ns']))
+
+Flow('sall',map(lambda x:'ss-%03d'%x,range(par['ns'])),'rcat axis=2 ${SOURCES[1:%d]}'%par['ns'])
+
+
+
+
+par['ne']=30
+
+exper=range(par['ne'])
+
+
+
+iwindow='oqx=%(ox)g nqx=%(nx)g oqz=%(oz)g nqz=%(nz)g jsnap=2 '%par
+for i in exper:
+    etag='-%03d'%i
+
+    s_signum_encode('ewav'+etag,'code'+etag,'wav','',par)
+    d_signum_encode('dcode'+etag,sht_list,'code'+etag,par)
+
+    fdmod.awefd('edat'+etag,'swfl'+etag,'ewav'+etag,'smvel','den','sall','rr','dabc=y nb=100 '+iwindow,par)
+
+    # Inject difference:
+    Flow('dat_diff'+etag,['dcode'+etag,'edat'+etag],'add scale=1,-1 ${SOURCES[1]}')
+
+    fdmod.awefd_rwfl('rwfl'+etag,'dat_diff'+etag,'smvel','den','rr','dabc=y nb=100 '+iwindow,par)
+
+    Flow('img'+etag,['swfl'+etag,'rwfl'+etag],'xcor2d uu=${SOURCES[1]} axis=3 ')
+
+    Result('img'+etag,fdmod.cgrey('pclip=99.9',par))
+
+      
+
+
+
+
+
+Plot('ss','sall', fdmod.rrplot('rr',par))
+
+
+
+
+
+
+
+
+######################################################################
+# Plot modified Marmousi model and the smoothed one                  #
+######################################################################
+Flow(['byte-vels','bar'],['mvel','smvel'],'cat axis=3 ${SOURCES[1]} |byte gainpanel=a color=j bar=${TARGETS[1]} allpos=y')
+Result('mvel',['byte-vels','bar'],'window n3=1 f3=0|'+fdmod.cgrey('color=j allpos=y ',par)+'bar=${SOURCES[1]}')
+Result('smvel',['byte-vels','bar'],'window n3=1 f3=1|'+fdmod.cgrey('color=j allpos=y ',par)+'bar=${SOURCES[1]}')
+######################################################################
+
 
 End()

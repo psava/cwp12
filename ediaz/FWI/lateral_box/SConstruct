@@ -154,6 +154,10 @@ Flow('den',None,
           n2=%(nx)d o2=%(ox)g d2=%(dx)g output="1.0"
     '''%par)
 
+
+
+
+
 # velocity
 # lateral gradient
 #Flow('vel-L','den','math output=" %(vp)g +(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
@@ -165,6 +169,14 @@ Flow('den',None,
 
 Flow('vel-C','den','math output="%g"' %par['vp'])
 
+par['cb_x']=3.0
+par['cb_z']=1.25
+par['cb_a']=1.5
+
+Flow('box','vel-C','math output="abs(x2-%g)"|mask max=%g |dd type=float >tmp1.rsf; <${SOURCES[0]} $RSFROOT/bin/sfmath  output="abs(x1-%g)"|mask max=%g |dd type=float |add mode=p tmp1.rsf>${TARGETS[0]} ; $RSFROOT/bin/sfrm tmp1.rsf'%(par['cb_x'],par['cb_a']*0.5,par['cb_z'],par['cb_a']*0.5),stdout=0)
+
+
+
 par['cx']=(par['ox']+(par['nx']-1)*par['dx'])*.5
 par['sx']=par['nx']*par['dx']*0.08
 
@@ -174,8 +186,8 @@ par['sz']=par['sx']
 
 
 
-Flow('vel-L','vel-C',' math  output="sqrt(1/(1.2*(1/%g)^2))"'%par['vp'])
-Flow('vel-H','vel-C',' math  output="sqrt(1/(0.8*(1/%g)^2))"'%par['vp'])
+Flow('vel-L','vel-C box',' math b=${SOURCES[1]}  output="input*(1.0-b) +b*sqrt(1/(1.3*(1/%g)^2))"'%par['vp'])
+Flow('vel-H','vel-C box',' math b=${SOURCES[1]}  output="input*(1.0-b) +b*sqrt(1/(0.7*(1/%g)^2))"'%par['vp'])
 
 
 # Plot velocities
@@ -340,7 +352,7 @@ for m in (['-L','-C','-H']):
                      '''%(par['nht']*2+1,par['dht'],-par['nht']*par['dht']))
 
                 Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
-                #Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|math output="(x1*input)*exp(-((x2-1.25)^2/(.2*.2)))"|add mode=p ${SOURCES[1]}'')
+                #Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|math output="(x1*input)*exp(-((x2-1.25)^2/(.2*.2)))"')
             elif ci==4:
                 Flow('mask_eic'+ctag+stag+m,'eica'+ctag+stag+m,
                      '''

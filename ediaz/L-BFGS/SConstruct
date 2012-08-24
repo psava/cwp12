@@ -3,10 +3,10 @@ from rsf.proj import *
 projx =Project()
 projx.Prepend(LIBS=['rsff90'])
 
-projx.Program(['sdrive.f90','lbfgs.f'],
-             LINK=projx.get('F90'),
-             F90PATH=projx.get('CPPPATH'),
-             LINKFLAGS=projx.get('F90FLAGS'))
+#projx.Program(['sdrive.f90','lbfgs.f'],
+#             LINK=projx.get('F90'),
+#             F90PATH=projx.get('CPPPATH'),
+#             LINKFLAGS=projx.get('F90FLAGS'))
 
 projx.Program(['sdrive2.f90','lbfgs.f'],
              LINK=projx.get('F90'),
@@ -17,30 +17,31 @@ projx.Program(['sdrive2.f90','lbfgs.f'],
 
 
 '''
-test driver from Nocedal implemented in 
-an out of core way.
+test driver from Nocedal implemented it 
+in an out of core way.
 
-Test from him show that L-BFGS requires less
+Tests in his paper shows that L-BFGS requires less
 function evaluations than many other methods.
 '''
 
 
 xo=100
-sx=70
+sx=180
 
 yo=100
-sy=70
+sy=180
 
-Flow('Gauss',None,'math n1=200 n2=200 output="- exp(-(x1-%g)^2/(%d^2) -(x2-%g)^2/(%d^2)) "'%(xo,sx,yo,sy))
-Result ('Gauss','Gauss','add scale=-1 |grey color=j allpos=y')
+Flow('Gauss',None,'math n1=200 n2=200 o1=-100 o2=-100 output="x1*x1+x2*x2 "')
+Result('Gauss','Gauss','grey color=j allpos=y')
 
 
 def grdx(name,x,y):
-    Flow(name,None,'math type=complex n1=1 output="-2.0*(%g-%g)/(%g^2) -2*I*(%g-%g)/(%g^2)"|dd type=float'%(x,xo,sx,y,yo,sy))  
+    Flow(name,None,'math type=complex n1=1 output="2.0*(%g) +I*2*(%g)"'%(x,y))  
 
 
+mo=[-4000.0,1293100.0]
 
+grdx('gxo',mo[0],mo[1])
 
-grdx('gxo',20,30)
 
 

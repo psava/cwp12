@@ -84,7 +84,7 @@ program sdrive
     CALL LBFGS(N,M,X,F,G,DIAGCO,DIAG,IPRINT,EPS,XTOL,W,IFLAG,ITER)
     ICALL=ICALL + 1
     WRITE(0,*)'ICALL:',ICALL,'ITER:',ITER,'DIAG:',DIAG(100),'IFLAG:',IFLAG
-
+ 
 
     if(IFLAG.eq.0 ) exit
   end do

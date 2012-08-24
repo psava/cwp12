@@ -86,7 +86,8 @@ program sdrive
     ICALL=ICALL + 1
 
     if(IFLAG.le.0 ) exit
-    if(cit.ne.ITER) WRITE(0, "('iter: ',I3,' x= ',F15.7,' y=',F15.7)")ITER,X(1),X(2)
+    if(cit.ne.ITER) WRITE(0, "('iter: ',I3,' x= ',F15.7,' y=',F15.7,I3)")ITER,X(1),X(2),ICALL
+    if(cit.ne.ITER) WRITE(0,*) W
   end do
 
 end program sdrive 

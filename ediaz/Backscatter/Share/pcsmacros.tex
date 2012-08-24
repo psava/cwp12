@@ -428,6 +428,10 @@ a_x \; a_y \; a_z
 }
 
 
+\def \normallabel#1#2#3{
+\put(#1,#2){\normalsize \textbf{#3}}
+}
+
 
 
 
@@ -447,7 +451,7 @@ a_x \; a_y \; a_z
 \def\putaxes#1#2{\put(#1,#2){\axes}}
 \def\putwaxes#1#2{\put(#1,#2){\waxes}}
 
-
+% huge labels
 \def\wlabel#1#2#3{ \white{ \biglabel{#1}{#2}{#3} }}
 \def\klabel#1#2#3{ \black{ \biglabel{#1}{#2}{#3} }}
 \def\rlabel#1#2#3{ \red{   \biglabel{#1}{#2}{#3} }}
@@ -456,8 +460,13 @@ a_x \; a_y \; a_z
 \def\ylabel#1#2#3{ \yellow{\biglabel{#1}{#2}{#3} }}
 
 
+% large labels
 \def\klabellarge#1#2#3{ \black{ \largelabel{#1}{#2}{#3} }}
 \def\wlabellarge#1#2#3{ \white{ \largelabel{#1}{#2}{#3} }}
+
+% normal labels
+\def\klabelnormal#1#2#3{ \black{ \normallabel{#1}{#2}{#3} }}
+\def\wlabelnormal#1#2#3{ \white{ \normallabel{#1}{#2}{#3} }}
 
 % ------------------------------------------------------------
 % centering

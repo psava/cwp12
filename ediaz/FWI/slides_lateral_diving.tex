@@ -4,7 +4,7 @@
 \bibliography{SEG}
 
 \title[]{Time-domain MVA in constant velocity}
-\subtitle{}
+\subtitle{a kernel analysis}
 \author[]{Esteban  D\'{i}az}
 \institute{Center for Wave Phenomena \\
 Colorado School of Mines }
@@ -27,13 +27,13 @@ Colorado School of Mines }
 \begin{itemize}
 
 \item Multiple sources, multiple receivers.
-\item Constant velocity medium, with a $\pm20\%$ error
+\item Constant velocity medium, with a $\pm30\%$ error
 \end{itemize}
 \end{frame}
 
 
 
-\inputdir{lateral_diving_mva}
+\inputdir{lateral_cases}
 
 
 \begin{frame}\frametitle{-20\% anomaly}
@@ -46,6 +46,11 @@ Colorado School of Mines }
 \begin{frame}\frametitle{+20\% anomaly} 
     \plot{vel-H}{width=\textwidth}{} 
 \end{frame}
+
+
+
+
+
 
 
 \begin{frame}[fragile]{flow 1: Tony's mva}
@@ -69,13 +74,13 @@ Colorado School of Mines }
     \end{algorithm}
 \end{frame}
 
-\begin{frame}[fragile]{flow 2: refraction tomography}
+\begin{frame}[fragile]{flow 2: Toto's mva}
     \begin{algorithm}[H]
         \begin{algorithmic}
             \FORALL{$\bf e$}
                 \STATE obtain $u_s({\bf x},t,{\bf e})$, $u_r({\bf x},t,{\bf e})$
                 \STATE $R(\xx,\tau,{\bf e}) \leftarrow u_s({\bf x},t-\tau,{\bf e})u_r({\bf x},t+\tau,{\bf e})$
-                \STATE $\tilde{R}(\xx,\tau,{\bf e}) \leftarrow |\tau|R(\xx,\tau) I(\xx)$
+                \STATE $\tilde{R}(\xx,\tau,{\bf e}) \leftarrow |\tau|R(\xx,\tau) I(\xx,{\bf e})$
                 \STATE obtain $g_s({\bf x},t,{\bf e})$, $g_r({\bf x},t,{\bf e})$ @ cip locations
                 \STATE obtain $a_s({\bf x},t,{\bf e})$, $a_r({\bf x},t,{\bf e})$
                 \STATE $g(\xx,{\bf e}) \leftarrow u_s({\bf x},t,{\bf e})a_s({\bf x},t,{\bf e})+u_r({\bf x},t,{\bf e})a_r({\bf x},t,{\bf e})$
@@ -84,8 +89,62 @@ Colorado School of Mines }
 
         \end{algorithmic}
     \end{algorithm}
-    Where $I(\xx)$ is an illumination-based weighting function.
+    Where $I(\xx,{\bf e})$ is an illumination-based weighting function.
 \end{frame}
+
+\begin{frame} {$I(\xx)$}
+The weighting function smoothly weights down parts
+of the extended image which do not go through the 
+wavepath between source and receivers.
+
+\plot{img-c1-005-L}{width=\textwidth}{}
+
+\end{frame}
+\begin{frame} {$I(\xx)$}
+The weighting function smoothly weights down parts
+of the extended image which do not go through the 
+wavepath between source and receivers.
+
+\plot{img-c1-005-L-gg}{width=\textwidth}{}
+
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+    \column{0.33\textwidth}
+        \plot{eica-c2-005-L}{width=\textwidth}{\klabelnormal{30}{100}{$R_I(\xx,\tau)$}}
+    \column{0.33\textwidth}
+        \plot{mask_eica-c2-005-L}{width=\textwidth}{\klabelnormal{10}{100}{ $<env(R_I(\xx,\tau))>$}}
+    \column{0.33\textwidth}
+        \plot{I_mask_eica-c2-005-L}{width=\textwidth}{\klabelnormal{10}{100}{ $<env(R_I(\xx,0))>$}}
+\end{columns}
+\sep
+$R_I$: extended illumination image (using modeled data as receiver wavefield).\\ 
+$<>$: smoothing operator\\
+$env()$: envelope
+\end{frame}
+\begin{frame}{Penalty function}
+    \beq
+        P(\xx,\tau)^2=\tau I({\xx}) {\bf e}^{-\tau^2/{s_\tau}^2} 
+    \eeq
+The exponential is a taper on the extended image, such that
+the image at the last $\tau$ is approximately equal to zero.
+
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+    \column{0.5\textwidth}
+        \plot{eic-c2-L}{width=\textwidth}{\klabellarge{20}{100}{$R(\xx,\tau)$}}
+    \column{0.5\textwidth}
+        \plot{pen_eic-c2-L}{width=\textwidth}{\klabellarge{20}{100}{$P(\xx,\tau)R(\xx,\tau)$}}
+\end{columns}
+\end{frame}
+
+
+
 
 
 
@@ -95,14 +154,111 @@ Colorado School of Mines }
 \begin{center}
     \begin{tabular}{ | c | c | c | c |}
     \hline
-    Case   & sources & receivers & cip   \\ \hline
-       0   &    1    &      1    &  1    \\ \hline
-       1   &    1    &      1    & $n$   \\ \hline
-       2   &    1    &    $nr$   & $n$   \\ \hline
-       3   &   $ns$  &    $nr$   & $n$   \\ \hline
-       4   &   $ns$  &    $nr$   & $n^2$ \\ 
+    Case   & sources & receivers & cip       \\ \hline
+       0   &    1    &      1    &  1        \\ \hline
+       1   &    1    &      1    & $nz$      \\ \hline
+       2   &    1    &    $nr$   & $nz$      \\ \hline
+       3   &   $ns$  &    $nr$   & $nz$      \\ \hline
+       4   &   $ns$  &    $nr$   & $nz*ncig$ \\ \hline 
+       5   &   $ns$  &    $nr$   & $nz*nx$   \\ 
     \hline
     \end{tabular}
 \end{center}
 \end{frame}
+% ----------------------------------------------------------------------
+% gradients and cases plots:
+% ----------------------------------------------------------------------
+\begin{frame}{Case 0}
+    \plot{case-c0}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 0: -20\% gradient}
+    \plot{grad-c0-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 0: 0\% gradient}
+    \plot{grad-c0-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 0: +20\% gradient}
+    \plot{grad-c0-H}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 1}
+    \plot{case-c1}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 1: -20\% gradient}
+    \plot{grad-c1-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 1: 0\% gradient}
+    \plot{grad-c1-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 1: +20\% gradient}
+    \plot{grad-c1-H}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 2}
+    \plot{case-c2}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 2: -20\% gradient}
+    \plot{grad-c2-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 2: 0\% gradient}
+    \plot{grad-c2-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 2: +20\% gradient}
+    \plot{grad-c2-H}{width=\textwidth}{}
+\end{frame}
+
+
+\begin{frame}{Case 3}
+    \plot{case-c3}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 3: -20\% gradient}
+    \plot{grad-c3-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 3: 0\% gradient}
+    \plot{grad-c3-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 3: +20\% gradient}
+    \plot{grad-c3-H}{width=\textwidth}{}
+\end{frame}
+
+
+\begin{frame}{Case 4}
+    \plot{case-c4}{width=\textwidth}{}
+\end{frame}
+
+\begin{frame}{Case 4: -20\% gradient}
+    \plot{grad-c4-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 4: 0\% gradient}
+    \plot{grad-c4-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 4: +20\% gradient}
+    \plot{grad-c4-H}{width=\textwidth}{}
+\end{frame}
+
+
+\begin{frame}{Case 5}
+    \plot{case-c4}{width=\textwidth}{\klabellarge{20}{-5}{$\tau$ lag measures in all gridpoints}}
+\end{frame}
+
+\begin{frame}{Case 5: -20\% gradient}
+    \plot{grad-c5-L}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 5: 0\% gradient}
+    \plot{grad-c5-C}{width=\textwidth}{}
+\end{frame}
+\begin{frame}{Case 5: +20\% gradient}
+    \plot{grad-c5-H}{width=\textwidth}{}
+\end{frame}
+
+
+% ----------------------------------------------------------------------
+% end of gradients and cases plots:
+% ----------------------------------------------------------------------
+
+
 

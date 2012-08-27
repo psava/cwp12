@@ -339,8 +339,8 @@ for m in (['-L','-C','-H']):
                      spray axis=1 n=%d d=%g o=%g
                      '''%(par['nht']*2+1,par['dht'],-par['nht']*par['dht']))
 
-                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
-                #Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|math output="(x1*input)*exp(-((x2-1.25)^2/(.2*.2)))"|add mode=p ${SOURCES[1]}'')
+                #Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
+                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|scale dscale=1.0e+35|math output="(x1*input)"|add mode=p ${SOURCES[1]}')
             elif ci==4:
                 Flow('mask_eic'+ctag+stag+m,'eica'+ctag+stag+m,
                      '''
@@ -356,40 +356,21 @@ for m in (['-L','-C','-H']):
                      put n2=%d d2=%g o2=0
                      '''%(par['nz']*par['ngx'],par['dx']))
 
-                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]} ')
+                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale dscale=1.0e+30|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]} ')
             else:
-
-#                Flow('mask_eic'+ctag+stag+m,'eica'+ctag+stag+m,
-#                     '''
-#                     envelope| put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g label1="ht"|smooth rect1=1 rect2=10 repeat=10 |
-#                     smooth rect3=1  repeat=1|
-#                     window n1=1 min1=0 |scale axis=3|
-#                     math output="input^1"| 
-#                     '''%par +
-#                     '''
-#                     spray axis=1 n=%d d=%g o=%g|
-#                     math output="(input +1.0e-22)" |
-#                     scale axis=2 |
-#                     '''%(par['nht']*2+1,par['dht'],-par['nht']*par['dht'])+
-#                     '''
-#                     put n2=%d d2=%g o2=0 n3=1
-#                     '''%(par['nz']*par['nx'],par['dx']))
                 Flow('mask_eic'+ctag+stag+m,'imgz'+ctag+stag+m,
                     ''' spray axis=3 n=%d d=%g o=%g '''%(par['nht']*2+1,par['dht'],-2*par['nht']*par['dht'])
                     +'''|transp plane=13 memsize=8000|transp memsize=9000 plane=23 |
                         put n3=1 n2=%d
                         '''%(par['nx']*par['nz']))
 
-                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale dscale=1.0e+15 |math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
+                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale dscale=1.0e+35 |math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
 
                 Result('mask_2d'+stag+m,'mask_eic'+ctag+stag+m,
                      '''
                      put n2=%(nz)d o2=%(oz)g d2=%(dz)g n3=%(nx)d d3=%(dx)g  o3=%(ox)g |
                      window n1=1| 
                      '''%par+fdmod.cgrey('',par))
-
-                
-
     
             # Adjoint source, receiver side
             Flow('adj_r'+ctag+stag+m,['us'+ctag+stag+m,'pen_eic'+ctag+stag+m,'gg'+ctag,'wav_'],
@@ -429,12 +410,6 @@ for m in (['-L','-C','-H']):
 
         Flow('eic'+ctag+m,map(lambda x:'eic'+ctag+'-%03d'%x+m,shots),'add ${SOURCES[1:%d]}'%len(shots))
         Flow('pen_eic'+ctag+m,map(lambda x:'pen_eic'+ctag+'-%03d'%x+m,shots),'add ${SOURCES[1:%d]}'%len(shots))
-
-
-
-
-
-        
 
         # stack of individual gradient contributions
         # total source gradient

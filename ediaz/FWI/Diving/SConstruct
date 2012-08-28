@@ -162,6 +162,7 @@ for i in SHOTS:
 Flow('velI','velC','math output="input*1.1 "')
 
 
+<<<<<<< HEAD
 Result('vels',['velC','velI'],
 '''cat axis=3 ${SOURCES[1]} |transp plane=23| window n3=1|
    graph transp=y yreverse=y unit1="km" unit2="km/s" title="" label1=z label2=vel 
@@ -176,9 +177,18 @@ Result('vels',['velC','velI'],
 SHOT_cases = [0,80,120]
 EIC_cases  = [69]
 REC_cases  = [14,59,121]
+=======
+fdmod.point('xx1',11.5,7,par)
+
+
+Flow('gg2','velS',
+     'window j2=200| rtoc| math  output="x2 +I*x1" |put n1=2 n2=%d >$TARGETS'%(par['nz']*(int(par['nx']/200)+1))+' ; echo type=float >>$TARGETS; echo esize=4 >> $TARGETS ; echo data_format="native_float" >>$TARGETS ; echo ""', stdout=0)
+Plot('gg2',fdmod.rrplot('',par))
+>>>>>>> …
 
 ncases=len(SHOT_cases)*len(EIC_cases)*len(REC_cases)
 
+<<<<<<< HEAD
 cases= numpy.zeros((ncases,3))
 i=0
 for s in SHOT_cases:
@@ -189,6 +199,12 @@ for s in SHOT_cases:
             cases[i][2]=r
             print i
             i+=1
+=======
+#VELS=[x * 0.1 +0.8 for x in range(0, 5)]
+VELS=[x * 0.1 +1.2 for x in range(1)]
+#VELS2=[int((x * 0.1 +0.8)*100) for x in range(0, 5)]
+VELS2=[int((x * 0.1 +1.2)*100) for x in range(1)]
+>>>>>>> …
 
 
 
@@ -207,14 +223,19 @@ for c in range(ncases):
 
     m='-%02d'%c
 
+<<<<<<< HEAD
 
 
     Flow('dC'+m,'dC'+stag,'window n1=1 f1=%d |transp plane=12'%r)
+=======
+        fdmod.awefd('junk'+stag+veltag,'raS'+stag+veltag,'ain'+stag+veltag,'velS'+veltag,'dens','rr','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+>>>>>>> …
 
     # Source wfld
     fdmod.awefd_swfl('us'+m,'wav','velI','dens','s'+stag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
 
 
+<<<<<<< HEAD
     # Receiver wfld
     fdmod.awefd_rwfl('ur'+m,'dC'+m,'velI','dens','r'+rtag,'free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
     
@@ -223,6 +244,72 @@ for c in range(ncases):
       '''
       xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
       ''' % par)
+=======
+        # extended imaging condition:  time-lag gathers  and space-lag gathers    
+        wemig.eic('cig'+stag+veltag,'uS'+stag+veltag,'aS'+stag+veltag,'xx1','nhx=0 nhz=0 |window squeeze=y',par)
+
+
+
+
+
+        # Penalized time-lag gathers
+        Flow('pen_cig'+stag+veltag,'cig'+stag+veltag,'math output="input*abs(x1)" ')
+
+
+        # Adjoint source, source side
+
+        Flow('adj_src_swfl'+stag+veltag,['uS'+stag+veltag,'pen_cig'+stag+veltag,'xx1','wav_'],
+            '''
+            ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=0 |
+            sfreverse which=1 opt=i  | sinc pattern=${SOURCES[3]}|transp plane=12 
+            ''')
+
+
+
+        # reversed adjoint source wavefield
+  
+        fdmod.awefd('junk2'+stag+veltag,'rsauS'+stag+veltag,'adj_src_swfl'+stag+veltag,'velS'+veltag,'dens','xx1','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+        # adjoint source wavefield
+        Flow('sauS'+stag+veltag,'rsauS'+stag+veltag,'window n1=%(nz)d min1=%(oz)g | window n2=%(nx)d min2=%(ox)g | reverse which=4 opt=i '%par)
+
+
+
+
+        # Adjoint source, receiver side
+
+        Flow('adj_src_rwfl'+stag+veltag,['aS'+stag+veltag,'pen_cig'+stag+veltag,'xx1','wav_'],
+            '''
+            ./sfadjsrc_mva.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=0 |
+            sinc pattern=${SOURCES[3]}|transp plane=12 
+            ''')
+
+        
+        fdmod.awefd('junk3'+stag+veltag,'rauS'+stag+veltag,'adj_src_rwfl'+stag+veltag,'velS'+veltag,'dens','xx1','rr','free=n jsnap=%(jwfld)d'%par+fdmod.qqbox2d(par),par)
+
+
+
+        #Build the gradient:
+
+        
+        # ------------------------------------------------------------
+        # data gradient
+        Flow('sgrad'+stag+veltag,['sauS'+stag+veltag,'uS'+stag+veltag],
+         '''
+         xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+         ''' % par)
+
+        # ------------------------------------------------------------
+        # data gradient
+        Flow('rgrad'+stag+veltag,['rauS'+stag+veltag,'aS'+stag+veltag],
+         '''
+         xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100
+         ''' % par)
+
+
+
+
+>>>>>>> …
 
     Result('cic'+m, fdmod.cgrey(' ',par))
 

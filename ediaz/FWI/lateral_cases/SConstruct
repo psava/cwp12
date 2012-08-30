@@ -340,7 +340,7 @@ for m in (['-L','-C','-H']):
                      '''%(par['nht']*2+1,par['dht'],-par['nht']*par['dht']))
 
                 #Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))"|add mode=p ${SOURCES[1]}')
-                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|scale dscale=1.0e+35|math output="(x1*input)"|add mode=p ${SOURCES[1]}')
+                Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m,'mask_eic'+ctag+stag+m],'bandpass flo=10|scale dscale=1.0e+35|math output="(x1*input)*exp(-((x1^2)/(.3^2)))"|add mode=p ${SOURCES[1]}')
             elif ci==4:
                 Flow('mask_eic'+ctag+stag+m,'eica'+ctag+stag+m,
                      '''

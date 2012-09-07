@@ -16,11 +16,18 @@ from rsf.proj import *
 import fdmod,encode,wei,adcig,wemig
 import math
 
+
+
+
+
+
+
+
 # ------------------------------------------------------------
 par = {
-    'nx':600, 'ox':0, 'dx':0.01,  'lx':'x', 'ux':'km',
+    'nx':601, 'ox':0, 'dx':0.01,  'lx':'x', 'ux':'km',
     'ny':1,   'oy':0, 'dy':0.02,  'ly':'y', 'uy':'km',
-    'nz':250, 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
+    'nz':251, 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
     'nt':3500,'ot':0, 'dt':0.001, 'lt':'t', 'ut':'s',
     'kt':180,
     'jsnap':100,
@@ -112,8 +119,7 @@ Plot('ss',fdmod.ssplot('',par))
 
 
 # receiver coordinates:
-fdmod.vertical('rr_tmp',5.0,par)
-Flow('rr','rr_tmp','window j2=%d'%int(par['ds']/par['dz']))
+fdmod.vertical('rr',5.0,par)
 
 
 Plot('rr',fdmod.rrplot('',par))
@@ -197,10 +203,20 @@ Result('wav','transp |' + fdmod.waveplot('',par))
 
 
 # Generate data with true model
+Flow('dmask',None,
+    '''
+    spike n1=%(nz)d d1=%(dz)g o1=%(oz)g n2=%(nt)d d2=%(dt)g o2=%(ot)g |'''%par+
+    '''
+    math output="abs(x1 -%g)" | 
+    mask max=0.80 | 
+    dd type=float |
+    smooth rect1=%d repeat=%d
+    '''%(0.5*(par['oz']+(par['nz']-1)*par['dz']),15,10))
+
 for ishot in range(par['ns']):
     stag='-%03d'%ishot
     fdmod.awefd_data('dat_tmps'+stag,'wav','vel-C','den','s'+stag,'rr','',par)
-    Flow('dat_s'+stag,['dat_tmps'+stag],'window ')
+    Flow('dat_s'+stag,['dat_tmps'+stag,'dmask'],'add mode=p ${SOURCES[1]} ')
 
 
 
@@ -217,8 +233,8 @@ for ishot in range(par['ns']):
 # array case contain all these variables
 # ------------------------------------------------------------
 
-case0=[[5],5,125]
-case1=[[5],5,17]
+case0=[[5],125,125]
+case1=[[5],125,17]
 case2=[[5],[range(par['ns'])],17]
 case3=[range(par['ns']),[range(par['ns'])],17]
 case4=[range(par['ns']),[range(par['ns'])],range(par['ngx'])]
@@ -226,7 +242,7 @@ case5=[range(par['ns']),[range(par['ns'])],range(par['nx'])]
 
 cases=[case0,case1,case2,case3,case4,case5]
 
-customfd='jsnap=4 '
+customfd='jsnap=1 '
 
 for m in (['-L','-C','-H']):
 
@@ -292,11 +308,11 @@ for m in (['-L','-C','-H']):
             if ci<2:
                 Flow('dat_s'+stag+ctag,'dat_tmps'+stag,'window f1=%s n1=1 squeeze=n'%c[1])
                 # Computing state variables us and ur
-                Flow('dmod'+ctag+stag+m,['dmod_tmp'+ctag+stag+m],'window f1=%s n1=1 squeeze=n'%c[1])
+                Flow('dmod'+ctag+stag+m,['dmod_tmp'+ctag+stag+m,'dmask'],'add mode=p ${SOURCES[1]} |window f1=%s n1=1 squeeze=n'%c[1])
             else:
                 Flow('dat_s'+stag+ctag,'dat_s-%03d'%ishot,'window squeeze=n')
                 # Computing state variables us and ur
-                Flow('dmod'+ctag+stag+m,['dmod_tmp'+ctag+stag+m],'window squeeze=n')
+                Flow('dmod'+ctag+stag+m,['dmod_tmp'+ctag+stag+m,'dmask'],'add mode=p ${SOURCES[1]}')
 
 
                    
@@ -408,6 +424,12 @@ for m in (['-L','-C','-H']):
             Result('rgrad'+ctag+stag+m,['rgrad'+ctag+stag+m,'gg'+ctag,'rr'+ctag,'ss'+ctag],'Overlay')
 
 
+
+
+        wavefields=map(lambda x:'us'+ctag+'-%03d'%x+m,shots) + map(lambda x:'ur'+ctag+'-%03d'%x+m,shots) 
+        wavefields+=map(lambda x:'as'+ctag+'-%03d'%x+m,shots) + map(lambda x:'ar'+ctag+'-%03d'%x+m,shots) 
+
+
         Flow('eic'+ctag+m,map(lambda x:'eic'+ctag+'-%03d'%x+m,shots),'add ${SOURCES[1:%d]}'%len(shots))
         Flow('pen_eic'+ctag+m,map(lambda x:'pen_eic'+ctag+'-%03d'%x+m,shots),'add ${SOURCES[1:%d]}'%len(shots))
 
@@ -461,8 +483,8 @@ ci=0
 for c in cases:
     ctag='-c%d'%ci 
 
-    Flow('grad-byte'+ctag,map(lambda x:'grad'+ctag+'%s'% x,['-L','-C','-H']),'rcat axis=3 ${SOURCES[1:3]}|byte gainpanel=a pclip=100')
-    Result('case'+ctag,['vel-c','ss'+ctag,'gg'+ctag,'rr'+ctag],'Overlay')
+    Flow('grad-byte'+ctag,map(lambda x:'grad'+ctag+'%s'% x,['-L','-C','-H']),'rcat axis=3 ${SOURCES[1:3]}|byte gainpanel=a pclip=99.9 ')
+    Result('case'+ctag,['vel-C','ss'+ctag,'gg'+ctag,'rr'+ctag],'Overlay')
 
 
 

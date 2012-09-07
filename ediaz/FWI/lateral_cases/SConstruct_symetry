@@ -1,0 +1,297 @@
+from rsf.proj import *
+import fdmod,encode,wei,adcig,wemig
+import math
+
+
+
+
+
+
+
+
+# ------------------------------------------------------------
+par = {
+    'nx':601, 'ox':0, 'dx':0.01,  'lx':'x', 'ux':'km',
+    'ny':1,   'oy':0, 'dy':0.02,  'ly':'y', 'uy':'km',
+    'nz':251, 'oz':0, 'dz':0.01,  'lz':'z', 'uz':'km',
+    'nt':3500,'ot':0, 'dt':0.001, 'lt':'t', 'ut':'s',
+    'kt':180,
+    'jsnap':100,
+    'nb':100,
+    'frq':10,
+    'ns':10,'os':0.0,'ds':0.25,'oxs':1.0
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# EIC computational domain
+par['nhz']=0
+par['nhx']=100
+par['nhz']=par['nhx']
+par['nht']=220
+par['dht']=par['dt']*2
+
+adcig.tparam((par['nhx']*par['dx'])/(par['nht']*par['dt']),
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.xparam(
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz']   ,            par['oz'],par['dz'],
+             par)
+
+adcig.eparam(10.0,
+             2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+             2*par['nhz']+1,-par['nhz']*par['dz'],par['dz'],
+             2*par['nht']+1,-par['nht']*par['dt'],par['dt'],
+             par)
+# ------------------------------------------------------------
+
+
+par['impulse']='n'
+
+# taper parameters
+par['xk']=100
+par['yk']=50
+par['zk']=100
+par['xl']=par['nx']-par['xk']
+par['zl']=par['nz']-par['zk']
+par['yl']=par['ny']-par['yk']
+
+# migration parameters
+par['jw']=1
+par['ow']=2
+par['nw']=72
+par['dw']=1/(par['nt']*par['dt'])
+
+# deconvolution regularization
+par['deps']=1e-5
+
+# lag parameters
+par['nhz']=0
+par['nhx']=60
+par['nhy']=0
+par['nht']=220
+par['mht']=2*par['nht']+1
+par['dht']=  par['dt'] *2
+par['oht']= -par['nht']*par['dht']
+par['tratio']=1.0
+par['xratio']=1.0
+par['lratio']=1.0
+
+# ------------------------------------------------------------
+# source/receiver coordinates
+# ------------------------------------------------------------
+
+# source coordinates:
+
+for ishot in range(par['ns']):
+    stag='-%03d'%ishot
+ 
+    zx=ishot*par['ds']+par['os']
+    fdmod.point('s'+stag,par['oxs'],zx,par)
+    Plot('s'+stag,fdmod.ssplot('',par))
+
+
+
+Flow('ss',map(lambda x:'s-%03d'%x,range(par['ns'])), 'rcat axis=2 space=n ${SOURCES[1:%s]}'%(par['ns']))
+Plot('ss',fdmod.ssplot('',par))
+
+
+
+
+
+
+
+
+# receiver coordinates:
+fdmod.vertical('rr',5.0,par)
+
+
+Plot('rr',fdmod.rrplot('',par))
+
+# tlag gather coordinates:
+fdmod.vertical('gg',3.0,par)
+Plot('gg',fdmod.rrplot('plotcol=2',par))
+
+
+# ------------------------------------------------------------
+# Cig locations
+# ------------------------------------------------------------
+par['ogx'] = 1.30
+par['dgx'] = 0.1
+par['ngx'] = 35
+
+ggloc=range(par['ngx'])
+
+for g in ggloc:
+    gtag='-%03d'%g
+    fdmod.vertical('gg'+gtag,par['ogx']+g*par['dgx'],par)
+    Plot('gg'+gtag,fdmod.rrplot('plotcol=2',par))
+    
+
+
+# ------------------------------------------------------------
+# model parameters
+# ------------------------------------------------------------
+par['vp']=2.0
+par['ro']=2.0
+
+# ------------------------------------------------------------
+# density< ur-c0-005-L.rsf ./sfadjsrc_mva2_omp.exe eic=pen_eic-c0-005-L.rsf coord=gg-c0.rsf source=0 verb=1 
+# ------------------------------------------------------------
+Flow('den',None,
+    '''
+    math  n1=%(nz)d o1=%(oz)g d1=%(dz)g
+          n2=%(nx)d o2=%(ox)g d2=%(dx)g output="1.0"
+    '''%par)
+
+# velocity
+# lateral gradient
+#Flow('vel-L','den','math output=" %(vp)g +(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
+#Flow('vel-C','den','math output="%g"' %par['vp'])
+#Flow('vel-H','den','math output=" %(vp)g -(1/(%(ox)g+(%(nx)d-1)*%(dx)g))*(x2-5.0) "'%par)
+
+# constant error
+
+
+Flow('vel-C','den','math output="%g"' %par['vp'])
+
+par['cx']=(par['ox']+(par['nx']-1)*par['dx'])*.5
+par['sx']=par['nx']*par['dx']*0.08
+
+par['cz']=(par['oz']+(par['nz']-1)*par['dz'])*.5
+par['sz']=par['sx']
+
+
+
+
+Flow('vel-L','vel-C',' math  output="sqrt(1/(1.2*(1/%g)^2))"'%par['vp'])
+Flow('vel-H','vel-C',' math  output="sqrt(1/(0.8*(1/%g)^2))"'%par['vp'])
+
+
+# Plot velocities
+Flow(['vels-byte','vels-bar'],['vel-L','vel-C','vel-H'],'cat axis=3 ${SOURCES[1:3]} |byte gainpanel=a allpos=y color=j bias=1.5 bar=${TARGETS[1]}')
+i=0
+for v in (['-L','-C','-H']):
+    Plot('vel'+v,['vels-byte','vels-bar'],'window f3=%d n3=1 |'%i +fdmod.cgrey('bar=${SOURCES[1]} color=j ',par))
+    i+=1
+
+# Overlay velocities with sources, receivers and eic locations
+for i in (['vel-L','vel-C','vel-H']):
+    Result(i,[i,'rr','gg','ss'],'Overlay')
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',par['frq'],par)
+Flow(  'wav','wav_','transp')
+Result('wav','transp |' + fdmod.waveplot('',par))
+
+
+# Generate data with true model
+Flow('dmask',None,
+    '''
+    spike n1=%(nz)d d1=%(dz)g o1=%(oz)g n2=%(nt)d d2=%(dt)g o2=%(ot)g |'''%par+
+    '''
+    math output="abs(x1 -%g)" | 
+    mask max=0.80 | 
+    dd type=float |
+    smooth rect1=%d repeat=%d
+    '''%(0.5*(par['oz']+(par['nz']-1)*par['dz']),15,10))
+
+for ishot in range(par['ns']):
+    stag='-%03d'%ishot
+    fdmod.awefd_data('dat_tmps'+stag,'wav','vel-C','den','s'+stag,'rr','',par)
+    Flow('dat_s'+stag,['dat_tmps'+stag,'dmask'],'add mode=p ${SOURCES[1]} ')
+
+
+
+# ------------------------------------------------------------
+# I will test the gradient calculation using 4 different 
+# cases:
+#
+# 1: 1 source , 1 receiver , 1   cip location
+# 2: 1 source , n receivers, n   cip location
+# 3: n sources, n receivers, n   cip location
+# 4: n sources, n receivers, n   cip locations 
+# 4: n sources, n receivers, n^2 cip locations 
+#
+# array case contain all these variables
+# ------------------------------------------------------------
+
+case0=[[5],125,125]
+case1=[[5],125,17]
+case2=[[5],[range(par['ns'])],17]
+case3=[range(par['ns']),[range(par['ns'])],17]
+case4=[range(par['ns']),[range(par['ns'])],range(par['ngx'])]
+case5=[range(par['ns']),[range(par['ns'])],range(par['nx'])]
+
+cases=[case0,case1,case2,case3,case4,case5]
+
+customfd='jsnap=1 '
+ishot=5
+ctag='-j1'
+
+c=case0
+
+stag='-005'
+for m in (['-L','-C','-H']):
+
+    for ctag in (['-j1','-j2']):
+
+        if ctag=='-j1': 
+            customfd='jsnap=1 '
+        if ctag=='-j2': 
+            customfd='jsnap=2 '
+    
+        Flow('rr'+ctag,'rr','window f2=%s n2=1'%c[1])
+        fdmod.point('gg'+ctag,3.0,c[2]*par['dz'] +par['oz'],par)
+                
+        tgrey='put n2=1 | transp |'
+        Plot('gg'+ctag,fdmod.rrplot('plotcol=2',par))
+        Plot('rr'+ctag,fdmod.ssplot('',par))
+    
+        fdmod.awefd('dmod_tmp'+ctag+stag+m,'us'+ctag+stag+m,'wav','vel'+m,'den','s'+stag,'rr',customfd,par)
+         
+        Flow('dat_s'+stag+ctag,'dat_tmps'+stag,'window f1=%s n1=1 squeeze=n'%c[1])
+        # Computing state variables us and ur
+        Flow('dmod'+ctag+stag+m,['dmod_tmp'+ctag+stag+m,'dmask'],'add mode=p ${SOURCES[1]} |window f1=%s n1=1 squeeze=n'%c[1])
+    
+        fdmod.awefd_rwfl('ur'+ctag+stag+m,'dat_s'+stag+ctag,'vel'+m,'den','rr'+ctag,customfd,par)
+        fdmod.awefd_rwfl('urmod'+ctag+stag+m,'dmod'+ctag+stag+m,'vel'+m,'den','rr'+ctag,customfd,par)
+    
+        wemig.eic('eic'+ctag+stag+m,'us'+ctag+stag+m,'ur'+ctag+stag+m,'gg'+ctag,'nhx=0 nhz=0 nht=%(nht)d|window squeeze=y|sinc n1=%(nht)d o1=-0.22 d1=%(dt)g'%par,par)
+        wemig.eic('eica'+ctag+stag+m,'us'+ctag+stag+m,'urmod'+ctag+stag+m,'gg'+ctag,'nhx=0 nhz=0 nht=%(nht)d|window squeeze=y'%par,par)
+    
+    
+        Flow('pen_eic'+ctag+stag+m,['eic'+ctag+stag+m],'scale axis=123|math output="(x1*input)*exp(-((x1^2)/(.2^2)))" ')
+        
+        # Adjoint source, receiver side
+        Flow('adj_r'+ctag+stag+m,['us'+ctag+stag+m,'pen_eic'+ctag+stag+m,'gg'+ctag,'wav_'],
+             '''
+             ./sfadjsrc_mva2_omp.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=1 verb=1 |
+             sinc pattern=${SOURCES[3]} | transp plane=12  memsize=8000
+             ''')
+        # Adjoint source, source side
+        Flow('adj_s'+ctag+stag+m,['ur'+ctag+stag+m,'pen_eic'+ctag+stag+m,'gg'+ctag,'wav_'],
+              '''
+              ./sfadjsrc_mva2_omp.exe eic=${SOURCES[1]} coord=${SOURCES[2]} source=0 verb=1 |
+              sinc pattern=${SOURCES[3]} | transp plane=12 memsize=8000
+              ''')
+        
+        # Adjoint state variables
+        fdmod.awefd_rwfl('as'+ctag+stag+m,'adj_s'+ctag+stag+m,'vel'+m,'den','gg'+ctag,customfd,par)
+        fdmod.awefd_swfl('ar'+ctag+stag+m,'adj_r'+ctag+stag+m,'vel'+m,'den','gg'+ctag,customfd,par)
+        
+        # Gradient calculation 
+        # sgrad:  source side gradient 
+        #      sgrad = \int us*as dt
+        # rgrad:  source side gradient 
+        #      rgrad = \int ur*ar dt
+        
+        custom='xcor2d uu=${SOURCES[1]} axis=3 verb=y nbuf=100'
+        Flow('sgrad'+ctag+stag+m,['us'+ctag+stag+m,'as'+ctag+stag+m],custom)
+        Flow('rgrad'+ctag+stag+m,['ur'+ctag+stag+m,'ar'+ctag+stag+m],custom)
+        
+
+End()

@@ -68,7 +68,7 @@ par['yl']=par['ny']-par['yk']
 # migration parameters
 par['jw']=1
 par['ow']=2
-par['nw']=72
+par['nw']=72grad-c1-L.rsf grad-c1-C.rsf grad-c1-H.rsf
 par['dw']=1/(par['nt']*par['dt'])
 
 # deconvolution regularization
@@ -112,8 +112,8 @@ Plot('ss',fdmod.ssplot('',par))
 
 
 # receiver coordinates:
-fdmod.vertical('rr_tmp',5.0,par)
-Flow('rr','rr_tmp','window j2=%d'%int(par['ds']/par['dz']))
+fdmod.vertical('rr',5.0,par)
+#Flow('rr','rr_tmp','window j2=%d'%int(par['ds']/par['dz']))
 
 
 Plot('rr',fdmod.rrplot('',par))
@@ -131,6 +131,8 @@ par['dgx'] = 0.1
 par['ngx'] = 35
 
 ggloc=range(par['ngx'])
+
+
 
 for g in ggloc:
     gtag='-%03d'%g

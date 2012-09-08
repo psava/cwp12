@@ -1,0 +1,75 @@
+from rsf.proj import *
+import bp2004 as bp
+import fdmod
+
+
+par=bp.param()
+
+
+fdmod.param(par)
+
+
+bp.get_vellw('vel_lw',par)
+
+velplot = fdmod.cgrey('color=j allpos=y bias=1.429 pclip=100 wantscalebar=y bar=bar.rsf',par)
+
+
+
+bp.get_velexact('vel_exact',par)
+
+
+bp.get_velexact_ns('vel_exact_ns',par)
+
+Flow('vels-byte bar','vel_lw vel_exact vel_exact_ns',
+    '''
+    cat ${SOURCES[1:3]} |
+    byte gainpanel=a color=j allpos=y bias=1.429 bar=${TARGETS[1]}
+    ''')
+
+
+
+bp.get_denexact('density',par)
+
+Result('density',fdmod.cgrey('color=j allpos=y bias=1.5 wantscalebar=y',par))
+
+
+
+bp.make_shots_0001_0200('shots_0001-0200',par)
+bp.make_shots_1201_1348('shots_1201-1348',par)
+
+
+bp.make_rr('rr-1200',1200,par)
+bp.make_rr('rr-0600',600,par)
+
+Plot('rr-1200',fdmod.rrplot('',par))
+Plot('rr-0600',fdmod.rrplot('',par))
+
+
+Result('vel_lw','vels-byte bar','window f3=0 n3=1|'+velplot)
+Result('vel_exact','vels-byte bar','window f3=1 n3=1|'+velplot)
+Result('vel_exact_ns','vels-byte bar','window f3=2 n3=1|'+velplot)
+
+
+
+
+
+
+
+# Migration test:
+shot=1201
+
+
+stag='-%04d'%shot
+
+
+Flow('dat'+stag,'shots_1201-1348', 'window n3=1 f3=0|put o2=%g'%((shot-1)*par['ds']+par['os']-15))
+
+
+Result('dat'+stag,'reverse opt=i which=2|'+fdmod.dgrey('pclip=99 min2=%g max2=%g'%((shot-1)*par['ds']+par['os']-15,(shot-1)*par['ds']+par['os']),par))
+
+
+
+
+
+
+End()

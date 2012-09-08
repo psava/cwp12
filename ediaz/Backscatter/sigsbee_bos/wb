@@ -1,0 +1,96 @@
+1.4-svn	sfsegyread	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:47:28 2012
+
+	d2=1
+	o1=0
+	n2=2133
+	o2=0
+	label1="Time"
+	data_format="native_float"
+	head="migvel-t.rsf"
+	label2="Trace"
+	esize=4
+	in="/var/tmp/ediaz/Backscatter/sigsbee_bos/migvel-raw.rsf@"
+	unit1="s"
+	d1=0.025
+	n1=1201
+1.4-svn	sfscale	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:47:28 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sfscale	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:47:28 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sfput	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:47:28 2012
+
+	unit2=km
+	d2=0.01143
+	label1=z
+	label2=x
+	data_format="native_float"
+	o1=0
+	in="/var/tmp/ediaz/Backscatter/sigsbee_bos/migvel.rsf@"
+	o2=3.05562
+	unit1=km
+	d1=0.00762
+1.4-svn	sfwindow	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:57:26 2012
+
+	d2=0.01143
+	n2=1
+	o1=0
+	o2=3.05562
+	label1="z"
+	data_format="native_float"
+	label2="x"
+	esize=4
+	in="stdout"
+	unit1="km"
+	unit2="km"
+	d1=0.00762
+	n1=1201
+	in="stdin"
+
+1.4-svn	sfwindow	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:57:26 2012
+
+	o1=2.88798
+	label1="z"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="km"
+	d1=0.00762
+	n1=822
+	in="stdin"
+
+1.4-svn	sfput	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:57:27 2012
+
+	data_format="native_float"
+	o1=0.0
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sfmath	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:57:27 2012
+
+	input=0
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	x1=1
+	in="stdin"
+
+1.4-svn	sfvel1d	ediaz/Backscatter/sigsbee_bos:	ediaz@dhcp11-158.mines.edu	Mon Sep  3 16:57:27 2012
+
+	o1=3.05562
+	label1="x"
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/ediaz/Backscatter/sigsbee_bos/wb@"
+	unit1="km"
+	d1=0.01143
+	n1=2133

@@ -29,10 +29,10 @@ def dummyf(out,name):
 
 
 
-par['osou']=9
+par['osou']=7
 par['fsou']=int((par['osou']-par['osall'])/par['dsall'])
 par['nsou']=90
-par['jsou']=6
+par['jsou']=3
 
 
 SHOTS=range(par['fsou'],

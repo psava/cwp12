@@ -1,23 +1,33 @@
 from rsf.proj import *
 import bp2004 as bp
-import fdmod
+import fdmod,wemig
 
 
 par=bp.param()
-
-
 fdmod.param(par)
+
+parfd = {
+        'ntfd':12000,'dtfd':0.001,'otfd':-0.110,
+        'kt':110 
+    }
+
+
+par=dict(par.items() + parfd.items())
+
+
+
+
+
+
+
+
 
 
 bp.get_vellw('vel_lw',par)
-
 velplot = fdmod.cgrey('color=j allpos=y bias=1.429 pclip=100 wantscalebar=y bar=bar.rsf',par)
 
 
-
 bp.get_velexact('vel_exact',par)
-
-
 bp.get_velexact_ns('vel_exact_ns',par)
 
 Flow('vels-byte bar','vel_lw vel_exact vel_exact_ns',
@@ -26,23 +36,12 @@ Flow('vels-byte bar','vel_lw vel_exact vel_exact_ns',
     byte gainpanel=a color=j allpos=y bias=1.429 bar=${TARGETS[1]}
     ''')
 
-
-
 bp.get_denexact('density',par)
-
 Result('density',fdmod.cgrey('color=j allpos=y bias=1.5 wantscalebar=y',par))
 
-
-
-bp.make_shots_0001_0200('shots_0001-0200',par)
 bp.make_shots_1201_1348('shots_1201-1348',par)
+bp.make_shots_0601_0800('shots_0601-0800',par)
 
-
-bp.make_rr('rr-1200',1200,par)
-bp.make_rr('rr-0600',600,par)
-
-Plot('rr-1200',fdmod.rrplot('',par))
-Plot('rr-0600',fdmod.rrplot('',par))
 
 
 Result('vel_lw','vels-byte bar','window f3=0 n3=1|'+velplot)
@@ -56,19 +55,47 @@ Result('vel_exact_ns','vels-byte bar','window f3=2 n3=1|'+velplot)
 
 
 # Migration test:
-shot=1201
+shot=601
 
 
 stag='-%04d'%shot
 
 
-Flow('dat'+stag,'shots_1201-1348', 'window n3=1 f3=0|put o2=%g'%((shot-1)*par['ds']+par['os']-15))
+if shot>1200 and shot <1349:
+  
+    Flow('dat'+stag,'shots_1201-1348', 
+        '''window n3=1 f3=%d|'''%(shot-1201)+'''
+           sinc  n1=%(ntfd)d d1=%(dtfd)g o1=%(otfd)g |
+           transp
+           '''%par)
+
+if shot>600 and shot <801 :
+    Flow('dat'+stag,'shots_0601-0800', 
+        '''window n3=1 f3=%d|'''%(shot-601)+'''
+           sinc  n1=%(ntfd)d d1=%(dtfd)g o1=%(otfd)g |
+           transp
+           '''%par)
 
 
-Result('dat'+stag,'reverse opt=i which=2|'+fdmod.dgrey('pclip=99 min2=%g max2=%g'%((shot-1)*par['ds']+par['os']-15,(shot-1)*par['ds']+par['os']),par))
+
+
+Result('dat'+stag,'reverse opt=i which=1|transp|'+fdmod.dgrey('pclip=99 min2=%g max2=%g'%((shot-1)*par['ds']+par['os']-15,(shot-1)*par['ds']+par['os']),par))
+
+bp.make_ss('ss'+stag,shot,par)
+
+bp.make_rr('rr'+stag,shot,par)
 
 
 
+
+
+
+Flow('wav',None,'spike n1=%(ntfd)d d1=%(dtfd)g o1=%(otfd)g nsp=1 k1=%(kt)d| ricker2 frequency=10 |transp '%par)
+
+wemig.cdrtm('Image'+stag,'vel_exact',
+            'wav','ss'+stag,
+            'dat'+stag,'rr'+stag,
+            'jsnap=10 ',par)
 
 
 

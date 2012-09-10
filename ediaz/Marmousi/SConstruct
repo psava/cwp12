@@ -218,34 +218,17 @@ exper=range(par['ne'])
 iwindow='oqx=%(ox)g nqx=%(nx)g oqz=%(oz)g nqz=%(nz)g jsnap=2 '%par
 for i in exper:
     etag='-%03d'%i
-
     s_signum_encode('ewav'+etag,'code'+etag,'wav','',par)
     d_signum_encode('dcode'+etag,sht_list,'code'+etag,par)
-
     fdmod.awefd('edat'+etag,'swfl'+etag,'ewav'+etag,'smvel','den','sall','rr','dabc=y nb=100 '+iwindow,par)
-
     # Inject difference:
     Flow('dat_diff'+etag,['dcode'+etag,'edat'+etag],'add scale=1,-1 ${SOURCES[1]}')
-
     fdmod.awefd_rwfl('rwfl'+etag,'dat_diff'+etag,'smvel','den','rr','dabc=y nb=100 '+iwindow,par)
-
     Flow('img'+etag,['swfl'+etag,'rwfl'+etag],'xcor2d uu=${SOURCES[1]} axis=3 ')
-
     Result('img'+etag,fdmod.cgrey('pclip=99.9',par))
 
       
-
-
-
-
-
 Plot('ss','sall', fdmod.rrplot('rr',par))
-
-
-
-
-
-
 
 
 ######################################################################

@@ -194,12 +194,6 @@ int main (int argc, char* argv[])
     // read wavefield
     for (i3=0 ; i3<nt; i3++){ 
         for (i2=0 ; i2<nx; i2++){
-/*#ifdef _OPENMP
-#pragma omp parallel for	    \
-    private(i1,uaux)		    \
-    shared(i3,i2)
-#endif                
-*/
             for (i1=0 ; i1<nz; i1++){
                 sf_floatread(uaux,1,Fwfl);
                 uo[i3][i2][i1]=uaux[0];

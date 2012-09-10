@@ -2,8 +2,9 @@ from rsf.proj import *
 
 Program('sfadjsrc_mva','Madjsrc_mva.c')
 Program('sfadjsrc_mva2','Madjsrc_mva2.c')
+Program('sfadjsrc_mva2_omp','Madjsrc_mva2_omp.c')
 
-
+End()
 
 	
 	

@@ -5,21 +5,48 @@ except:
 import fdmod
 
 # ------------------------------------------------------------
+# BP 2004 benchmark model.
+#
+# Input files can be found at:
+# http://software.seg.org/datasets/2D/2004_BP_Vel_Benchmark/ 
+#
+# The license and terms can be found at:
+# http://software.seg.org/datasets/2D/2004_BP_Vel_Benchmark/2004_Benchmark_READMES.pdf 
+#
+# 
+#
+# This module is designed for transforming the segy's to
+# rsf, it also contains the geometry of the dataset 
+# , it builds the coordinate files suitable for migration
+# using sfawefd2d.
+#
+# Esteban Diaz
+# Center for Wave Phenomena
+# 2012.9
+# ------------------------------------------------------------
+
+
+
+
+
+
+# ------------------------------------------------------------
 # model parameters
 def param():
     par = {
-        'nx':5395,  'ox':0.000, 'dx':0.0125,  'lx':'x',       'ux':'km',
-        'ny':1,     'oy':0.000, 'dy':0.01250,  'ly':'y',       'uy':'km',
-        'nz':1911,  'oz':0,     'dz':0.00625,  'lz':'z',       'uz':'km',
-        'nt':2001,  'ot':0,     'dt':0.006,    'lt':'t',       'ut':'s',
+        'nx':5395,  'ox':0.000, 'dx':0.0125,   'lx':'x',       'ux':'km',
+        'ny':1,     'oy':0.000, 'dy':0.01250,  'ly':'y',      'uy':'km',
+        'nz':1911,  'oz':0,     'dz':0.00625,  'lz':'z',      'uz':'km',
+        'nt':2001,  'ot':0,     'dt':0.006,    'lt':'t',      'ut':'s',
         'nh':1201,  'oh':0.0,   'dh':0.0125,   'lh':'offset', 'uh':'km',
-        'ns':1348 , 'os':1.0,   'ds':0.050 ,   'ls':'offset', 'us':'km'
+        'ns':1348 , 'os':0.050, 'ds':0.050 ,   'ls':'offset', 'us':'km'
         }
     
     par['nb']=250
 
 
     return par
+
 
 # ------------------------------------------------------------
 def modpar(par):
@@ -56,48 +83,36 @@ def get_vellw(velo,par):
     migvelfile = 'data/bp2004/vel_z6.25m_x12.5m_lw.segy'
     #Fetch(velo,'sigsbee')
 
-    Flow([velo+'-raw',velo+'-t','./'+velo+'-h','./'+velo+'-b'],
+    Flow([velo],
          migvelfile,
          '''
          segyread
-         tape=$SOURCE
-         tfile=${TARGETS[1]}
-         hfile=${TARGETS[2]}
-         bfile=${TARGETS[3]}
-         ''',stdin=0)
-    
-    Flow(velo,
-         velo+'-raw',
-         '''
+         tape=$SOURCE | 
          scale rscale=0.001 |
          put
          o1=%(oz)g d1=%(dz)g label1=%(lz)s unit1=%(uz)s
          o2=%(ox)g d2=%(dx)g label2=%(lx)s unit2=%(ux)s
-         ''' %par )
+         ''' %par,stdin=0 )
+
+
 # ------------------------------------------------------------
 def get_velexact(velo,par):
 
     migvelfile = 'data/bp2004/vel_z6.25m_x12.5m_exact.segy'
     #Fetch(velo,'sigsbee')
 
-    Flow([velo+'-raw',velo+'-t','./'+velo+'-h','./'+velo+'-b'],
+    Flow([velo],
          migvelfile,
          '''
          segyread
-         tape=$SOURCE
-         tfile=${TARGETS[1]}
-         hfile=${TARGETS[2]}
-         bfile=${TARGETS[3]}
-         ''',stdin=0)
-    
-    Flow(velo,
-         velo+'-raw',
-         '''
+         tape=$SOURCE | 
          scale rscale=0.001 |
          put
          o1=%(oz)g d1=%(dz)g label1=%(lz)s unit1=%(uz)s
          o2=%(ox)g d2=%(dx)g label2=%(lx)s unit2=%(ux)s
-         ''' %par )
+         ''' %par,stdin=0 )
+
+
 # ------------------------------------------------------------
 def get_velexact_ns(velo,par):
 
@@ -146,6 +161,22 @@ def make_shots_0001_0200(shots,par):
         reverse opt=i which=2 |
         put o2=%(oh)g d2=%(dh)g n2=%(nh)g label2=%(lh)s 
         '''%par,stdin=0)
+# ------------------------------------------------------------
+def make_shots_0601_0800(shots,par):
+    data='data/bp2004/shots0601_0800.segy'
+    
+    Flow(shots,data,
+        '''
+        segyread tape=${SOURCES[0]} |
+        put o3=%(os)g d3=%(ds)g n3=200
+                                n2=%(nh)g 
+            o1=%(ot)g d1=%(dt)g n1=%(nt)d|
+        reverse opt=i which=2 |
+        put o2=%(oh)g d2=%(dh)g n2=%(nh)g label2=%(lh)s | 
+        '''%par+
+            '''
+        put o3=%g
+        '''%((600)*par['ds']+par['os']),stdin=0)
 
 
 # ------------------------------------------------------------
@@ -176,7 +207,7 @@ def make_rr(rr,shot,par):
         '''
         spike n1=%(nh)d d1=%(dh)g o1=%(oh)g | 
         rtoc | '''%par+'''
-        math output="real(%g-x1) +imag(0)"|
+        math output="real(%g-x1) +imag(0.0125)"|
         dd type=float |'''%xs+'''
         put n1=2 n2=%(nh)d 
         '''%par)
@@ -190,8 +221,11 @@ def make_ss(ss,shot,par):
         '''
         spike n1=1 | 
         rtoc | '''%par+'''
-        math output="real(%g) +imag(0)"|
+        math output="real(%g) +imag(0.0125)"|
         dd type=float |'''%xs+'''
         put n1=2 n2=1 
         '''%par)
 
+
+# ------------------------------------------------------------
+#def vel_cfl(vel,freq,par):

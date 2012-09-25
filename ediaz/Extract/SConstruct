@@ -1,0 +1,8 @@
+from rsf.proj import *
+
+Program('sfextract','Mextract.c')
+
+End()
+
+	
+	

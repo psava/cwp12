@@ -1,0 +1,142 @@
+# 
+from rsf.proj import *
+from rsf.recipes import fdmod,adcig,encode,wemig
+
+par = {
+    'nt':3001, 'dt':0.001, 'ot':0, 'lt':'t', 'ut':'s',     
+    'nx':501, 'dx':0.01,  'ox':0, 'lx':'x', 'ux':'km',
+    'ny':1,    'dy':0.01,  'oy':0, 'ly':'y', 'uy':'km',
+    'nz':301,  'dz':0.01, 'oz':0, 'lz':'z', 'uz':'km',
+    'kt':150,
+    'nb':150,
+    'jsnap_gr':25
+    }
+fdmod.param(par)
+# ------------------------------------------------------------
+# source
+par['xsou']=par['ox']+par['nx']/2*par['dx']
+par['zsou']=par['oz']
+
+
+# ------------------------------------------------------------
+# source
+fdmod.point('ss',par['xsou'],par['zsou'],par)
+Plot('ss',   fdmod.ssplot(' titlesz=12',par))
+
+# ------------------------------------------------------------
+# receivers
+fdmod.horizontal('rr',0,par)
+Plot('rr',fdmod.rrplot(' titlesz=12',par))
+
+
+# ------------------------------------------------------------
+# wavelet
+fdmod.wavelet('wav_',12,par)
+Flow(  'wav', 'wav_','transp')
+
+Result('wav','window n2=500 |'+fdmod.waveplot(' titlesz=12',par))
+
+# ------------------------------------------------------------
+# data mask
+par['xk']=150
+par['xl']=par['nx']-par['xk']
+
+Flow('dmask',None,
+     '''
+     spike nsp=1 mag=1
+     n1=%(nx)d d1=%(dx)g o1=%(ox)g k1=%(xk)d l1=%(xl)d
+     n2=%(nt)d d2=%(dt)g o2=%(ot)g |
+     smooth rect1=50  repeat=10
+     ''' % par)
+
+Result('dmask','transp |'+fdmod.dgrey('pclip=99 titlesz=12',par))
+
+
+
+
+
+# Velocity files
+
+par['vc'] = 2.2 # correct velocity
+par['zc'] = par['oz']+0.5*(par['nz']-1)*par['dz']
+
+par['vl']= 0.8
+par['vh']= 1.2 
+
+
+par['vb'] = 3.0 # hard boundary
+
+
+
+
+Flow('vel-C',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g 
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g
+  '''%par+
+  '''
+  output="x1-%g" | 
+  '''%(par['zc'])+
+  '''
+  mask max=0 |
+  dd type=float |
+  math output="input*%(vc)g +(1-input)*%(vb)g"
+  '''%par
+  )
+
+
+Flow('vel-L',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g 
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g
+  '''%par+
+  '''
+  output="x1-%g" | 
+  '''%(par['zc']*(2-par['vl']))+
+  '''
+  mask max=0 |
+  dd type=float |
+  math output="input*%(vc)g*%(vl)g +(1-input)*%(vb)g"
+  '''%par
+  )
+
+def corr_dat(corr,us,ur,cc,par,nht=1,nhx=0,nhz=0):
+
+  uswfl = us +'wfl'
+  urwfl = ur +'wfl'
+  m8r   = '$RSFROOT/bin/sf'
+
+  Flow(corr,[us,ur,cc],
+    ''' 
+    spray axis=1 n=1 o=%g d=%g > %s ;  
+    '''%(par['oz'],par['dz'],uswfl)+
+    '''
+    %sspray axis=1 n=1 o=%g d=%g <${SOURCES[1]} > %s ;
+    '''%(m8r,par['oz'],par['dz'],urwfl)+
+    '''
+    %slaps2d  < %s ur=%s cc=${SOURCES[2]} nht=%d nhx=%d nhz=%d verb=y> ${TARGETS[0]} ;
+    '''%(m8r,uswfl,urwfl,nht,nhx,nhz)+
+    '''
+    %srm %s %s
+    '''%(m8r,uswfl,urwfl),stdout=0) 
+
+
+
+mute='''
+  |put o1=%g |transp| 
+  mutter half=n tp=0.150 t0=0.4 v0=2 x0=0 abs=y|transp 
+  |put o1=%g
+  '''%(-1*par['xsou'],par['ox'])
+
+
+fdmod.awefd_data('dat-C','wav','vel-C','vel-C','ss','rr','cden=y dabc=y nb=200 '+mute,par)
+fdmod.awefd_data('dat-L','wav','vel-L','vel-L','ss','rr','cden=y dabc=y nb=200 '+mute,par)
+
+
+corr_dat('corr-t','dat-C','dat-L','rr',par,nht=800,nhx=0)
+corr_dat('corr-tx','dat-C','dat-L','rr',par,nht=800,nhx=100)
+
+
+
+
+End()

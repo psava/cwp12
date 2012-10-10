@@ -1,0 +1,151 @@
+1.4-svn	sfspike	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.001
+	n1=3001
+	in="stdin"
+
+1.4-svn	sfpad	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	n1=6002
+	in="stdin"
+
+1.4-svn	sfricker1	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sfwindow	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.001
+	n1=3001
+	in="stdin"
+
+1.4-svn	sfscale	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sfput	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	data_format="native_float"
+	in="/var/tmp/ediaz/FWI/corr_test/wav_.rsf@"
+	label1=t
+1.4-svn	sftransp	ediaz/FWI/corr_test:	ediaz@Estebans-MacBook-Pro.local	Tue Oct  9 21:03:49 2012
+
+	d2=0.001
+	n2=3001
+	o2=0
+	data_format="native_float"
+	label2="t"
+	esize=4
+	in="/var/tmp/ediaz/FWI/corr_test/wav.rsf@"
+	unit2="s"
+	n1=1
+1.4-svn	sfawefd2d	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:06 2012
+
+	d2=0.001
+	n2=3001
+	o1=0
+	o2=0
+	label1="r"
+	data_format="native_float"
+	label2="t"
+	esize=4
+	in="stdout"
+	unit1=""
+	unit2="s"
+	d1=0.01
+	n1=501
+	in="stdin"
+
+1.4-svn	sfput	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:06 2012
+
+	data_format="native_float"
+	o1=-2.505
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sftransp	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:06 2012
+
+	o1=0
+	d2=0.01
+	n2=501
+	label1="t"
+	o2=-2.505
+	data_format="native_float"
+	label2="r"
+	esize=4
+	in="stdout"
+	unit1="s"
+	unit2=""
+	d1=0.001
+	n1=3001
+	in="stdin"
+
+1.4-svn	sfmutter	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:20 2012
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.4-svn	sftransp	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:20 2012
+
+	o1=-2.505
+	d2=0.001
+	n2=3001
+	label1="r"
+	o2=0
+	data_format="native_float"
+	label2="t"
+	esize=4
+	in="stdout"
+	unit1=""
+	unit2="s"
+	d1=0.01
+	n1=501
+	in="stdin"
+
+1.4-svn	sfput	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:42:20 2012
+
+	data_format="native_float"
+	o1=0
+	in="/var/tmp/ediaz/FWI/corr_test/dat-L.rsf@"
+1.4-svn	sfspray	ediaz/FWI/corr_test:	ediaz@wl-dhcp206-20.mines.edu	Wed Oct 10 09:49:37 2012
+
+	d2=0.01
+	n2=501
+	o1=0
+	d3=0.001
+	n3=3001
+	o2=0
+	data_format="native_float"
+	n4=1
+	o3=0
+	label2="r"
+	label3="t"
+	esize=4
+	in="/var/tmp/ediaz/FWI/corr_test/dat-Lwfl@"
+	unit2=""
+	unit3="s"
+	d1=0.01
+	n1=1
